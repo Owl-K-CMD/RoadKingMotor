@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react'
 import motoract from './cars'
 import style from './module/style.module.css'
+//import { useNavigate } from 'react-router-dom'
+import Brand from './brand'
+
 
 
 
@@ -10,7 +13,8 @@ const App = () => {
 
   const [cars, setCars] = useState([])
   const [showAll, setShowAll] = useState('')
-
+  //const [name, setName] = useState('')
+ // const navigate = useNavigate()
 
 
 
@@ -36,20 +40,44 @@ const App = () => {
       })
     }, []);
 
+
+
     const filtercar = cars.filter(car => car.name.toLowerCase().includes(showAll.toLowerCase()));
+    const uniqueCarNames = [...new Set(cars.map(car => car.name).filter(name => name))];
+
 
   return (
   <div>
-    <div >ROAD KING MOTOR</div>
+    <div className={style.title}>ROAD KING MOTOR</div>
     <img src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/amarula2.jpeg"/>
+    
+ 
+ <div className={style.search}>
+  <button
+  className= {style.newbutton}
+  onClick = {() => setShowAll('')}
+  >
+  Show All cars
+  </button>
 
+</div>
+
+{uniqueCarNames.map((name) => (
+      <button key = {name}
+      className= {style.navbutton}
+      onClick = {() => setShowAll(name)}>
+        {name}
+      </button>
+    
+        ))}
     <div className={style.filter}>
      
      {filtercar.length > 0 ? (
   filtercar.map(car => (
     <div key={car._id} className={style.carproparty} >
         <p>{car.image && <img src = {car.image} alt={car.name}
-     style={{maxWidth: '200px', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>} </p>
+     style={{maxWidth: '200px', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
+      </p>
      <p>{car.name} </p>
     <p>{car.price}  </p> 
     <p> {car.currency}</p> 
@@ -62,6 +90,8 @@ const App = () => {
     <div>No car here</div>
   )
  }
+
+<Brand />
 
     </div>
 

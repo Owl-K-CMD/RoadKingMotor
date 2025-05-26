@@ -1,0 +1,31 @@
+.svg{
+  height:15px;
+  width: 15px;
+  
+}
+
+.buttonsvg{
+    all: unset;
+  cursor: pointer;
+}
+
+.formnewcar{ border: 5px solid;
+  border-image: linear-gradient(
+    200deg,
+    blue,
+    olive,
+    red,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet,
+    indigo,
+    white,
+    black,
+    gold,
+    maroon,
+    cyan
+  ) 1;
+}

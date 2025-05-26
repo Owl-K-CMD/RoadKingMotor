@@ -10,10 +10,14 @@ const getAll = () => {
 };
 
 const create = newObject => {
-  const request = axios.post(baseUrl, newObject)
-  return request.then(response => response.data)
+  const config = {
+    headers: { 'Content-Type': 'multipart/form-data' }
+    };
+    const request = axios.post(baseUrl, newObject, config);
   
+  return request.then(response => response.data)
 };
+
 
 const deleteMotor = id => {
   const request = axios.delete(`${baseUrl}/${id}`)
