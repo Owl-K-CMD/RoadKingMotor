@@ -3,7 +3,7 @@
   "car": [
     {
   "image": "https://roadkingmoor.s3.eu-north-1.amazonaws.com/amarula2.jpeg",
-  "name": "Nissan",
+  "brand": "Nissan",
   "price": "243223",
   "currency": "usd",
   "dateOfRelease": "1990",

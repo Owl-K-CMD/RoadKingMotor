@@ -10,13 +10,6 @@ const [ carDetails, setCarDetails ] = useState(null);
 const [ loading, setLoading ] = useState(true);
 const [ error, setError ] = useState(null);
 
-/*
-useEffect((name) => {
-brandpage.getByName(name)
-.then((response) => response.json())
-.then((data) => setCar(data));
-}, [brand]);
-*/
 
 
 useEffect(() => {
@@ -68,14 +61,26 @@ useEffect(() => {
       </div>
 
       <div>
-      <h1>Details for {carDetails.name || brand}</h1>
+      <h1>Details for {carDetails.brand || brand}</h1>
       <div className="border p-4 rounded shadow">
         {/* Example: Displaying properties of carDetails. Adjust to your data structure. */}
         {carDetails.image && <img src={carDetails.image} alt={carDetails.name || brand} style={{maxWidth: '300px', display: 'block', margin: 'auto'}} />}
-        <p><strong>Model:</strong> {carDetails.model || carDetails.name}</p>
-        <p><strong>Price:</strong> {carDetails.price} {carDetails.currency}</p>
-        <p><strong>Year:</strong> {carDetails.dateOfRelease}</p>
-        <p><strong>Description:</strong> {carDetails.description}</p>
+        <p><strong>Brand:</strong> {carDetails.brand}</p>
+        <p><strong>Model:</strong> {carDetails.model }</p>
+        <p><strong>Price:</strong> {carDetails.price} </p>
+        <p><strong>Year:</strong> {carDetails.year}</p>
+        <p><strong>Made In</strong> {carDetails.madeIn}</p>
+        <p><strong>Mileage:</strong> {carDetails.mileage}</p>
+        <p><strong>Fuel Type:</strong> {carDetails.fuelType}</p>
+        <p><strong>Transmission:</strong> {carDetails.transmission}</p>
+        <p><strong>Body Type</strong> {carDetails.bodyType}</p>
+        <p><strong>Color:</strong> {carDetails.color}</p>
+        <p><strong>Seats</strong> {carDetails.seats}</p>
+        <p><strong>Doors:</strong> {carDetails.doors}</p>
+        <p><strong>Engine size:</strong> {carDetails.engineSize}</p>
+        <p><strong>Status:</strong> {carDetails.status}</p>
+        <p><strong>Created at</strong> {carDetails.createdAt}</p>
+        <p><strong>Other Details:</strong> {carDetails.otherDescription}</p>
       </div>
     </div>
   

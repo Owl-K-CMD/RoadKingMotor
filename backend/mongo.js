@@ -19,12 +19,23 @@ mongoose.connect(url)
   })
 
   const motorSchema =new mongoose.Schema({
-    image: { type: String, required: true},
-    name: {type: String, required: true},
-    price: {type: Number, required: true},
-    currency: {type: String, required: true},
-    dateOfRelease: {type: String, required: true},
-    description: {type: String, required: true},
+  images: {type: String, required: true},
+  brand: {type: String, required: true},
+  model: {type: String, required: true},
+  price: {type: Number, required: true},
+  year: {type: Number, required: true},
+  madeIn: {type: String, required: true},
+  mileage: {type: Number, required: true},
+  fuelType: {type: String, required: true},
+  transmission: {type: String, required: true},
+  bodyType: {type: String, required: true},
+  color: {type: String, required: true},
+  seats: {type: Number, required: true},
+  doors: {type: Number, required: true},
+  engineSize: {type: String, required: true},
+  status: { type: String, default: 'pending' },
+  createdAt: { type: Date, default: Date.now },
+  otherDescription: {type: String, required: false},
   })
 
   const Motor = mongoose.model('Motor', motorSchema)

@@ -1,0 +1,45 @@
+
+{ 
+  "cars": [
+{
+    "_id": "6835c2abcb1fd76aa48b88e5",
+    "images": "https://roadkingmoor.s3.eu-north-1.amazonaws.com/1748353702091-hyundai tucson.jpeg",
+    "brand": "Hyundai",
+    "model": "Hyundai Tucson",
+    "price": 15000000,
+    "year": 2020,
+    "madeIn": " South Korea",
+    "mileage": 1500,
+    "fuelType": "Super",
+    "transmission": "18k",
+    "bodyType": "SUV",
+    "color": "Silver",
+    "seats": 7,
+    "doors": 5,
+    "engineSize": "5",
+    "status": "Availble",
+    "createdAt": "2025-05-27T00:00:00.000Z",
+    "id": "6835c2abcb1fd76aa48b88e5"
+  },
+  {
+    "_id": "6835cd9ccb1fd76aa48b88fd",
+    "images": "https://roadkingmoor.s3.eu-north-1.amazonaws.com/1748356497509-Toyota prius.jpeg",
+    "brand": "Toyota",
+    "model": "Toyota prius",
+    "price": 1000000,
+    "year": 2019,
+    "madeIn": "Japan",
+    "mileage": 0,
+    "fuelType": "Hybrid",
+    "transmission": "right",
+    "bodyType": "Sedan",
+    "color": "black",
+    "seats": 7,
+    "doors": 5,
+    "engineSize": "8",
+    "status": "sold",
+    "createdAt": "2025-05-27T00:00:00.000Z",
+    "id": "6835cd9ccb1fd76aa48b88fd"
+  }
+  ]
+}

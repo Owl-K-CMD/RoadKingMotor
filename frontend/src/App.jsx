@@ -42,8 +42,8 @@ const App = () => {
 
 
 
-    const filtercar = cars.filter(car => car.name.toLowerCase().includes(showAll.toLowerCase()));
-    const uniqueCarNames = [...new Set(cars.map(car => car.name).filter(name => name))];
+    const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
+    const uniqueCarNames = [...new Set(cars.map(car => car.brand).filter(brand => brand))];
 
 
   return (
@@ -62,11 +62,11 @@ const App = () => {
 
 </div>
 
-{uniqueCarNames.map((name) => (
-      <button key = {name}
+{uniqueCarNames.map((brand) => (
+      <button key = {brand}
       className= {style.navbutton}
-      onClick = {() => setShowAll(name)}>
-        {name}
+      onClick = {() => setShowAll(brand)}>
+        {brand}
       </button>
     
         ))}
@@ -75,15 +75,25 @@ const App = () => {
      {filtercar.length > 0 ? (
   filtercar.map(car => (
     <div key={car._id} className={style.carproparty} >
-        <p>{car.image && <img src = {car.image} alt={car.name}
+        <p>{car.images && <img src = {car.images} alt={car.model}
      style={{maxWidth: '200px', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
       </p>
-     <p>{car.name} </p>
-    <p>{car.price}  </p> 
-    <p> {car.currency}</p> 
-    <p>{car.dateOfRelease} </p>
-    <p> {car.description}</p>
-    
+     <p>{car.brand} </p>
+     <p>{car.model} </p>
+    <p>{car.price}  rwf</p> 
+    <p>{car.year} </p>
+    <p>{car.madeIn}</p>
+    <p>{car.mileage}</p>
+    <p>{car.fuelType}</p>
+    <p>{car.bodyType}</p>
+    <p>{car.transmission}</p>
+    <p>{car.color}</p>
+    <p>{car.seats}</p>
+    <p>{car.doors}</p>
+    <p>{car.engineSize}</p>
+    <p>{car.status}</p>
+    <p>{car.createdAt}</p>
+    <p>{car.otherDescription}</p>
     
  </div>))
   ) : (

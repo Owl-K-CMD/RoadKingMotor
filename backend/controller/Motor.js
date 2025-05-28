@@ -76,14 +76,24 @@ if (!file) {
 
 
   const motor = new Motor ({
-    //image: s3Result.Location,
-    image: imageUrl,
-    name : body.name,
+    images: imageUrl,
+    brand : body.brand,
+    model : body.model,
     price : body.price,
-    currency : body.currency,
-    dateOfRelease : body.dateOfRelease,
-    description: body.description
-  })
+    year: body.year,
+    madeIn: body.madeIn,
+    mileage : body.mileage,
+    fuelType : body.fuelType,
+    transmission : body.transmission,
+    bodyType : body.bodyType,
+    color : body.color,
+    seats : body.seats,
+    doors : body.doors,
+    engineSize: body.engineSize,
+    status: body.status,
+    createdAt: body.createdAt,
+    otherDescription: body.otherDescription
+ })
 
 const savedMotor= await motor.save()
   response.status(201).json(savedMotor)
@@ -96,26 +106,45 @@ catch(error) {
 
 })
 
-motorsRouter.delete('/:id', (request, response, next) => {
-  Motor.findByIdAndDelete(request.params.id)
-  then(() => {
+motorsRouter.delete('/:id', async(request, response) => {
+  await Motor.findByIdAndDelete(request.params.id)
     response.status(204).end()
-  })
-  .catch(error => next(error))
 })
 motorsRouter.put('/:id', (request, response,next) => {
-  const {image, name, price, currency, dateOfRelease, description} = request.body
+  const { images,
+     brand, model,
+     price, year,
+     madeIn, mileage,
+     fuelType, transmission,
+     bodyType, color,
+     seats, doors,
+     engineSize,
+     status,
+     createdAt,
+     otherDescription } = request.body
 
   Motor.findById(request.params.id).then(motor => {
     if (!motor) {
       return response.status(404).end()
     }
-    motor.image = image
-    motor.name = name
+    motor.images = images
+    motor.brand = brand
+    motor.model = model
     motor.price = price
-    motor.currency = currency
-    motor.dateOfRelease = dateOfRelease
-    motor.description = description
+    motor.year = year
+    motor.madeIn = madeIn
+    motor.mileage = mileage
+    motor.fuelType = fuelType
+    motor.transmission = transmission
+    motor.bodyType = bodyType
+    motor.color = color
+    motor.seats = seats
+    motor.doors = doors
+    motor.engineSize = engineSize
+    motor.status = status
+    motor.createdAt = createdAt
+    motor.otherDescription = otherDescription
+    
 
 
 

@@ -2,11 +2,26 @@ import { useEffect, useState } from 'react'
 import motoractadmin from './carsAdmin.js'
 import Newcar from './newcar.jsx'
 import style from './style.module.css'
+import Button from './button.jsx'
+//import { set } from 'mongoose'
+
+
+const Notification = ({ message, className }) => {
+  if (message === null) {
+    return null;
+  }
+  return (< div className = { className || "error"}>
+    {message}
+  </div> 
+)
+}
 
 
 const App = () => {
 
   const [cars, setCars] = useState([])
+  const [errorMessage, SetErrorMessage] = useState(null)
+
 
   useEffect(() => {
     motoractadmin.getAll()
@@ -26,47 +41,81 @@ const App = () => {
 
       .catch(error => {
        console.error("Error fetching data:", error);
-      //alert("Error fetching data. Please try again later.");
+        //alert("Error fetching data. Please try again later.");
       })
     }, []);
 
-    const DisplayCars = () => {
-
-    }
 
 
+      // const filtercar = cars.filter(car => car.model.toLowerCase().includes(showAll.toLowerCase()));
 
-    const updateCars = () => {
-
-    }
-
-    const deleteCars = () => {
-
-    }
-
-    const filtercar = cars.filter(car => car.name.toLowerCase())
+const handleDelete = (id) => {
+  const car = cars.find(p => p._id === id);
+  console.log('car find first:', car)
+  if (!car) {
+    console.error(`Car with ID ${id} not found.`);
+    console.log('car return :', car);
+    return;
+  }
+  const confirmDelete = window.confirm(`Delete ${car.model}?`);
+  if (confirmDelete) {
+    motoractadmin
+      .deleteMotor(id)
+      .then(() => {
+        setCars(cars.filter(p => p._id !== id));
+        
+      })
+    
+    
+      .catch(error => {
+        console.error("Error deleting car:", error);
+        SetErrorMessage(
+          `Information of ${car.model} has already been removed from server`
+        );
+        setTimeout(() => {
+          SetErrorMessage(null)
+        }, 10000)
+        setCars(cars.filter(n => n._id !== id))
+      })
+  }
+  }
+ 
   return (
     <div>
 <h1>Road king motor admin dashboard </h1>
+
+ <Notification message = {errorMessage} className={style.error}/>
+
 <table>
   <thead>
     <tr>
       <th>Image</th>
-      <th>Name</th>
+      <th>brand</th>
+      <th>Model</th>
       <th>Price</th>
-      <th>Currency</th>
-      <th>Date of Release</th>
-      <th>Description</th>
+      <th>Year</th>
+      <th>Made in</th>
+      <th>Mileage</th>
+      <th>Fuel type</th>
+      <th>Transmission</th>
+      <th>Body Type</th>
+      <th>Color</th>
+      <th>Seats</th>
+      <th>Doors</th>
+      <th>Engine size</th>
+      <th>Status</th>
+      <th>Created at</th>
+      <th>Other details</th>
     </tr>
   </thead>
   <tbody>
-    {filtercar.length > 0 ? (
-      filtercar.map(car => (
-        <tr key={car._id} className={style.carproparty}>
+    {cars.length > 0 ? (
+      cars.map(car => (        
+        <tr key={car._id || Math.random()}className={style.carproparty}>
           <td>
-            {car.image && (
+            {car.images && (
               <img
-                src={car.image}
+                src={car.images}
                 alt={car.name}
                 style={{
                   maxWidth: '50px',
@@ -77,18 +126,34 @@ const App = () => {
               />
             )}
           </td>
-          <td>{car.name}</td>
-          <td>{car.price}rwf</td>
-          <td>{car.currency}</td>
-          <td>{car.dateOfRelease}</td>
-          <td>{car.description}</td>
-          <td><button className={style.buttonsvg}><img className={style.svg} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-edit-50.png"/></button></td>
-          <td><button className={style.buttonsvg}><img className={style.svg} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-delete-30.png"/></button></td>
+          <td>{car.brand}</td>
+          <td>{car.model}</td>
+          <td>{car.price} rwf</td>
+          <td>{car.year}</td>
+          <td>{car.madeIn}</td>
+          <td>{car.mileage} km</td>
+          <td>{car.fuelType}</td>
+          <td>{car.transmission}</td>
+          <td>{car.bodyType}</td>
+          <td>{car.color}</td>
+          <td>{car.seats}</td>
+          <td>{car.doors}</td>
+          <td>{car.engineSize}</td>
+          <td>{car.status}</td>
+          <td>{car.createdAt}</td>
+          <td>{car.otherDetails}</td>
+          <td><button
+           className={style.buttonsvg}>
+          <img className={style.svg}
+           src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-edit-50.png"/> </button></td>
+          <td><Button className={style.buttonsvg} id = {car._id} handleDelete ={handleDelete}
+            
+          /></td>
         </tr>
       ))
     ) : (
-      <tr>
-        <td colSpan="6" style={{ textAlign: 'center' }}>
+      <tr >
+        <td  colSpan="18" style={{ textAlign: 'center' }}>
           No car here
         </td>
       </tr>
