@@ -4,6 +4,7 @@ import motoract from './cars'
 import style from './module/style.module.css'
 //import { useNavigate } from 'react-router-dom'
 import Brand from './brand'
+import Message from './message.jsx'
 
 
 
@@ -13,10 +14,7 @@ const App = () => {
 
   const [cars, setCars] = useState([])
   const [showAll, setShowAll] = useState('')
-  //const [name, setName] = useState('')
- // const navigate = useNavigate()
-
-
+  const [expandedCarIds, setExpandedCarIds] = useState([])
 
    useEffect(() => {
     motoract.getAll()
@@ -40,6 +38,11 @@ const App = () => {
       })
     }, []);
 
+const toggleDetails = (id) => {
+  setExpandedCarIds(prev =>
+    prev.includes(id) ? prev.filter(carId => carId !== id) : [...prev, id]
+  );
+};
 
 
     const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
@@ -49,9 +52,32 @@ const App = () => {
   return (
   <div>
     <div className={style.title}>ROAD KING MOTOR</div>
-    <img src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/amarula2.jpeg"/>
-    
  
+ <div className= {style.navbartop}>
+
+      <button className = {style.navbuttonhome}>
+      <img className= {style.home} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-home-48.png" 
+      alt="home" /> </button>
+ <button className= {style.navbuttonmyaccount}>
+   <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
+    alt = "myaccount" />  </button>
+ <button className = {style.navbuttonaddtocart}>
+   <img className = {style.addtocart} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
+    alt="addtocart"/> </button>
+
+<button className= {style.settingsbutton}>
+  <img className={style.settings}
+   src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-settings-48.png"
+  alt = "settings"/>
+</button>
+<button className={style.chatbutton}>
+  <img className={style.chat}
+   src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
+  alt = "chat"/>
+</button>
+
+ </div>
+
  <div className={style.search}>
   <button
   className= {style.newbutton}
@@ -60,9 +86,8 @@ const App = () => {
   Show All cars
   </button>
 
-</div>
 
-{uniqueCarNames.map((brand) => (
+{ uniqueCarNames.map((brand) => (
       <button key = {brand}
       className= {style.navbutton}
       onClick = {() => setShowAll(brand)}>
@@ -70,17 +95,23 @@ const App = () => {
       </button>
     
         ))}
+     </div>
     <div className={style.filter}>
      
      {filtercar.length > 0 ? (
-  filtercar.map(car => (
+  filtercar.map(car => {
+        const isExpanded = expandedCarIds.includes(car._id);
+        return (
     <div key={car._id} className={style.carproparty} >
         <p>{car.images && <img src = {car.images} alt={car.model}
-     style={{maxWidth: '200px', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
+     style={{maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
       </p>
      <p>{car.brand} </p>
      <p>{car.model} </p>
-    <p>{car.price}  rwf</p> 
+    <p>{car.price}  rwf</p>
+
+    {isExpanded && (
+      <div>
     <p>{car.year} </p>
     <p>{car.madeIn}</p>
     <p>{car.mileage}</p>
@@ -94,8 +125,17 @@ const App = () => {
     <p>{car.status}</p>
     <p>{car.createdAt}</p>
     <p>{car.otherDescription}</p>
-    
- </div>))
+    </div>
+    )}
+    <div className={style.newbutton}>
+        <button onClick={() => toggleDetails(car._id)} className={style.hideAndShowButton}>
+          {isExpanded ? "Hide details" : "Show more"}
+        </button>
+<button>Buy now</button>
+<button>Contact seller</button></div>
+<Message />
+ </div>);
+ })
   ) : (
     <div>No car here</div>
   )

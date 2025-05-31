@@ -21,6 +21,8 @@ const App = () => {
 
   const [cars, setCars] = useState([])
   const [errorMessage, SetErrorMessage] = useState(null)
+  const [showNewCarForm, setShowNewCarForm] = useState(false)
+ 
 
 
   useEffect(() => {
@@ -44,10 +46,9 @@ const App = () => {
         //alert("Error fetching data. Please try again later.");
       })
     }, []);
-
-
-
-      // const filtercar = cars.filter(car => car.model.toLowerCase().includes(showAll.toLowerCase()));
+  const toggleNewCarForm = () => {
+    setShowNewCarForm(!showNewCarForm);
+  };
 
 const handleDelete = (id) => {
   const car = cars.find(p => p._id === id);
@@ -82,66 +83,70 @@ const handleDelete = (id) => {
  
   return (
     <div>
-<h1>Road king motor admin dashboard </h1>
+<h1 className="text-4xl font-extrabold text-center my-8 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Road king motor admin dashboard </h1>
+
 
  <Notification message = {errorMessage} className={style.error}/>
 
-<table>
-  <thead>
+
+<table className=" text-sm text-left text-gray-500 dark:text-gray-400" >
+  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
     <tr>
-      <th>Image</th>
-      <th>brand</th>
-      <th>Model</th>
-      <th>Price</th>
-      <th>Year</th>
-      <th>Made in</th>
-      <th>Mileage</th>
-      <th>Fuel type</th>
-      <th>Transmission</th>
-      <th>Body Type</th>
-      <th>Color</th>
-      <th>Seats</th>
-      <th>Doors</th>
-      <th>Engine size</th>
-      <th>Status</th>
-      <th>Created at</th>
-      <th>Other details</th>
+      <th scope="col" className="py-3 px-2">Image</th>
+      <th scope="col" className="py-3 px-2">brand</th>
+      <th scope="col" className="py-3 px-2">Model</th>
+      <th scope="col" className="py-3 px-2">Price</th>
+      <th scope="col" className="py-3 px-2">Year</th>
+      <th scope="col" className="py-3 px-2">Made in</th>
+      <th scope="col" className="py-3 px-2">Mileage</th>
+      <th scope="col" className="py-3 px-2">Fuel type</th>
+      <th scope="col" className="py-3 px-2">Transmission</th>
+      <th scope="col" className="py-3 px-2">Body Type</th>
+      <th scope="col" className="py-3 px-2">Color</th>
+      <th scope="col" className="py-3 px-2">Seats</th>
+      <th scope="col" className="py-3 px-2">Doors</th>
+      <th scope="col" className="py-3 px-2">Engine size</th>
+      <th scope="col" className="py-3 px-2">Status</th>
+      <th scope="col" className="py-3 px-2">Created at</th>
+      <th scope="col" className="py-3 px-2">Other details</th>
     </tr>
   </thead>
   <tbody>
     {cars.length > 0 ? (
       cars.map(car => (        
-        <tr key={car._id || Math.random()}className={style.carproparty}>
-          <td>
+        <tr key={car._id || Math.random()}
+        className="dark:border-gray-700 odd:bg-green-100 even:bg-blue-50 dark:odd:bg-green-400/50 dark:even:bg-blue-800/20 hover:bg-gray-200 dark:hover:bg-gray-700">
+
+          <td className="py-4 px-6">
             {car.images && (
-              <img
+              <img  
                 src={car.images}
                 alt={car.name}
                 style={{
-                  maxWidth: '50px',
-                  maxHeight: '50px',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
                   display: 'block',
                   margin: '0 auto'
                 }}
               />
             )}
           </td>
-          <td>{car.brand}</td>
-          <td>{car.model}</td>
-          <td>{car.price} rwf</td>
-          <td>{car.year}</td>
-          <td>{car.madeIn}</td>
-          <td>{car.mileage} km</td>
-          <td>{car.fuelType}</td>
-          <td>{car.transmission}</td>
-          <td>{car.bodyType}</td>
-          <td>{car.color}</td>
-          <td>{car.seats}</td>
-          <td>{car.doors}</td>
-          <td>{car.engineSize}</td>
-          <td>{car.status}</td>
-          <td>{car.createdAt}</td>
-          <td>{car.otherDetails}</td>
+          <td >{car.brand}</td>
+          <td >{car.model}</td>
+          <td >{car.price} rwf</td>
+          <td >{car.year}</td>
+          <td >{car.madeIn}</td>
+          <td >{car.mileage} km</td>
+          <td >{car.fuelType}</td>
+          <td >{car.transmission}</td>
+          <td >{car.bodyType}</td>
+          <td >{car.color}</td>
+          <td >{car.seats}</td>
+          <td >{car.doors}</td>
+          <td >{car.engineSize}</td>
+          <td >{car.status}</td>
+          <td >{car.createdAt}</td>
+          <td >{car.otherDetails}</td>
           <td><button
            className={style.buttonsvg}>
           <img className={style.svg}
@@ -152,7 +157,7 @@ const handleDelete = (id) => {
         </tr>
       ))
     ) : (
-      <tr >
+      <tr  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
         <td  colSpan="18" style={{ textAlign: 'center' }}>
           No car here
         </td>
@@ -160,8 +165,13 @@ const handleDelete = (id) => {
     )}
   </tbody>
 </table>
-<button className={style.buttonaddnewcar}>Add new car</button>
-<Newcar />
+
+<button onClick = {toggleNewCarForm }
+ className="mt-6 mb-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition ease-in-out duration-150"
+ >
+  {showNewCarForm ? 'Cancel' : 'Add new car'}
+ </button>
+{showNewCarForm && <Newcar />}
     </div>
   )
 }

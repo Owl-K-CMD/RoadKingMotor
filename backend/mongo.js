@@ -38,11 +38,25 @@ mongoose.connect(url)
   otherDescription: {type: String, required: false},
   })
 
+  const messageSchema = new mongoose.Schema({
+    sender: { type:mongoose.Schema.Types.ObjectId, ref: 'User',  required: true},
+    content: { type: String, required: true},
+    createdAt: { type: Date, default: Date.now },
+  })
+
   const Motor = mongoose.model('Motor', motorSchema)
+  const Message = mongoose.model('Message', messageSchema)
+
 
   Motor.find({}).then(result => {
     result.forEach(motor => {
       console.log(motor)
+    })
+
+    Message.find({}).then(result => {
+      result.forEach(message => {
+        console.log(message)
+      })
     })
     mongoose.connection.close()
   })

@@ -20,7 +20,7 @@ const s3Client = new S3Client({
 
 
 motorsRouter.get('/', (request, response) => {
-  const name = request.query.name
+  const motors = request.query.motors
 
   Motor.find({}).then(motors => {
     response.json(motors)

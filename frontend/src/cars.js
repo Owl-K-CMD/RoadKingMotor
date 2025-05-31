@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const baseUrl  = '/api/motors'
 
+
 const getAll = () => {
   const request = axios.get(baseUrl)
   console.log('baseurl is', baseUrl)
@@ -24,5 +25,11 @@ const getByName = name => {
   const request = axios.get(`${baseUrl}/${name}`)
   return request.then(response => response.data)
 };
+// for Message and chat
 
-export default {getAll, create, deleteMotor, getByName }
+
+export default {
+  getAll,
+   create,
+   deleteMotor,
+   getByName}

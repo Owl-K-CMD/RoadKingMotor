@@ -20,12 +20,15 @@ const mongoose = require('mongoose')
   otherDescription: {type: String, required: false},
     })
 
+
+    
+
 motorSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
-    //delete returnedObject._id
+    delete returnedObject._id
     delete returnedObject.__v
   }
 })
 
-module.exports = mongoose.model('motor', motorSchema)
+module.exports = mongoose.model('motor', motorSchema )

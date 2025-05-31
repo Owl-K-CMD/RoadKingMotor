@@ -17,3 +17,22 @@ align-items: center;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 
 }
+
+.search{
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  padding: 2px;
+}
+
+.navbartop{
+float: right;
+top: 2px;
+  padding: 3px;
+}
+
+.newButton{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

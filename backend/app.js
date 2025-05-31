@@ -5,6 +5,9 @@ const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 const motorsRouter = require('./controller/Motor')
+const messageRouter = require('./controller/Message')
+const usersRouter = require('./controller/User')
+
 
 const app = express()
 
@@ -24,6 +27,10 @@ app.use(express.json())
 app.use(middleware.requestLogger)
 
 app.use('/api/motors', motorsRouter)
+app.use('/api/messages', messageRouter)
+app.use('/api/user', usersRouter)
+
+
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
