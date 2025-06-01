@@ -15,6 +15,8 @@ const App = () => {
   const [cars, setCars] = useState([])
   const [showAll, setShowAll] = useState('')
   const [expandedCarIds, setExpandedCarIds] = useState([])
+  const [isChatVisible, setIsChatVisible] = useState(false)
+  const [chatTargetCar, setChatTargetCar] = useState(null)
 
    useEffect(() => {
     motoract.getAll()
@@ -44,6 +46,15 @@ const toggleDetails = (id) => {
   );
 };
 
+const handleOpenChat = (car) => {
+  setChatTargetCar(car);
+  setIsChatVisible(true);
+};
+
+const handleCloseChat = () => {
+  setIsChatVisible(false);
+  setChatTargetCar(null)
+}
 
     const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
     const uniqueCarNames = [...new Set(cars.map(car => car.brand).filter(brand => brand))];
@@ -99,10 +110,10 @@ const toggleDetails = (id) => {
     <div className={style.filter}>
      
      {filtercar.length > 0 ? (
-  filtercar.map(car => {
+  filtercar.map( car => {
         const isExpanded = expandedCarIds.includes(car._id);
         return (
-    <div key={car._id} className={style.carproparty} >
+    <div key={car.id} className={style.carproparty} >
         <p>{car.images && <img src = {car.images} alt={car.model}
      style={{maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
       </p>
@@ -132,8 +143,8 @@ const toggleDetails = (id) => {
           {isExpanded ? "Hide details" : "Show more"}
         </button>
 <button>Buy now</button>
-<button>Contact seller</button></div>
-<Message />
+<button onClick={() => handleOpenChat(car)}>Contact seller</button></div>
+
  </div>);
  })
   ) : (
@@ -142,6 +153,26 @@ const toggleDetails = (id) => {
  }
 
 <Brand />
+
+{isChatVisible && chatTargetCar && (
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        width: '350px',
+        maxHeight: '500px',
+        backgroundColor: 'white',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '15px'
+      }}>
+        <Message targetName={`Seller for  ${chatTargetCar.model}`} onClose={handleCloseChat} />
+      </div>
+    )}
 
     </div>
 

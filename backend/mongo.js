@@ -44,6 +44,13 @@ mongoose.connect(url)
     createdAt: { type: Date, default: Date.now },
   })
 
+  const userSchema = new mongoose.Schema({
+    usename: { type: String, required: true, unique: true },
+    name: {type: String, required: true },
+    phonenumber: { type: String, required: true },
+    password: { type: String, required: true },
+  })
+
   const Motor = mongoose.model('Motor', motorSchema)
   const Message = mongoose.model('Message', messageSchema)
 
@@ -58,5 +65,6 @@ mongoose.connect(url)
         console.log(message)
       })
     })
+    
     mongoose.connection.close()
   })

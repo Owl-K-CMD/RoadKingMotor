@@ -4,11 +4,12 @@ const messageUrl = '/api/messages'
 
 const getAllMessages = () => {
   const request = axios.get(messageUrl)
-  return request
+  return request.then(response => response.data)
 };
 
 const createMessage = async(newObject) => {
   const request = await axios.post(messageUrl, newObject)
+  //return request.then(response => response.data)
   return request.data;
 };
 

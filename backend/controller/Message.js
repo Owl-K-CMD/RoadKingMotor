@@ -7,11 +7,12 @@ messagesRouter.get('/:chatId', async(request, response) => {
 })
 
 messagesRouter.get('/', async(request, response) => {
-  const messages = await Message.aggregate([
-     { $group: { _id: '$chatId', lastMessage: { $last: '$$ROOT' } } },
-    { $sort: { 'lastMessage.createdAt': -1 } }
-  ])
+  //const messages = await Message.aggregate([
+     //{ $group: { _id: '$chatId', lastMessage: { $last: '$$ROOT' } } },
+    //{ $sort: { 'lastMessage.createdAt': -1 } }
+  //])
 
+  const messages = await Message.find({})
   response.json(messages);
 })
 
