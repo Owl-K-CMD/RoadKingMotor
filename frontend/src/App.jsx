@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react'
 import motoract from './cars'
 import style from './module/style.module.css'
-//import { useNavigate } from 'react-router-dom'
 import Brand from './brand'
 import Message from './message.jsx'
+import Addtocart from './addToCartButton.jsx'
 
 
 
@@ -17,9 +17,18 @@ const App = () => {
   const [expandedCarIds, setExpandedCarIds] = useState([])
   const [isChatVisible, setIsChatVisible] = useState(false)
   const [chatTargetCar, setChatTargetCar] = useState(null)
+  const [chatConfig, setChatConfig] = useState(null)
+  const [cartItems, setCartItems] = useState([])
+
+  const [isAddToCartButtonVisible, setIsAddToCartButtonVisible] = useState(false)
+
+  //const  ADMIN_USERNAME = UserAct.getUserByUserName('Road King Motor Support')
+  const ADMIN_USERNAME = 'Road King Motor Support'
+
 
    useEffect(() => {
     motoract.getAll()
+    
       .then(initialCars => {
         console.log('Data received from getAll:', initialCars);
 
@@ -48,16 +57,53 @@ const toggleDetails = (id) => {
 
 const handleOpenChat = (car) => {
   setChatTargetCar(car);
+  setChatConfig({
+    targetName: ADMIN_USERNAME,
+    carContext: car,
+  })
   setIsChatVisible(true);
 };
+
 
 const handleCloseChat = () => {
   setIsChatVisible(false);
   setChatTargetCar(null)
+  setChatConfig(null)
 }
 
     const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
     const uniqueCarNames = [...new Set(cars.map(car => car.brand).filter(brand => brand))];
+
+const closeAddToCartContent = () => {
+  setIsAddToCartButtonVisible(false);
+};
+
+const handleToggleCarVisibility = () => {
+  setIsAddToCartButtonVisible(prev => !prev)
+}
+
+const handleAddToCart = (car) => {
+  setCartItems(prevItems => {
+   // return [...prevItems, {id: car.id, model: car.model, price: car.price, images: car.images}]
+    const existingItemIndex = prevItems.findIndex(item => item.id === car.id);
+
+    if (existingItemIndex > -1) {
+      return prevItems.map((item, index) => 
+        index === existingItemIndex
+       ? {...item, quantity: item.quantity + 1}
+         : item)
+    } else {
+      return [...prevItems, {
+        id: car.id,
+        model: car.model,
+        price: car.price,
+        images: car.images,
+        quantity: 1
+      }]
+    }
+  });
+  setIsAddToCartButtonVisible(true)
+}
 
 
   return (
@@ -72,7 +118,7 @@ const handleCloseChat = () => {
  <button className= {style.navbuttonmyaccount}>
    <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
     alt = "myaccount" />  </button>
- <button className = {style.navbuttonaddtocart}>
+ <button className = {style.navbuttonaddtocart} onClick={handleToggleCarVisibility}>
    <img className = {style.addtocart} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
     alt="addtocart"/> </button>
 
@@ -99,21 +145,22 @@ const handleCloseChat = () => {
 
 
 { uniqueCarNames.map((brand) => (
-      <button key = {brand}
+      <button key = {cars.id}
       className= {style.navbutton}
       onClick = {() => setShowAll(brand)}>
         {brand}
       </button>
-    
+  
         ))}
      </div>
     <div className={style.filter}>
      
      {filtercar.length > 0 ? (
   filtercar.map( car => {
-        const isExpanded = expandedCarIds.includes(car._id);
+    console.log("Mapping car:", car.id); 
+        const isExpanded = expandedCarIds.includes(car.id);
         return (
-    <div key={car.id} className={style.carproparty} >
+    <div key={car.id} className={style.carproparty}>
         <p>{car.images && <img src = {car.images} alt={car.model}
      style={{maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
       </p>
@@ -139,11 +186,18 @@ const handleCloseChat = () => {
     </div>
     )}
     <div className={style.newbutton}>
-        <button onClick={() => toggleDetails(car._id)} className={style.hideAndShowButton}>
+      {(() => {
+        const carId = car.id;
+      return(
+        <button onClick={() => toggleDetails(carId)} className={style.hideAndShowButton}>
           {isExpanded ? "Hide details" : "Show more"}
         </button>
+      )
+    })()}
 <button>Buy now</button>
-<button onClick={() => handleOpenChat(car)}>Contact seller</button></div>
+<button onClick={() => handleOpenChat(car)}>Contact seller</button>
+<button onClick={() => handleAddToCart(car)}>Add to cart</button>
+</div>
 
  </div>);
  })
@@ -154,10 +208,9 @@ const handleCloseChat = () => {
 
 <Brand />
 
-{isChatVisible && chatTargetCar && (
+{isChatVisible && chatConfig && (
       <div style={{
-        position: 'fixed',
-        bottom: '20px',
+        position: 'fixed', overflowY: 'auto', bottom: '20px',
         right: '20px',
         width: '350px',
         maxHeight: '500px',
@@ -170,12 +223,22 @@ const handleCloseChat = () => {
         flexDirection: 'column',
         padding: '15px'
       }}>
-        <Message targetName={`Seller for  ${chatTargetCar.model}`} onClose={handleCloseChat} />
+        <Message targetName={chatConfig.targetName} onClose={handleCloseChat} />
       </div>
     )}
 
     </div>
+{isAddToCartButtonVisible && (
+  <div style={{position: 'fixed', overflowY: 'auto', bottom: '20px',  right: '20px',
+          width: '350px',   maxHeight: '100%',   backgroundColor: 'white',   border: '1px solid #ccc',
+          borderRadius: '8px',  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',   zIndex: 1000,
+          display: 'flex',  flexDirection: 'column',     padding: '15px'
+        }}>
+    <Addtocart cartItems={cartItems} onClose={closeAddToCartContent} />
+  </div>
+)}
 
+  <div className={style.lineAboveFooter}></div>
   </div>
   )
 }

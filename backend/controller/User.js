@@ -3,39 +3,40 @@ const usersRouter = require('express').Router()
 const User = require('../module/user')
 
 usersRouter.get('/', async(request, response, next) => {
-  try {
-  const users = await User.find({})
-  response.json(users)
-  }
-  catch (error) {
-    next(error)
-  }
-})
+  let userName = request.query.userName;
 
-usersRouter.get('/:id', async(request, response, next) => {
-  
+  if (!userName) {
+    return response.status(400).json({error: 'UserName query parameter is required'})
+  }
   try {
-  const user = await User.findById(request.params.id)
-  if (user) {
-    response.json(user)
-    return;
-  } else {
-    response.status(404).json({error: 'User not found'})
-    return;
+      const normalizedUserName = userName.trim().replace(/\s\s+/g, ' ');
+  const user = await User.findOne({ userName:  new RegExp('^' + normalizedUserName + '$', 'i')})
+
+  if (!user) {
+    return response.status(404).json({error: 'User not found'})
   }
   response.json(user)
-  }
+  
+  } 
   catch (error) {
     next(error)
   }
 })
 
-usersRouter.post('/', async(request, response) => {
+usersRouter.post('/', async(request, response, next) => {
   const { userName, name, phoneNumber, password } = request.body
 
-  //try{
-    if (!userName || !name || !phoneNumber) {
+  try{
+    if (!userName) {
     return response.status(400).json({error: 'Username is required'})
+  }
+
+  if(!name) {
+    return response.status(400).json({error: 'Name is required'})
+  }
+
+if(!phoneNumber) {
+    return response.status(400).json({error: 'Phone number is required'})
   }
 
   if (!password || typeof password !== 'string') {
@@ -58,10 +59,13 @@ usersRouter.post('/', async(request, response) => {
 
   const savedUser = await user.save()
   response.status(201).json(savedUser)
-  //}
-  //catch (error) {
-    //next(error)
-  //}
+  }
+  catch (error) {
+        if (error.code === 11000 && error.keyPattern && error.keyPattern.userName) {
+      return response.status(409).json({ error: 'Username already exists. Please choose a different one.' });
+    }
+    next(error)
+  }
 })
 
 usersRouter.delete('/:id', async(request, response, next) => {

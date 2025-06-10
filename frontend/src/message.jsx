@@ -1,134 +1,484 @@
-
-import messageAct from './messageAxios';
 import { useEffect, useState } from 'react';
+import messageAct from './messageAxios';
+import userAct from './userAxios.js';
 
 const Message = ({ targetName, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [senderName, setSenderName] = useState('');
+  const [userName, setUserName] = useState('');
   const [error, setError] = useState(null);
   const [nameConfirmed, setNameConfirmed] = useState(false);
+  const [user, setUser] = useState(null);
+  const [newUserName, setNewUserName] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newPhoneNumber, setNewPhoneNumber] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [supportUser, setSupportUser] = useState(null)
 
-  useEffect(() => {
-    messageAct.getAllMessages()
-      .then((initialMessages) => {
-        if (Array.isArray(initialMessages)) {
-          setMessages(initialMessages);
+
+
+const processUserResponse = (userData) => {
+ if (userData && typeof userData === 'object' && typeof userData.id !== 'undefined' && typeof userData._id === 'undefined') {
+    return { ...userData, _id: userData.id }
+  }
+  return userData;
+}
+
+// Inside your imports and component...
+
+useEffect(() => {
+  if (targetName && nameConfirmed && user && user._id) {
+    let isMounted = true;
+
+    const fetchSupportUserDetails = async () => {
+      try {
+        const rawSupport = await userAct.getUserByUserName(targetName);
+        const processedSupport = processUserResponse(rawSupport);
+
+        if (isMounted && processedSupport && processedSupport._id) {
+          setSupportUser(processedSupport);
+          setError(null);
+
+          try {
+            const rawMessages = await messageAct.getAllMessages();
+            if (isMounted) {
+              if (Array.isArray(rawMessages)) {
+                const processedMessages = rawMessages.map((msg) => ({
+                  ...msg,
+                  sender: processUserResponse(msg.sender),
+                  receiver: processUserResponse(msg.receiver),
+                }));
+                setMessages(processedMessages);
+              } else {
+                console.error("Expected array from backend for messages, got:", rawMessages);
+                setMessages([]);
+                setError("Failed to load messages history. Please try again.");
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching messages:", error);
+            if (isMounted) setError("Failed to fetch messages history.");
+          }
         } else {
-          setError('Could not load messages correctly.');
-          setMessages([]);
+          console.error(`Support user "${targetName}" not found.`);
+          setSupportUser(null);
         }
-      })
-      .catch(err => {
-        console.error('Error fetching messages:', err);
-        setError('Failed to fetch messages. Please try again later.');
-        setMessages([]);
-      });
-  }, []);
+      } catch (error) {
+        console.error(`Error fetching support user ${targetName}:`, error);
+        if (isMounted) setError(`Could not retrieve details for ${targetName}.`);
+        setSupportUser(null);
+      }
+    };
 
-  const sendMessage = async () => {
-    if (!input.trim() || !senderName.trim()) {
-      setError('Please enter your name and message.');
+    fetchSupportUserDetails();
+
+    return () => {
+      isMounted = false;
+    };
+  } else {
+    setMessages([]);
+    setSupportUser(null);
+  }
+}, [targetName, nameConfirmed, user]);
+
+//  New polling effect placed below the above useEffect
+useEffect(() => {
+  if (!user?._id || !supportUser?._id) return;
+
+  let isMounted = true;
+
+  const fetchMessages = async () => {
+    try {
+      const rawMessages = await messageAct.getAllMessages();
+      if (isMounted && Array.isArray(rawMessages)) {
+        const processedMessages = rawMessages.map((msg) => ({
+          ...msg,
+          sender: processUserResponse(msg.sender),
+          receiver: processUserResponse(msg.receiver),
+        }));
+        setMessages(processedMessages);
+      }
+    } catch (error) {
+      console.error("Polling error:", error);
+    }
+  };
+
+  const intervalId = setInterval(fetchMessages, 5000);
+  fetchMessages(); // Immediate fetch on mount
+
+  return () => {
+    isMounted = false;
+    clearInterval(intervalId);
+  };
+}, [user, supportUser]);
+
+// ...rest of your component remains unchanged
+
+
+/*
+useEffect(() => {
+  if (targetName && nameConfirmed && user && user._id) {
+    let isMounted = true;
+
+const fetchSupportUserDetails = async () => {
+
+  try {
+    const rawSupport = await userAct.getUserByUserName(targetName);
+    const processedSupport = processUserResponse(rawSupport)
+
+    if (isMounted && processedSupport && processedSupport._id) {
+      setSupportUser(processedSupport);
+      setError(null)
+
+      try {
+        const rawMessages = await messageAct.getAllMessages()
+        if(isMounted) {
+          if (Array.isArray(rawMessages)) {
+            const processedMessages = rawMessages.map(msg => ({
+               ...msg, sender: processUserResponse(msg.sender), 
+               receiver: processUserResponse(msg.receiver)
+            }))
+            setMessages(processedMessages)
+          } else {
+            console.error("Expected array from backend for messages, got:", rawMessages)
+            setMessages([])
+          setError("Failed to load messages history. Please try again.")
+          }
+        }
+    } 
+   catch (error) {
+    console.error("Error fetching messages:", error)
+    if (isMounted) setError("Failed to fetch messages history.")
+    
+}
+      
+    }  else {
+console.error(`Support user "${targetName}" not found.`)
+setSupportUser(null)
+}
+} catch (error) {
+  console.error(`Error fetching support user ${targetName}:`, error);
+  if (isMounted) setError(`Could not retrieve details for ${targetName}.`)
+    setSupportUser(null)
+}
+
+}
+fetchSupportUserDetails()
+
+const intervalId = setInterval(async () => {
+  if (!isMounted || !user?._id || !supportUser?._id) {
+    clearInterval(intervalId)
+return;
+  }
+  try {
+    const rawMessages = await messageAct.getAllMessages()
+    if (isMounted && Array.isArray(rawMessages)) {
+      const processedMessages = rawMessages.map(msg => ({
+        ...msg, sender: processUserResponse(msg.sender),
+        receiver: processUserResponse(msg.receiver)
+
+    }));
+    setMessages(processedMessages)
+    }
+   }
+   catch (error) {
+    console.error("Error polling messaes:", error);
+   }
+}, 5000)
+
+return () => {
+  isMounted = false;
+  clearInterval(intervalId)
+}
+  } else {
+    setMessages([]);
+    setSupportUser(null)
+  }
+}, [targetName, nameConfirmed, user])
+*/
+
+  const handleUserLookupAndProceed = async () => {
+    if (!userName.trim()) {
+      setError('Please enter your username.');
       return;
     }
 
+    try { 
+
+const rawExistingUser = await userAct.getUserByUserName(userName);
+      const existingUser = processUserResponse(rawExistingUser);
+
+      if (existingUser && existingUser._id) {
+        setUser(existingUser);
+        setNameConfirmed(true)
+        setShowRegistrationForm(false)
+        setError(null)
+      } 
+
+      else {
+        console.error('User lookup returned incomplete data or null:', existingUser)
+        setError('User is incomplete or user not found. Please register to chat.')
+        setShowRegistrationForm(true)
+      }
+    } catch (error) {
+      if (error.response?.status === 404) {
+        setNewUserName(userName);
+        setShowRegistrationForm(true);
+        setError('User not found. Please register to chat.')
+      } else {
+        console.error('Lookup error:', error);
+        setError('Server error. Please try again.');
+        console.error('User lookup error:', error)
+        let displayMessage = 'An unexpected error occurred during user lookup. Please try again.';
+        if (error.response) {
+          console.error('Server response data:', error.response.data)
+          displayMessage = error.response.data?.error || error.response.data?.message  || `Error:${error.message}`;
+
+        } else if (error.request) {
+        displayMessage= 'No response from server. Please check your network'
+        }
+        setError(displayMessage);
+      }
+    }
+  };
+
+
+  const createUser = async (e) => {
+    e.preventDefault();
+
+    if (!newUserName || !newName || !newPhoneNumber || !newPassword) {
+      setError('All fields are required.');
+      return;
+    }
+
+    const newUser = {
+      userName: newUserName,
+      name: newName,
+      phoneNumber: newPhoneNumber,
+      password: newPassword,
+    };
+
+    try {
+
+      const rawRegistered = await userAct.createUser(newUser);
+      const registered = processUserResponse(rawRegistered);
+
+            if (registered && registered._id) {
+        setUser(registered);
+        setUserName(registered.userName); // Update userName state to reflect the registered user
+        setNameConfirmed(true);
+        setShowRegistrationForm(false);
+        setNewUserName('');
+        setNewName('');
+        setNewPhoneNumber('');
+        setNewPassword('');
+        setError(null);
+      } else {
+        console.error('Registration returned incomplete data or null:', registered);
+        setError('Registration completed, but user data is incomplete. Please try logging in or contact support.');
+      }
+    } catch (error) {
+      setError('Registration failed. Try again.', error);
+      console.error('Registration error:', error)
+      let displayMessage = 'Failed to send message. Please try again'
+      if (error.response?.data?.error) {
+        displayMessage = error.response.data.message
+      } else if (error.response?.data?.message) {
+      displayMessage = error.response.data.message
+      }
+      setError(displayMessage)
+    }
+  };
+
+  const sendMessage = async () => {
+
+      if (!input.trim()) {
+        setError('Message cannot be empty.')
+        return
+      }
+      if (!user || !user._id) {
+        setError('User not identified. Please verify your username.')
+        return
+      }
+      if (!supportUser || !supportUser._id) {
+        setError(`Recipient ${targetName || 'support'} not identified. Cannot send message.`)
+        return;
+      }
+
     const messagePayload = {
-      sender: senderName,
+      sender: user._id,
+      receiver: supportUser._id,
       content: input,
     };
 
     try {
       setError(null);
-      const savedMessage = await messageAct.createMessage(messagePayload);
-      setMessages(prev => [...prev, savedMessage]);
+      const savedMessage = await messageAct.createMessage( messagePayload );
+       const processedSavedMessage = {
+        ...savedMessage,
+        sender: processUserResponse(savedMessage.sender),
+        receiver: processUserResponse(savedMessage.receiver)
+       } 
+      setMessages((prev) => [...prev, processedSavedMessage]);
       setInput('');
-    } catch (err) {
-      //const errorMessage = err.response?.data?.error || 'Failed to send message. Please try again later.';
-     if(err.response) {
-         console.error('Error response data:', err.response.data);
-        console.error('Error response status:', err.response.status);
-        console.error('Error response headers:', err.response.headers);
-      } else if (err.request) {
-        console.error('Error request:', err.request);
-      } else {
-        console.error('Error message:', err.message);
-      }
-       const errorMessage = err.response?.data?.error || 'Failed to send message. Please try again later.';
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to send message.';
       setError(errorMessage);
-      //console.error(errorMessage)
     }
   };
 
-  const handleNameSubmit = () => {
-    if (!senderName.trim()) {
-      setError('Name cannot be empty.');
-      return;
-    }
-    setNameConfirmed(true);
-    setError(null);
-  };
 
-  // Filter messages by current user
-  const filteredMessages = messages.filter(msg => msg.sender === senderName);
+      const filteredMessages = messages.filter((msg) => {
+        const senderId = msg.sender && msg.sender._id ? msg.sender._id.toString() : null;
+        const receiverId = msg.receiver && msg.receiver._id ? msg.receiver._id.toString() : null;
+        const currentUserId = user && user._id ? user._id.toString() : null;
+        const supportUserId = supportUser && supportUser._id ? supportUser._id.toString() : null;
+
+        if (!senderId || !receiverId || !currentUserId || !supportUserId ) return false;
+
+        return (
+          (senderId === currentUserId && receiverId === supportUserId) ||
+        (senderId === supportUserId && receiverId === currentUserId)
+      );
+      })
+
 
   return (
-    <div>
+    <div style={{
+      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+
+    }}>
+      <div style={{}}>
       <h3>Chat Support</h3>
-      <h4>{ targetName ? `Chat with ${targetName}` : 'Chat support'}</h4>
+      <h4>{supportUser ? `Chat with ${supportUser.userName}` : (targetName ? `Connecting to ${targetName}...` : 'Chat support')}</h4>
+
 
       {onClose && <button onClick={onClose}>Close</button>}
-
       {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {!nameConfirmed ? (
-        <div style={{ marginTop: '10px' }}>
-          <input
-            type="text"
-            placeholder="Enter your name to start chat"
-            value={senderName}
-            onChange={(e) => setSenderName(e.target.value)}
-          />
-          <button onClick={handleNameSubmit}>Start Chat</button>
-        </div>
-      ) : (
+      </div>
+      {!nameConfirmed && (
         <>
-          <div className="message-list" style={{ marginTop: '15px' }}>
-            {filteredMessages.length === 0 && <p>No messages yet. Start the conversation!</p>}
-            {filteredMessages.map((msg) => (
-              <div
-                key={msg.id}
-                style={{
-                  background: '#f1f1f1',
-                  margin: '5px 0',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  alignSelf: 'flex-start',
-                  maxWidth: '80%',
-                }}
-              >
-                <strong>{msg.sender}</strong>
-                <div>{msg.content}</div>
-                <small style={{ color: 'gray' }}>
-                  {new Date(msg.createdAt).toLocaleTimeString()}
-                </small>
-              </div>
-            ))}
+          <div style={{ marginTop: '10px' }}>
+            <input
+              type="text"
+              placeholder="Enter your username"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              onKeyPress = {(e) => {
+                if (e.key === 'Enter') {
+                  handleUserLookupAndProceed();
+                }
+              }}
+            />
+            <button onClick={handleUserLookupAndProceed}>Start Chat</button>
           </div>
 
-          <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {showRegistrationForm && (
+            <form onSubmit={createUser} style={{ marginTop: '10px' }}>
+              <p>User not found. Please register to chat.</p>
+              <input
+                type="text"
+                placeholder="Username"
+                value={newUserName}
+                onChange={(e) => setNewUserName(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Phone Number"
+                value={newPhoneNumber}
+                onChange={(e) => setNewPhoneNumber(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+              <button type="submit">Register & Chat</button>
+              <button type="button" onClick={() => setShowRegistrationForm(false)}>Cancel</button>
+            </form>
+          )}
+        </>
+      )}
+
+      {nameConfirmed && (
+        <div>
+          <div className="message-list" style={{ marginTop: '15px' }}>
+            {filteredMessages.length === 0 ? (
+              <p>No messages yet. Start the conversation!</p>
+            ) : (
+              filteredMessages.map((msg, index) => {
+
+                const isSenderSelf = msg.sender && msg.sender._id === user._id;
+                const senderName = msg.sender && msg.sender.userName ? msg.sender.userName : 'Unknown user'
+                
+                return (<div
+                key={msg.id || `msg-${index}-${msg.sender?._id}-${msg.createdAt}`}
+                 style={{
+                 background: isSenderSelf ? '#dcf8c6' : '#f1f1f1',
+                  display: 'flex',
+                  justifyContent: isSenderSelf ? 'flex-end' : 'flex-start',
+                  margin: '8px 0',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  maxWidth: '80%',
+                  wordBreak: 'break-word',
+                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                }}>
+                    <div style={{
+                      backgroundColor: isSenderSelf ? '#dcf8c6' : '#e9e9eb', // Different colors for sent/received
+                      padding: '10px 14px',
+                      borderRadius: '15px', // More rounded bubbles
+                      maxWidth: '70%',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                      wordBreak: 'break-word',
+                    }}>
+              
+                  <strong style={{ display: 'block', marginBottom: '4px', color: isSenderSelf ? '#007bff' : '#333', fontSize: '0.9em' }}>
+                    {isSenderSelf ? 'You' : senderName}
+                    </strong>
+                  <div>{msg.content}</div>
+                  <small style={{ display: 'block', marginTop: '5px', fontSize: '0.75em', color: '#666', textAlign: 'right' }}>
+                    {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </small>
+                </div>
+                </div>
+               ) })
+            )}
+            
+          
+          </div>
+
+          <div style={{  position: 'fixed', bottom: '10px', justifyContent: 'center', alignItems: 'center', bottom: '10px', right: '10px', marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <textarea
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               rows="3"
+                            onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
             />
-            <button onClick={sendMessage}>Send</button>
+            <button onClick={sendMessage} disabled={!input.trim() || !user || !supportUser}>Send</button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
 };
 
 export default Message;
-

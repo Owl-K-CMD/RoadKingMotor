@@ -1,8 +1,9 @@
 .filter{
 
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -26,7 +27,7 @@ box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .navbartop{
-float: right;
+float: top;
 top: 2px;
   padding: 3px;
 }
@@ -35,4 +36,28 @@ top: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.lineAboveFooter{
+  height:3px;
+   background: linear-gradient(
+    200deg,
+    blue, gray, olive,  pink, purple, 
+    olive,
+    red,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet,
+    indigo,
+    white,
+    black,
+    gold,
+    maroon,
+    cyan,
+    violet
+  );
+
 }

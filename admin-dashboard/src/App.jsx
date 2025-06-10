@@ -102,18 +102,18 @@ const handleCloseChat = () => {
    src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
   alt = "chat"/>
 
-  
+  </button>
+</div>
 {isChatVisible && chatTargetCar && (
-      <div style={{ position: 'fixed',  bottom: '20px',  right: '20px',
-        width: '350px',   maxHeight: '500px',   backgroundColor: 'white',   border: '1px solid #ccc',
+      <div style={{position: 'fixed', overflowY: 'auto', bottom: '20px',  right: '20px',
+        width: '350px',   maxHeight: '100%',   backgroundColor: 'white',   border: '1px solid #ccc',
         borderRadius: '8px',  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',   zIndex: 1000,
         display: 'flex',  flexDirection: 'column',     padding: '15px'
       }}>
         < Message targetName={`Seller for  ${chatTargetCar.model}`} onClose={handleCloseChat} />
       </div>
     )}
-</button>
-</div>
+
 
  <Notification message = {errorMessage} className={style.error}/>
 

@@ -1,2 +1,9 @@
 
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.message-container {
+@apply h-full flex flex-col bg-green-500;
+    } 

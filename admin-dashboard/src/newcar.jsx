@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import motoractadmin from './carsAdmin.js'
 import style from './style.module.css'
-//import { set } from 'mongoose';
 
 const Newcar = () => {
   

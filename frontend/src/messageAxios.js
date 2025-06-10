@@ -3,9 +3,14 @@ const messageUrl = '/api/messages'
 
 
 const getAllMessages = () => {
-  const request = axios.get(messageUrl)
+  const request = axios.get(messageUrl, { params: {_timestamp: new Date().getTime()}})
   return request.then(response => response.data)
 };
+
+const getMessageByUserName = async(userName) => {
+  const response = await axios.get(`${messageUrl}`,{params: {userName: userName}})
+  return response.data;
+}
 
 const createMessage = async(newObject) => {
   const request = await axios.post(messageUrl, newObject)
@@ -19,4 +24,4 @@ const deleteMessage = id => {
 
 }
 
-export default { getAllMessages, createMessage, deleteMessage }
+export default { getAllMessages, createMessage, deleteMessage, getMessageByUserName }
