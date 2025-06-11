@@ -10,7 +10,6 @@ const usersRouter = require('./controller/User')
 
 
 const app = express()
-app.use(express.static('dist'))
 
 logger.info('connecting to', config.MONGODB_URI)
 

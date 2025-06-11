@@ -1,6 +1,6 @@
 
 const motorsRouter = require('express').Router()
-const { default: cars } = require('../../frontend/src/cars')
+//const { default: cars } = require('../../frontend/src/cars')
 const motor = require('../module/motor')
 const Motor = require('../module/motor')
 const multer = require('multer')
