@@ -146,9 +146,9 @@ useEffect(() => {
       const savedMessage = await messageAct.createMessage(messagePayload);
       setMessages(prev => [...prev, savedMessage]);
       setInput('');
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to send message.';
-      console.error("Error sending message:", err); // Keep console error for debugging
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Failed to send message.';
+      console.error("Error sending message:", error); // Keep console error for debugging
       setError(errorMessage);
     }
   };

@@ -6,7 +6,7 @@ const Newcar = () => {
   
   const [newCar, setNewCar] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
-  const [newImage, setNewImage] = useState('')
+  const [newImages, setNewImages] = useState([])
   const [newBrand, setNewBrand] = useState('')
   const [newModel, setNewModel] = useState('')
   const [newPrice, setNewPrice] = useState('')
@@ -27,9 +27,9 @@ const Newcar = () => {
 
 const addCar = (e) => {
   e.preventDefault();
-
+/*
   const newCarObject = {
-    image: newImage,
+    //image: newImage,
     brand: newBrand,
     model: newModel,
     price: newPrice,
@@ -47,9 +47,15 @@ const addCar = (e) => {
     createdAt: newCreatedAt,
     otherDetails: newOtherDetails,
       }
+    */
 
 const formData = new FormData();
-formData.append('image', newImage);
+//formData.append('image', newImage);
+if (newImages.length > 0) {
+  newImages.forEach((imageFile) => {
+    formData.append('images', imageFile)
+  })
+}
 formData.append('brand', newBrand);
 formData.append('model', newModel);
 formData.append('price', newPrice);
@@ -71,11 +77,10 @@ formData.append('otherDetails', newOtherDetails);
 
 
   motoractadmin
-  .create(newCarObject)
-  //.create(formData)
+  .create(formData)
   .then(response => {
     setNewCar(newCar.concat(response));
-    setNewImage('');
+    setNewImages([]);
     setNewBrand('');
     setNewModel('');
     setNewPrice('');
@@ -94,7 +99,7 @@ formData.append('otherDetails', newOtherDetails);
     setNewOtherDetails('');
 
    if (document.getElementById('newCarImageInput')) {
-      document.getElementById('newCarImageInput').value = '';
+      document.getElementById('newCarImageInput').value = null;
     }
   })
   
@@ -106,12 +111,12 @@ formData.append('otherDetails', newOtherDetails);
 
     }
 const handleNewImage = (e) => {
-     setNewImage(e.target.files[0]);
+     //setNewImages(e.target.files[0]);
  
-     if (e.target.files && e.target.files[0]) {
-      setNewImage(e.target.files[0]);
+     if (e.target.files && e.target.files.length > 0) {
+      setNewImages(Array.from(e.target.files));
      } else {
-      setNewImage(null)
+      setNewImages([])
      }
 }
 
@@ -186,7 +191,10 @@ setNewOtherDetails(e.target.value);
 <form className={style.formnewcar} onSubmit= {addCar}>
 <div className = {style.inputnewcar}>
  Images <input type="file" id="newCarImageInput"
+  multiple
+  accept="image/*"
   onChange= {handleNewImage} />
+  {newImages.length > 0 && <div>Selected files: {newImages.map(f => f.name).join(', ')}</div>}
 </div>
 
 <div className = {style.inputnewcar}>

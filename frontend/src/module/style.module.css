@@ -1,63 +1,251 @@
+@import "tailwindcss";
 .filter{
 
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   justify-content: space-between;
   align-items: flex-start;
+  gap: 20px;
+  border-radius: 10px;
+  background-color: rgb(250, 250, 250);
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+   grid-template-columns: 1fr;
+ 
   }
+}
+
+.navbutton{
+  box-shadow: inset 0 4px 4px 4px rgb(205, 205, 205);
+  border-radius: 3px;
+  color:rgb(21, 20, 20);
+  white-space: nowrap;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  width: fit-content;
+  padding: 3px
+}
+
+
+
+.img{
+   max-Width: 100%;
+   max-Height: 400px;
+   margin: 0 auto;
+   box-shadow:  0 4px 8px rgba(0, 0, 0, 0.5);
+   border-radius: 10px;
+   object-fit: cover;
+   
+}
+
+.imgandits{
+  width: 100%;
+}
+
+.navbutton:hover {
+  background-color: green;
 }
 
 
 .carproparty{
   display: flex;
-  flex-direction: column;
-align-items: center;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  flex-direction: column;  
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1em;
+  border-radius: 10px;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  padding: min(0.5em, 9%); 
+  /*color: rgb(231, 250, 250); */
+}
 
+
+.carproparty::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(250, 250, 250, 0.7);
+  color: rgb(255, 255, 255);  
+  border-radius: 10px; 
+  z-index: 0;
 }
 
 .search{
   display: flex;
   flex-direction: row;
-  gap: 2px;
-  padding: 2px;
 }
 
-.navbartop{
-float: top;
-top: 2px;
-  padding: 3px;
+/* Ensure direct children of .carproparty are positioned above the overlay */
+.carproparty > * {
+  position: relative; /* Required for z-index to take effect */
+  z-index: 1;         /* Place content above the ::before pseudo-element */
 }
 
-.newButton{
+.search{
   display: flex;
+  flex-direction: row;
+  gap: 5px;
+  border-radius: 10%;
+  padding: 2px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  text-align: center;
   align-items: center;
   justify-content: center;
 }
 
+
+.navbartop{
+float: top;
+top: 2px;
+padding: 3px;
+}
+
+.newbutton{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 10px; 
+  padding: 5px; 
+}
+
+.button{
+  white-space: nowrap;
+  width:fit-content;
+}
+
 .lineAboveFooter{
-  height:3px;
+  height:5px;
    background: linear-gradient(
     200deg,
-    blue, gray, olive,  pink, purple, 
-    olive,
-    red,
-    orange,
-    yellow,
-    green,
-    cyan,
-    blue,
-    violet,
-    indigo,
-    white,
-    black,
-    gold,
-    maroon,
-    cyan,
-    violet
+    blue, gray, olive,  pink, purple, olive, red, orange, yellow, green,
+    cyan,blue,violet,indigo,white,black,gold,maroon,cyan, violet
   );
 
+}
+
+.title{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: min(1 em, 10%);
+  width: 100%;
+  background-image: url('https://roadkingmoor.s3.eu-north-1.amazonaws.com/RKM.png');
+   
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.title::before{
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.titletext{
+  text-shadow: 0 4px 8px rgba(250, 250, 0, 1);
+
+  color: rgb(231, 250, 250);
+  font-size: 70 vw;
+  box-shadow: inset 8px 8px 8px 8px rgba(20, 20, 0, 1);
+ 
+  border-radius: 10px;
+  background-color: rgb(33, 36, 33);
+
+}
+
+.navbuttonmyaccount{
+  background-color: rgb(33, 36, 33)
+}
+.logo {
+  @apply max-w-2xs;
+  height: 5em;
+ 
+  will-change: filter;
+  transition: filter 300ms;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+}
+
+.navbarbutton{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbarbutton button :hover{
+   background-color: aquamarine;
+}
+
+.newbutton button{
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  width: fit-content;
+  padding: 3px
+
+}
+
+.newbutton button:hover {
+  background-color: green;
+}
+
+.carpropartyp{
+  display: flex;
+  flex-direction: row;
+}
+
+.carContext{
+   font-size: 15px;
+}
+
+.search{
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.footerContainer{
+  background-color: black ;
+  color: white;
+
+}
+.footerAboutUs{
+    justify-content: center;
+    text-align: center;
+}
+
+.footerAboutUs h4{
+padding: 2px;
+}
+
+
+
+.imageNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Or space-between, as you prefer */
+  margin-top: 8px;
+}
+
+.imageNavButton {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.imageNavButton:hover {
+  background-color: #e0e0e0;
+}
+
+.imageCounter {
+  margin: 0 10px;
+  font-size: 0.9em;
 }

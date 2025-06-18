@@ -1,7 +1,7 @@
 
 const motorsRouter = require('express').Router()
 //const { default: cars } = require('../../frontend/src/cars')
-const motor = require('../module/motor')
+
 const Motor = require('../module/motor')
 const multer = require('multer')
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3")
@@ -50,33 +50,45 @@ motorsRouter.get('/:id', (request, response, next) => {
 });
 
 
-motorsRouter.post('/', upload.single('image'), async(request, response, next) => {
+motorsRouter.post('/', upload.array('images',10), async(request, response, next) => {
   const body =  request.body
-const file = request.file
+const files = request.files
 
 try {
-if (!file) {
-  return response.status(400).json({error: 'Image file is required'})
+if (!files || files.length === 0) {
+  return response.status(400).json({error: 'At least one images is required'})
 }
 
    const params = {
     Bucket: config.AWS_BUCKET_NAME,
-    Key: `${Date.now()}-${file.originalname}`,
-    Body: file.buffer,
-    ContentType: file.mimetype,
+    Key: `${Date.now()}-${files.originalname}`,
+    Body: files.buffer,
+    ContentType: files.mimetype,
     //ACL: 'public-read',
   };
 
+  const imageUrls = [];
+
+  for (const file of files) {
+    const params = {
+      Bucket: config.AWS_BUCKET_NAME,
+      Key: `${Date.now()}-${file.originalname}`,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      
+    }
+  
 
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
  
     //const s3Result = await s3Client.send(command);
     const imageUrl = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`
-
+    imageUrls.push(imageUrl);
+  }
 
   const motor = new Motor ({
-    images: imageUrl,
+    images: imageUrls,
     brand : body.brand,
     model : body.model,
     price : body.price,

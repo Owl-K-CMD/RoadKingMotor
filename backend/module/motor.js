@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
    const motorSchema =new mongoose.Schema({
-  images: {type: String, required: true},
+  images: {type: [String], required: true},
   brand: {type: String, required: true},
   model: {type: String, required: true},
   price: {type: Number, required: true},

@@ -3,13 +3,15 @@
 
 .svg{
   height:15px;
-  width: 15px;
+  width: 40spx;
   
 }
 
 .buttonsvg{
-    all: unset;
-  cursor: pointer;
+    
+  
+  height: 20px;
+  width: 20px;
 }
 
 .formnewcar{ border: 5px solid;

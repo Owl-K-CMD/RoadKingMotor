@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import motoract from './cars'
 import style from './module/style.module.css'
 import Brand from './brand'
 import Message from './message.jsx'
 import Addtocart from './addToCartButton.jsx'
+import Footer from './footer.jsx'
 
 
 
@@ -19,10 +20,11 @@ const App = () => {
   const [chatTargetCar, setChatTargetCar] = useState(null)
   const [chatConfig, setChatConfig] = useState(null)
   const [cartItems, setCartItems] = useState([])
+  const [currentImageIndices, setCurrentImageIndices] = useState({})
 
   const [isAddToCartButtonVisible, setIsAddToCartButtonVisible] = useState(false)
 
-  //const  ADMIN_USERNAME = UserAct.getUserByUserName('Road King Motor Support')
+
   const ADMIN_USERNAME = 'Road King Motor Support'
 
 
@@ -34,6 +36,14 @@ const App = () => {
 
         if (Array.isArray(initialCars)) {
           setCars(initialCars);
+          const initialIndices = {};
+          initialCars.forEach(car => {
+            if (car.id && car.images && Array.isArray(car.images) && car.images.length > 0) {
+              initialIndices[car.id] = 0;
+            }
+          });
+
+          setCurrentImageIndices(initialIndices);
           console.log('Cars state succesfully');
            } else {
             console.error("Error: Data received from server is not array!", initialCars)
@@ -48,6 +58,26 @@ const App = () => {
       //alert("Error fetching data. Please try again later.");
       })
     }, []);
+
+    const handleImageNavigation = (carId, direction) => {
+      const car = cars.find(c => c.id === carId);
+      if (!car || !Array.isArray(car.images) || car.images.length === 0)
+        {
+          return;
+        }
+      setCurrentImageIndices(prevIndices => {
+        const currentIndex = prevIndices[carId] || 0;
+        let nextIndex;
+
+        if (direction === 'next') {
+          nextIndex = (currentIndex + 1) % car.images.length;
+        } else {
+          nextIndex = (currentIndex - 1 + car.images.length) % car.images.length;
+        }
+        return { ...prevIndices, [carId]: nextIndex };
+      });
+    }
+
 
 const toggleDetails = (id) => {
   setExpandedCarIds(prev =>
@@ -108,9 +138,14 @@ const handleAddToCart = (car) => {
 
   return (
   <div>
-    <div className={style.title}>ROAD KING MOTOR</div>
+    <div className={style.title}>
+      <img className={style.logo} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/RKM.png" alt="logo" />
+      <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
+  
+
+   
  
- <div className= {style.navbartop}>
+ <div className= {style.navbarbutton}>
 
       <button className = {style.navbuttonhome}>
       <img className= {style.home} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-home-48.png" 
@@ -132,7 +167,7 @@ const handleAddToCart = (car) => {
    src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
   alt = "chat"/>
 </button>
-
+  </div>
  </div>
 
  <div className={style.search}>
@@ -140,15 +175,15 @@ const handleAddToCart = (car) => {
   className= {style.newbutton}
   onClick = {() => setShowAll('')}
   >
-  Show All cars
+  <strong>Show All cars</strong>
   </button>
 
 
 { uniqueCarNames.map((brand) => (
-      <button key = {cars.id}
+      <button key = {brand}
       className= {style.navbutton}
       onClick = {() => setShowAll(brand)}>
-        {brand}
+       <strong> {brand}</strong>
       </button>
   
         ))}
@@ -157,49 +192,110 @@ const handleAddToCart = (car) => {
      
      {filtercar.length > 0 ? (
   filtercar.map( car => {
-    console.log("Mapping car:", car.id); 
+        const currentImageIndex = currentImageIndices[car.id] || 0; 
+      console.log(`Car: ${car.model}, First image URL: ${car.images ? car.images[0] : 'No images'}`)
         const isExpanded = expandedCarIds.includes(car.id);
-        return (
-    <div key={car.id} className={style.carproparty}>
-        <p>{car.images && <img src = {car.images} alt={car.model}
-     style={{maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '0 auto'}}/>}
-      </p>
-     <p>{car.brand} </p>
-     <p>{car.model} </p>
-    <p>{car.price}  rwf</p>
 
+              let rawFirstImageUrl = null;
+
+        if (Array.isArray(car.images) && car.images.length > 0 && typeof car.images[0] === 'string' && car.images[0].trim() !== '') {
+          rawFirstImageUrl = car.images[0].trim();
+        } else if (typeof car.images === 'string' && car.images.trim() !== '') {
+          rawFirstImageUrl = car.images.trim();
+        }
+                console.log(
+          `Car: ${car.model} (Background Image Processing)`,
+          `| car.images data:`, car.images,
+          `| Extracted rawFirstImageUrl: "${rawFirstImageUrl}"`
+        );
+
+
+        const firstImageUrlForBackground = rawFirstImageUrl ? encodeURI(rawFirstImageUrl) : null;
+
+        return (
+          <Link to={`/car/${car.id}`} key={car.id} className={style.carCardLink} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <div key={car.id} className={style.carproparty}
+    
+     style={firstImageUrlForBackground ? {
+        backgroundImage: `url(${firstImageUrlForBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      } : {}}
+   
+
+    >
+        <div className={style.imgandits}>{car.images && Array.isArray(car.images) && car.images.length > 0 ? (
+            <>
+              <img
+                src={car.images[currentImageIndex]}
+                alt={`${car.model} ${currentImageIndex + 1}`}
+                className={style.img}
+              />
+              {car.images.length > 1 && (
+                <div className={style.imageNavigation}>
+                  <button 
+                    onClick={() => handleImageNavigation(car.id, 'prev')} 
+                    className={style.imageNavButton} /* Add styles for this */
+                  >
+                    &lt; Prev
+                  </button>
+                  <span className={style.imageCounter}> {/* Add styles for this */}
+                    {currentImageIndex + 1} / {car.images.length}
+                  </span>
+                  <button 
+                    onClick={() => handleImageNavigation(car.id, 'next')} 
+                    className={style.imageNavButton} /* Add styles for this */
+                  >
+                    Next &gt;
+                  </button>
+                </div>
+              )}
+            </>
+        ) : car.images && typeof car.images === 'string' ? (
+
+         <img src = {car.images} alt={car.model} className={style.img}/>
+        ) : ( <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-no-image" />
+        )}
+      </div>
+     
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} </div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Price: </h3>{car.price}  $</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
     {isExpanded && (
-      <div>
-    <p>{car.year} </p>
-    <p>{car.madeIn}</p>
-    <p>{car.mileage}</p>
-    <p>{car.fuelType}</p>
-    <p>{car.bodyType}</p>
-    <p>{car.transmission}</p>
-    <p>{car.color}</p>
-    <p>{car.seats}</p>
-    <p>{car.doors}</p>
-    <p>{car.engineSize}</p>
-    <p>{car.status}</p>
-    <p>{car.createdAt}</p>
-    <p>{car.otherDescription}</p>
+      <div className={style.carproparty}>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Brand: </h3>{car.brand} </div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Made in: </h3>{car.madeIn}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Mileage: </h3>{car.mileage}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Fuel Type: </h3>{car.fuelType}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Car body: </h3>{car.bodyType}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Transmission: </h3>{car.transmission}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Color: </h3>{car.color}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Seats: </h3>{car.seats}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Doors: </h3>{car.doors}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Engine Size: </h3>{car.engineSize}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Status: </h3>{car.status}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Created At: </h3>{car.createdAt}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
     </div>
     )}
     <div className={style.newbutton}>
       {(() => {
         const carId = car.id;
       return(
-        <button onClick={() => toggleDetails(carId)} className={style.hideAndShowButton}>
+        <button  className={style.button} onClick={() => toggleDetails(carId)} >
           {isExpanded ? "Hide details" : "Show more"}
         </button>
       )
     })()}
-<button>Buy now</button>
-<button onClick={() => handleOpenChat(car)}>Contact seller</button>
-<button onClick={() => handleAddToCart(car)}>Add to cart</button>
+<button className={style.button} >Buy now</button>
+<button className={style.button} onClick={() => handleOpenChat(car)}>Contact seller</button>
+<button  className={style.button} onClick={() => handleAddToCart(car)}>Add to cart</button>
 </div>
 
- </div>);
+ </div>;
+ </Link>
+        )
  })
   ) : (
     <div>No car here</div>
@@ -239,6 +335,7 @@ const handleAddToCart = (car) => {
 )}
 
   <div className={style.lineAboveFooter}></div>
+  <Footer />
   </div>
   )
 }

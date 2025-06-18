@@ -1,9 +1,26 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from "react-router-dom";
+
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import './index.css'
 import App from './App.jsx'
+import Brand from './brand'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import CarDetailPage from './carDetailPage'
 
+
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+    <Routes>
+    <Route path="/" element={<App />} />
+    <Route path="/car/:carId" element={<CarDetailPage />} />
+    <Route path="/brand/:brandName" element={<Brand />} />
+    </Routes>
+      </BrowserRouter>
+  </React.StrictMode>
+)
+/*
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     
@@ -12,3 +29,4 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter >
      </StrictMode>
 )
+*/

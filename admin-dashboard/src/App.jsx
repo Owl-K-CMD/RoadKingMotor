@@ -53,19 +53,19 @@ const App = () => {
   };
 
 const handleDelete = (id) => {
-  const car = cars.find(p => p._id === id);
+  const car = cars.find(p => p.id === id);
   console.log('car find first:', car)
   if (!car) {
     console.error(`Car with ID ${id} not found.`);
     console.log('car return :', car);
     return;
   }
-  const confirmDelete = window.confirm(`Delete ${car.model}?`);
+  const confirmDelete = window.confirm(`Delete ${car.model} ${car.id}?`);
   if (confirmDelete) {
     motoractadmin
       .deleteMotor(id)
       .then(() => {
-        setCars(cars.filter(p => p._id !== id));
+        setCars(cars.filter(p => p.id !== id));
         
       })
     
@@ -78,7 +78,7 @@ const handleDelete = (id) => {
         setTimeout(() => {
           SetErrorMessage(null)
         }, 10000)
-        setCars(cars.filter(n => n._id !== id))
+        setCars(cars.filter(n => n.id !== id))
       })
   }
   }
@@ -138,6 +138,7 @@ const handleCloseChat = () => {
       <th scope="col" className="py-3 px-2">Status</th>
       <th scope="col" className="py-3 px-2">Created at</th>
       <th scope="col" className="py-3 px-2">Other details</th>
+      <th scope="col" className="py-3 px-2">Modify</th>
     </tr>
   </thead>
   <tbody>
@@ -146,23 +147,51 @@ const handleCloseChat = () => {
         <tr key={car._id || Math.random()}
         className="dark:border-gray-700 odd:bg-green-100 even:bg-blue-50 dark:odd:bg-green-400/50 dark:even:bg-blue-800/20 hover:bg-gray-200 dark:hover:bg-gray-700">
 
-          <td className="py-4 px-6">
-            {car.images && (
+          <td className="py-4 px-4">
+            {car.images && Array.isArray(car.images) && car.images.length > 0 ?(
               <img  
-                src={car.images}
-                alt={car.name}
+                src={car.images[0]}
+                alt={`${car.model} 1`}
                 style={{
+                  width: '50px',
+                  height: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  margin: '0 auto'
+                }}
+              />
+            
+          ) : car.images && typeof car.images === 'string' ? (
+                          <img
+                src={car.images}
+                alt={car.model}
+                style={{
+                  width: '100px',
+                  height: 'auto',
+                  objectFit: 'cover',
                   maxWidth: '100%',
                   maxHeight: '100%',
                   display: 'block',
                   margin: '0 auto'
-                }}
+                }} />
+            ) : (
+                       <img 
+                src="https://via.placeholder.com/100x67.png?text=No+Image" // A more specific placeholder
+                alt="No image available" 
+                style={{
+                  width: '100px',
+                  height: 'auto', // Or a fixed height like 67px to match aspect ratio
+                  display: 'block',
+                  margin: '0 auto'
+                }} 
               />
             )}
           </td>
           <td >{car.brand}</td>
           <td >{car.model}</td>
-          <td >{car.price} rwf</td>
+          <td >{car.price} $</td>
           <td >{car.year}</td>
           <td >{car.madeIn}</td>
           <td >{car.mileage} km</td>
@@ -176,13 +205,14 @@ const handleCloseChat = () => {
           <td >{car.status}</td>
           <td >{car.createdAt}</td>
           <td >{car.otherDetails}</td>
-          <td><button
+          
+           <td><Button className={style.buttonsvg} id = {car.id} handleDelete ={handleDelete} />
+          </td>
+          <td>  <button
            className={style.buttonsvg}>
           <img className={style.svg}
            src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-edit-50.png"/> </button></td>
-          <td><Button className={style.buttonsvg} id = {car._id} handleDelete ={handleDelete}
-            
-          /></td>
+         
         </tr>
       ))
     ) : (
