@@ -17,9 +17,14 @@ const getUserByUserName = async(userName) => {
     return response.data;
   }
 
+  const loginUser = async(credentials) => {
+    const response = await axios.post(`${userUrl}/login`, credentials)
+    return response.data;
+  }
+
 export default {
   createUser,
   getAllUsers,
-  getUserByUserName
-
+  getUserByUserName,
+  loginUser
 }

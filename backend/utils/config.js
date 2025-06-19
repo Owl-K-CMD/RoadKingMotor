@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const PORT = process.env.PORT
 const MONGODB_URI = process.env.MONGODB_URI
+const SECRET_KEY = process.env.SECRET_KEY
 
 const AWS_ACCESS_KEY=  process.env.AWS_ACCESS_KEY
 const AWS_SECRET_KEY=process.env.AWS_SECRET_KEY
@@ -11,6 +12,7 @@ const AWS_BUCKET_NAME=process.env.AWS_BUCKET_NAME
 module.exports = { 
    PORT, 
    MONGODB_URI,
+   SECRET_KEY,
    AWS_BUCKET_NAME,
    AWS_ACCESS_KEY, 
    AWS_SECRET_KEY, 

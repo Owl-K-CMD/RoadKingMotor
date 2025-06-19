@@ -6,8 +6,7 @@ import Brand from './brand'
 import Message from './message.jsx'
 import Addtocart from './addToCartButton.jsx'
 import Footer from './footer.jsx'
-
-
+import LoginForm from './loginForm.jsx'
 
 
 
@@ -21,11 +20,21 @@ const App = () => {
   const [chatConfig, setChatConfig] = useState(null)
   const [cartItems, setCartItems] = useState([])
   const [currentImageIndices, setCurrentImageIndices] = useState({})
-
   const [isAddToCartButtonVisible, setIsAddToCartButtonVisible] = useState(false)
+  const [isLoginVisible, setIsLoginVisible] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
 
 
   const ADMIN_USERNAME = 'Road King Motor Support'
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const user = localStorage.getItem('currentUser');
+
+    if (token && user) {
+      setCurrentUser(JSON.parse(user));
+}
+}, [])
 
 
    useEffect(() => {
@@ -55,7 +64,6 @@ const App = () => {
 
       .catch(error => {
        console.error("Error fetching data:", error);
-      //alert("Error fetching data. Please try again later.");
       })
     }, []);
 
@@ -114,7 +122,6 @@ const handleToggleCarVisibility = () => {
 
 const handleAddToCart = (car) => {
   setCartItems(prevItems => {
-   // return [...prevItems, {id: car.id, model: car.model, price: car.price, images: car.images}]
     const existingItemIndex = prevItems.findIndex(item => item.id === car.id);
 
     if (existingItemIndex > -1) {
@@ -135,6 +142,22 @@ const handleAddToCart = (car) => {
   setIsAddToCartButtonVisible(true)
 }
 
+const handleToggleLoginVisibility = () => {
+  setIsLoginVisible(prev => !prev)
+}
+
+const handleLoginSuccess = (userData) => {
+  setCurrentUser(userData);
+  setIsLoginVisible(false);
+}
+
+
+const handleLogout = () => {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
+  setCurrentUser(null);
+}
+
 
   return (
   <div>
@@ -150,9 +173,19 @@ const handleAddToCart = (car) => {
       <button className = {style.navbuttonhome}>
       <img className= {style.home} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-home-48.png" 
       alt="home" /> </button>
- <button className= {style.navbuttonmyaccount}>
-   <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
-    alt = "myaccount" />  </button>
+
+      {currentUser ? (
+        <>
+          <span className={style.welcomeMessage}>Welcome, {currentUser.name}!</span>
+          <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
+        </>
+      ) : (
+        <button className= {style.navbuttonmyaccount} onClick={handleToggleLoginVisibility}>
+          <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
+            alt = "myaccount" />
+        </button>
+      )}
+
  <button className = {style.navbuttonaddtocart} onClick={handleToggleCarVisibility}>
    <img className = {style.addtocart} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
     alt="addtocart"/> </button>
@@ -169,6 +202,24 @@ const handleAddToCart = (car) => {
 </button>
   </div>
  </div>
+
+ {isLoginVisible && !currentUser && (
+  <div  style={{
+        position: 'fixed', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        backgroundColor: 'white', padding: '20px',
+        border: '1px solid #ccc', borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        zIndex: 1001 // Ensure it's above other elements
+      }}>
+                <LoginForm onLoginSuccess={handleLoginSuccess} />
+        <button onClick={handleToggleLoginVisibility} style={{ marginTop: '10px' }}>
+          Close
+        </button>
+      </div>
+
+ )
+  }
 
  <div className={style.search}>
   <button
@@ -235,17 +286,23 @@ const handleAddToCart = (car) => {
               {car.images.length > 1 && (
                 <div className={style.imageNavigation}>
                   <button 
-                    onClick={() => handleImageNavigation(car.id, 'prev')} 
-                    className={style.imageNavButton} /* Add styles for this */
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleImageNavigation(car.id, 'prev')}}
+                    className={style.imageNavButton} 
                   >
                     &lt; Prev
                   </button>
-                  <span className={style.imageCounter}> {/* Add styles for this */}
+                  <span className={style.imageCounter}> {}
                     {currentImageIndex + 1} / {car.images.length}
                   </span>
                   <button 
-                    onClick={() => handleImageNavigation(car.id, 'next')} 
-                    className={style.imageNavButton} /* Add styles for this */
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleImageNavigation(car.id, 'next')}} 
+                    className={style.imageNavButton} 
                   >
                     Next &gt;
                   </button>
@@ -282,15 +339,33 @@ const handleAddToCart = (car) => {
     <div className={style.newbutton}>
       {(() => {
         const carId = car.id;
+        const handleToggleDetails = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          toggleDetails(carId);
+        }
       return(
-        <button  className={style.button} onClick={() => toggleDetails(carId)} >
+        <button  className={style.button} onClick={handleToggleDetails} >
           {isExpanded ? "Hide details" : "Show more"}
         </button>
       )
     })()}
-<button className={style.button} >Buy now</button>
-<button className={style.button} onClick={() => handleOpenChat(car)}>Contact seller</button>
-<button  className={style.button} onClick={() => handleAddToCart(car)}>Add to cart</button>
+<button className={style.button}
+onClick={(event) => {
+  event.preventDefault()
+  event.stopPropagation()
+
+}} >Buy now</button>
+<button className={style.button} onClick={(event) =>{
+  event.preventDefault()
+  event.stopPropagation()
+  handleOpenChat(car); }}>Contact seller</button>
+
+<button  className={style.button} onClick={(event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  
+handleAddToCart(car)}}>Add to cart</button>
 </div>
 
  </div>;
