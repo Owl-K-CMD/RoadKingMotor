@@ -7,6 +7,7 @@ const middleware = require('./utils/middleware')
 const motorsRouter = require('./controller/Motor')
 const messageRouter = require('./controller/Message')
 const usersRouter = require('./controller/User')
+const cartRouter = require('./controller/cartRoute')
 
 
 const app = express()
@@ -29,7 +30,7 @@ app.use(middleware.requestLogger)
 app.use('/api/motors', motorsRouter)
 app.use('/api/messages', messageRouter)
 app.use('/api/user', usersRouter)
-
+app.use('/api/cart', cartRouter)
 
 
 app.use(middleware.unknownEndpoint)

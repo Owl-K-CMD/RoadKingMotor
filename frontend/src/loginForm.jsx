@@ -15,7 +15,7 @@ import userAxios from './userAxios';
     setLoading(true);
 
    if (!userName) {
-      setError('Usermame is required.')
+      setError('Username is required.')
       setLoading(false)
       return;
     }
@@ -27,11 +27,6 @@ import userAxios from './userAxios';
     }
 
 
- 
-
-    if (!password) {
-      setError('Password is required')
-    }
     try {
       const loginData = { userName, password };
       const response = await userAxios.loginUser(loginData);

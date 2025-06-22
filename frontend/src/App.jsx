@@ -7,6 +7,8 @@ import Message from './message.jsx'
 import Addtocart from './addToCartButton.jsx'
 import Footer from './footer.jsx'
 import LoginForm from './loginForm.jsx'
+import AuthForm from './authForm.jsx'
+import cartAxios from './cartAxios.js'
 
 
 
@@ -23,7 +25,8 @@ const App = () => {
   const [isAddToCartButtonVisible, setIsAddToCartButtonVisible] = useState(false)
   const [isLoginVisible, setIsLoginVisible] = useState(null)
   const [currentUser, setCurrentUser] = useState(null)
-
+  const [pendingChatAction, setPendingChatAction] = useState(null)
+  const [pendingCartAction, setPendingCartAction] = useState(null)
 
   const ADMIN_USERNAME = 'Road King Motor Support'
 
@@ -33,6 +36,14 @@ const App = () => {
 
     if (token && user) {
       setCurrentUser(JSON.parse(user));
+}
+const userId = user ? JSON.parse(user).id : null;
+if (userId && token) {
+  cartAxios.getCart(userId, token)
+  .then(userCart => setCartItems(userCart))
+  .catch (error => console.error("Error fetching cart on initial load:", error))
+} else {
+  setCartItems([])
 }
 }, [])
 
@@ -94,6 +105,12 @@ const toggleDetails = (id) => {
 };
 
 const handleOpenChat = (car) => {
+  if (!currentUser) {
+    setIsLoginVisible(true);
+    setPendingChatAction({ open: true, carContext: car});
+    return;
+  }
+
   setChatTargetCar(car);
   setChatConfig({
     targetName: ADMIN_USERNAME,
@@ -121,34 +138,58 @@ const handleToggleCarVisibility = () => {
 }
 
 const handleAddToCart = (car) => {
-  setCartItems(prevItems => {
-    const existingItemIndex = prevItems.findIndex(item => item.id === car.id);
+    const existingItemIndex = cartItems.findIndex(item => item.id === car.id);
+
+    let newCartItems;
 
     if (existingItemIndex > -1) {
-      return prevItems.map((item, index) => 
-        index === existingItemIndex
-       ? {...item, quantity: item.quantity + 1}
-         : item)
+      newCartItems = cartItems.map((item, index) =>
+      index === existingItemIndex
+    ? {...item, quantity: item.quantity + 1}
+  : item);
     } else {
-      return [...prevItems, {
+      newCartItems = [...cartItems, {
         id: car.id,
         model: car.model,
         price: car.price,
         images: car.images,
         quantity: 1
-      }]
+      }];
+
     }
-  });
+    setCartItems(newCartItems);
+
+
+  //const userId = currentUser?.id;
+  const token = localStorage.getItem('authToken');
+  if (currentUser && token) {
+    const userId = currentUser.id;
+     console.log("handleAddtoCart: currentUser:", currentUser);
+     console.log("handleAddToCart: userId:", userId);
+     console.log("handleAddToCart: token:", token)
+    cartAxios.updateCart(userId, newCartItems, token)
+    .catch(error => console.error("Error updating cart on backend:", error))
+  }
   setIsAddToCartButtonVisible(true)
 }
 
 const handleToggleLoginVisibility = () => {
-  setIsLoginVisible(prev => !prev)
+  setIsLoginVisible(prev => !prev);
 }
 
 const handleLoginSuccess = (userData) => {
   setCurrentUser(userData);
   setIsLoginVisible(false);
+  if (pendingChatAction && pendingChatAction.open) {
+    handleOpenChat(pendingChatAction.carContext);
+    setPendingChatAction(null);
+  }
+
+  if (pendingCartAction && pendingCartAction.type === 'add') {
+    handleAddToCart(pendingCartAction.car);
+    setPendingCartAction(null);
+    setPendingChatAction(null);
+  }
 }
 
 
@@ -161,6 +202,7 @@ const handleLogout = () => {
 
   return (
   <div>
+  
     <div className={style.title}>
       <img className={style.logo} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/RKM.png" alt="logo" />
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
@@ -176,7 +218,7 @@ const handleLogout = () => {
 
       {currentUser ? (
         <>
-          <span className={style.welcomeMessage}>Welcome, {currentUser.name}!</span>
+          <span className={style.welcomeMessage}>Welcome, {currentUser.userName}!</span>
           <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
         </>
       ) : (
@@ -195,11 +237,14 @@ const handleLogout = () => {
    src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-settings-48.png"
   alt = "settings"/>
 </button>
-<button className={style.chatbutton}>
-  <img className={style.chat}
+
+    {!isChatVisible && (
+      <button onClick={() => handleOpenChat(null)}><img className={style.chat}
    src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
-  alt = "chat"/>
-</button>
+  alt = "chat"/></button>
+    )}
+  
+
   </div>
  </div>
 
@@ -210,10 +255,13 @@ const handleLogout = () => {
         backgroundColor: 'white', padding: '20px',
         border: '1px solid #ccc', borderRadius: '8px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 1001 // Ensure it's above other elements
+        zIndex: 1001
       }}>
-                <LoginForm onLoginSuccess={handleLoginSuccess} />
-        <button onClick={handleToggleLoginVisibility} style={{ marginTop: '10px' }}>
+                <AuthForm onLoginSuccess={handleLoginSuccess}
+                onClose={handleToggleLoginVisibility}
+                 />
+        <button onClick={handleToggleLoginVisibility}
+         style={{ marginTop: '10px' }}>
           Close
         </button>
       </div>

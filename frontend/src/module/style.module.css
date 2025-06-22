@@ -249,3 +249,8 @@ padding: 2px;
   margin: 0 10px;
   font-size: 0.9em;
 }
+
+.welcomeMessage{
+  color: rgb(255, 255, 255);
+
+}
