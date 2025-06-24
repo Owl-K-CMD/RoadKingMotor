@@ -6,6 +6,7 @@ import Brand from './brand'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import CarDetailPage from './carDetailPage'
+import LoginPage from './loginForm.jsx'
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
@@ -14,6 +15,7 @@ root.render(
     <BrowserRouter>
     <Routes>
     <Route path="/" element={<App />} />
+    <Route path="/login" element={<LoginPage />} />
     <Route path="/car/:carId" element={<CarDetailPage />} />
     <Route path="/brand/:brandName" element={<Brand />} />
     </Routes>

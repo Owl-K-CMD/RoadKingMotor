@@ -23,7 +23,7 @@ const getUserByUserName = async(userName) => {
   }
 
   const forgotPassword = async (emailOrUsername) => {
-    const response = await axios.post(`${userUrl}/forot-password`, { email: emailOrUsername })
+    const response = await axios.post(`${userUrl}/forgot-password`, { email: emailOrUsername })
     return response.data;
   }
 

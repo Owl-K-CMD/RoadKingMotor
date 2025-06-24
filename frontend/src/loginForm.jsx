@@ -32,6 +32,7 @@ import userAxios from './userAxios';
       const response = await userAxios.loginUser(loginData);
       console.log('Login successful:', response);
       localStorage.setItem('authToken', response.token);
+      localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('currentUser', JSON.stringify(response.user));
 
      if (onLoginSuccess) {

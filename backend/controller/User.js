@@ -116,6 +116,11 @@ usersRouter.post('/login', async(request, response, next) => {
       console.log(`LOGIN FAIL: User "${normalizedUserName}" not found.`);
       return response.status(401).json({ error: 'Invalid username or password' });
     }
+
+    if (!user.passwordHash) {
+      console.error(`LOGIN CRETICAL: User "${normalizedUserName}" (ID: ${user._id}) has no password hash.)`)
+      return response.status(500).json({ error: 'Server error: User account is not configured correctly.'})
+    }
     const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordCorrect) {
@@ -141,9 +146,16 @@ usersRouter.post('/login', async(request, response, next) => {
       { expiresIn: '1h'}
     )
     
+    const refreshToken = jwt.sign(
+      userForToken,
+      config.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d'}
+    )
+
     response.status(200).json({
       message: 'Login successful',
-      token,
+      token: token,
+      refreshToken,
       user: {
         id: user._id,
         userName: user.userName,
@@ -153,7 +165,7 @@ usersRouter.post('/login', async(request, response, next) => {
       }
     })
   } catch (error) {
-    console.error('DEBURG: Error in /login route catch block:', error)
+    console.error('DEBUG: Error in /login route catch block:', error)
     console.error('LOGIN ERROR: Error in /login route catch block:', error.message, error.stack)
     next(error)
   }

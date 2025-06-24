@@ -9,7 +9,7 @@ import Footer from './footer.jsx'
 import LoginForm from './loginForm.jsx'
 import AuthForm from './authForm.jsx'
 import cartAxios from './cartAxios.js'
-
+import { setLogoutCallback } from './cartAxios.js'
 
 
 const App = () => {
@@ -31,6 +31,7 @@ const App = () => {
   const ADMIN_USERNAME = 'Road King Motor Support'
 
   useEffect(() => {
+    try{
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('currentUser');
 
@@ -39,14 +40,28 @@ const App = () => {
 }
 const userId = user ? JSON.parse(user).id : null;
 if (userId && token) {
-  cartAxios.getCart(userId, token)
-  .then(userCart => setCartItems(userCart))
+  cartAxios.getCart(userId)
+  //.then(userCart => setCartItems(userCart))
+  .then(response => {
+    setCartItems(response.data)
+  })
   .catch (error => console.error("Error fetching cart on initial load:", error))
 } else {
   setCartItems([])
 }
+    } catch (error) {
+      console.error("Error initialing app state from localStorage:", error);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('refreshToken');
+      setCurrentUser(null);
+      setCartItems([]);
+    }
 }, [])
 
+   useEffect(() => {
+    setLogoutCallback(handleLogout)
+   }, [])
 
    useEffect(() => {
     motoract.getAll()
@@ -152,7 +167,7 @@ const handleAddToCart = (car) => {
         id: car.id,
         model: car.model,
         price: car.price,
-        images: car.images,
+        images: [car.images[0]],
         quantity: 1
       }];
 
@@ -160,18 +175,48 @@ const handleAddToCart = (car) => {
     setCartItems(newCartItems);
 
 
-  //const userId = currentUser?.id;
   const token = localStorage.getItem('authToken');
   if (currentUser && token) {
     const userId = currentUser.id;
      console.log("handleAddtoCart: currentUser:", currentUser);
      console.log("handleAddToCart: userId:", userId);
      console.log("handleAddToCart: token:", token)
-    cartAxios.updateCart(userId, newCartItems, token)
+    cartAxios.updateCart(userId, newCartItems)
     .catch(error => console.error("Error updating cart on backend:", error))
   }
   setIsAddToCartButtonVisible(true)
 }
+/*
+const refreshToken = async() => {
+  try{
+    const response = await axios.post('/api/refresh-token', { refreshToken: localStorage.getItem('refreshToken') });
+    const { token, refreshToken } = response.data;
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('refreshToken', refreshToken);
+    } catch (error) {
+    console.error('Error refreshing token:', error)
+    handleLogout()
+  }
+}
+
+const CheckTokenExpiration = () => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    const expirationTime = decodedToken.exp * 1000;
+    const currentTime = Date.now();
+
+    if (expirationTime < currentTime) {
+      console.log("Token has expired. Redirecting.")
+      refreshToken()
+    }
+    
+  }
+}
+
+useEffect(() => { CheckTokenExpiration()}, [])
+
+*/
 
 const handleToggleLoginVisibility = () => {
   setIsLoginVisible(prev => !prev);
@@ -194,9 +239,12 @@ const handleLoginSuccess = (userData) => {
 
 
 const handleLogout = () => {
+  console.log("Executing handleLogout: Clearing session.");
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
+  localStorage.removeItem('refreshToken');
   setCurrentUser(null);
+  setCartItems([])
 }
 
 
@@ -292,7 +340,7 @@ const handleLogout = () => {
      {filtercar.length > 0 ? (
   filtercar.map( car => {
         const currentImageIndex = currentImageIndices[car.id] || 0; 
-      console.log(`Car: ${car.model}, First image URL: ${car.images ? car.images[0] : 'No images'}`)
+      //console.log(`Car: ${car.model}, First image URL: ${car.images ? car.images[0] : 'No images'}`)
         const isExpanded = expandedCarIds.includes(car.id);
 
               let rawFirstImageUrl = null;
@@ -302,11 +350,11 @@ const handleLogout = () => {
         } else if (typeof car.images === 'string' && car.images.trim() !== '') {
           rawFirstImageUrl = car.images.trim();
         }
-                console.log(
-          `Car: ${car.model} (Background Image Processing)`,
-          `| car.images data:`, car.images,
-          `| Extracted rawFirstImageUrl: "${rawFirstImageUrl}"`
-        );
+               // console.log(
+          //`Car: ${car.model} (Background Image Processing)`,
+          //`| car.images data:`, car.images,
+          //`| Extracted rawFirstImageUrl: "${rawFirstImageUrl}"`
+        //);
 
 
         const firstImageUrlForBackground = rawFirstImageUrl ? encodeURI(rawFirstImageUrl) : null;
