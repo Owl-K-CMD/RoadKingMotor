@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import userAxios from './userAxios';
+import style from './module/authStyle.module.css'
+
 
 
     const LoginForm = ({ onLoginSuccess }) => {
@@ -52,12 +54,13 @@ import userAxios from './userAxios';
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
+    <form className={style.loginForm} onSubmit={handleSubmit}>
+      
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <div>
         <label htmlFor="login-username">Username:</label>
         <input
+        placeholder=" Enter your Username"
           type="text"
           id="login-username"
           value={userName}
@@ -65,9 +68,10 @@ import userAxios from './userAxios';
           disabled={loading}
         />
       </div>
-      <div>
+      <div >
         <label htmlFor="login-password">Password:</label>
         <input
+        placeholder=" Enter your Password"
           type="password"
           id="login-password"
           value={password}
@@ -75,7 +79,7 @@ import userAxios from './userAxios';
           disabled={loading}
         />
       </div>
-      <button type="submit" disabled={loading}>
+      <button className={style.loginRegisterButton} type="submit" disabled={loading}>
         {loading ? 'Logging in...' : 'Login'}
       </button>
     </form>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import motoract from './cars'
 import style from './module/style.module.css'
-import Brand from './brand'
+//import Brand from './brand'
 import Message from './message.jsx'
 import Addtocart from './addToCartButton.jsx'
 import Footer from './footer.jsx'
@@ -184,39 +184,9 @@ const handleAddToCart = (car) => {
     cartAxios.updateCart(userId, newCartItems)
     .catch(error => console.error("Error updating cart on backend:", error))
   }
-  setIsAddToCartButtonVisible(true)
-}
-/*
-const refreshToken = async() => {
-  try{
-    const response = await axios.post('/api/refresh-token', { refreshToken: localStorage.getItem('refreshToken') });
-    const { token, refreshToken } = response.data;
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('refreshToken', refreshToken);
-    } catch (error) {
-    console.error('Error refreshing token:', error)
-    handleLogout()
-  }
+  setIsAddToCartButtonVisible(false)
 }
 
-const CheckTokenExpiration = () => {
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    const expirationTime = decodedToken.exp * 1000;
-    const currentTime = Date.now();
-
-    if (expirationTime < currentTime) {
-      console.log("Token has expired. Redirecting.")
-      refreshToken()
-    }
-    
-  }
-}
-
-useEffect(() => { CheckTokenExpiration()}, [])
-
-*/
 
 const handleToggleLoginVisibility = () => {
   setIsLoginVisible(prev => !prev);
@@ -250,7 +220,7 @@ const handleLogout = () => {
 
   return (
   <div>
-  
+  <div className={style.contentToBeFixed}>
     <div className={style.title}>
       <img className={style.logo} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/RKM.png" alt="logo" />
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
@@ -266,7 +236,7 @@ const handleLogout = () => {
 
       {currentUser ? (
         <>
-          <span className={style.welcomeMessage}>Welcome, {currentUser.userName}!</span>
+          <span className={style.welcomeMessage}>Welcome {currentUser.userName}!</span>
           <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
         </>
       ) : (
@@ -297,25 +267,21 @@ const handleLogout = () => {
  </div>
 
  {isLoginVisible && !currentUser && (
-  <div  style={{
-        position: 'fixed', top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: 'white', padding: '20px',
-        border: '1px solid #ccc', borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 1001
-      }}>
-                <AuthForm onLoginSuccess={handleLoginSuccess}
-                onClose={handleToggleLoginVisibility}
-                 />
-        <button onClick={handleToggleLoginVisibility}
+  <div className={style.authFormContainer}>
+            <button onClick={handleToggleLoginVisibility}
+            className={style.closebutton}
          style={{ marginTop: '10px' }}>
           Close
         </button>
+                <AuthForm onLoginSuccess={handleLoginSuccess}
+                onClose={handleToggleLoginVisibility}
+                 />
+
       </div>
 
  )
   }
+
 
  <div className={style.search}>
   <button
@@ -335,6 +301,8 @@ const handleLogout = () => {
   
         ))}
      </div>
+     </div>
+     <div className={style.contentToScroll}>
     <div className={style.filter}>
      
      {filtercar.length > 0 ? (
@@ -473,40 +441,24 @@ handleAddToCart(car)}}>Add to cart</button>
   )
  }
 
-<Brand />
+{/*<Brand />*/}
 
 {isChatVisible && chatConfig && (
-      <div style={{
-        position: 'fixed', overflowY: 'auto', bottom: '20px',
-        right: '20px',
-        width: '350px',
-        maxHeight: '500px',
-        backgroundColor: 'white',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '15px'
-      }}>
+      <div className={style.chatContainer}>
         <Message targetName={chatConfig.targetName} onClose={handleCloseChat} />
       </div>
     )}
 
     </div>
 {isAddToCartButtonVisible && (
-  <div style={{position: 'fixed', overflowY: 'auto', bottom: '20px',  right: '20px',
-          width: '350px',   maxHeight: '100%',   backgroundColor: 'white',   border: '1px solid #ccc',
-          borderRadius: '8px',  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',   zIndex: 1000,
-          display: 'flex',  flexDirection: 'column',     padding: '15px'
-        }}>
+  <div className={style.cartContainer}>
     <Addtocart cartItems={cartItems} onClose={closeAddToCartContent} />
   </div>
 )}
 
   <div className={style.lineAboveFooter}></div>
   <Footer />
+  </div>
   </div>
   )
 }

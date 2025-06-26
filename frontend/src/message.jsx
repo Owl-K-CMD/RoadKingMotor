@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import messageAct from './messageAxios';
 import userAct from './userAxios.js';
+import style from './module/styleMessage.module.css';
+
 
 const Message = ({ targetName, onClose }) => {
   const [messages, setMessages] = useState([]);
@@ -15,8 +17,35 @@ const Message = ({ targetName, onClose }) => {
   const [newPassword, setNewPassword] = useState('');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [supportUser, setSupportUser] = useState(null)
+  const messagesEndRef = useRef(null);
 
 
+  const processedUserResponse = (userData) => {
+    if (userData && typeof userData === 'object' && typeof userData.id !== 'undefined' && typeof userData._id === 'undefined') {
+      return {...userData, _id: userData.id}
+    }
+    return userData;
+  }
+
+useEffect(() => {
+  const token = localStorage.getItem('authToken');
+  const storedUser = localStorage.getItem('currentUser');
+
+  if (token && storedUser) {
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      const processedUser = processedUserResponse(parsedUser);
+      if (processedUser && processedUser.id) {
+        setUser(processedUser);
+        setNameConfirmed(true);
+        setError(null)
+      }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+    }
+  }
+  
+}, [])
 
 const processUserResponse = (userData) => {
  if (userData && typeof userData === 'object' && typeof userData.id !== 'undefined' && typeof userData._id === 'undefined') {
@@ -25,7 +54,7 @@ const processUserResponse = (userData) => {
   return userData;
 }
 
-// Inside your imports and component...
+
 
 useEffect(() => {
   if (targetName && nameConfirmed && user && user._id) {
@@ -105,13 +134,22 @@ useEffect(() => {
   };
 
   const intervalId = setInterval(fetchMessages, 5000);
-  fetchMessages(); // Immediate fetch on mount
+  fetchMessages();
 
   return () => {
     isMounted = false;
     clearInterval(intervalId);
   };
 }, [user, supportUser]);
+
+
+const scrollToBottom = () => {
+  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+};
+
+useEffect(() => {
+  scrollToBottom();
+}, [messages])
 
 
   const handleUserLookupAndProceed = async () => {
@@ -182,7 +220,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 
             if (registered && registered._id) {
         setUser(registered);
-        setUserName(registered.userName); // Update userName state to reflect the registered user
+        setUserName(registered.userName);
         setNameConfirmed(true);
         setShowRegistrationForm(false);
         setNewUserName('');
@@ -263,15 +301,15 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 
   return (
     <div style={{
-      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+    }} className={style.messageContainer}>
+      <div className={style.chatHeader}>
+              {onClose && <button className={style.closebutton} onClick={onClose}>Close</button>}
+      <h3 className={style.chatTitle}><strong>Chat Support</strong></h3>
+      <h4 className={style.chatTitlesmall}><strong>{supportUser ? `Chat with ${supportUser.userName}` : (targetName ? `Connecting to ${targetName}...` : 'Chat support')}</strong></h4>
 
-    }}>
-      <div style={{}}>
-      <h3>Chat Support</h3>
-      <h4>{supportUser ? `Chat with ${supportUser.userName}` : (targetName ? `Connecting to ${targetName}...` : 'Chat support')}</h4>
 
 
-      {onClose && <button onClick={onClose}>Close</button>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
       {!nameConfirmed && (
@@ -330,7 +368,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 
       {nameConfirmed && (
         <div>
-          <div className="message-list" style={{ marginTop: '15px' }}>
+          <div className={style.message} >
             {filteredMessages.length === 0 ? (
               <p>No messages yet. Start the conversation!</p>
             ) : (
@@ -339,25 +377,17 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
                 const isSenderSelf = msg.sender && msg.sender._id === user._id;
                 const senderName = msg.sender && msg.sender.userName ? msg.sender.userName : 'Unknown user'
                 
-                return (<div
+                return (<div 
                 key={msg.id || `msg-${index}-${msg.sender?._id}-${msg.createdAt}`}
                  style={{
-                 background: isSenderSelf ? '#dcf8c6' : '#f1f1f1',
                   display: 'flex',
                   justifyContent: isSenderSelf ? 'flex-end' : 'flex-start',
                   margin: '8px 0',
-                  padding: '10px 14px',
                   borderRadius: '8px',
-                  maxWidth: '80%',
                   wordBreak: 'break-word',
-                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 }}>
                     <div style={{
-                      backgroundColor: isSenderSelf ? '#dcf8c6' : '#e9e9eb', // Different colors for sent/received
-                      padding: '10px 14px',
-                      borderRadius: '15px', // More rounded bubbles
-                      maxWidth: '70%',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                      maxWidth: '80%',
                       wordBreak: 'break-word',
                     }}>
               
@@ -372,12 +402,13 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
                 </div>
                ) })
             )}
-            
+            {/*<div ref={messagesEndRef} />*/}
           
           </div>
 
-          <div style={{  position: 'fixed', bottom: '10px', justifyContent: 'center', alignItems: 'center', bottom: '10px', right: '10px', marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className={style.messageInput}>
             <textarea
+            className={style.messageInput}
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -389,7 +420,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
                 }
               }}
             />
-            <button onClick={sendMessage} disabled={!input.trim() || !user || !supportUser}>Send</button>
+            <button className={style.sendButton} onClick={sendMessage} disabled={!input.trim() || !user || !supportUser}>Send</button>
           </div>
         </div>
       )}

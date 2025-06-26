@@ -2,6 +2,7 @@ const CartRouter = require('express').Router()
 const { request } = require('express')
 const Cart = require('../module/cart')
 const config = require('../utils/config')
+const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 
 
@@ -27,7 +28,6 @@ const REFRESH_TOKEN_SECRET = config.REFRESH_TOKEN_SECRET
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
-    //request.user = decoded.user;
     console.log('Backend: Token decoded successfully:', decoded)
     request.user = decoded;
 
@@ -71,7 +71,6 @@ CartRouter.get('/:userId', authMiddleware, async(request, response) => {
 CartRouter.post('/:userId', authMiddleware, async(request, response) => {
   try {
     const { userId } = request.params;
-    const newCartItems = request.body;
     const { items } = request.body;
 
 

@@ -4,6 +4,7 @@ const User = require('../module/user')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config');
 const crypto = require('crypto');
+//const { error } = require('console');
 
 
 usersRouter.get('/', async(request, response, next) => {
@@ -67,16 +68,36 @@ if(!phoneNumber) {
 
   const savedUser = await user.save()
 
+  if (!config.SECRET_KEY) {
+    console.error('REGISTRATION CRITICAL: SECRET_KEY is undefined or empty. Cannot sign JWT.');
+    throw new Error('SECRET_KEY is not configured properly.')
+  }
+
+  if (!config.REFRESH_TOKEN_SECRET) {
+    console.error('REGISTRATION CRITICAL: REFRESH_TOKEN_SECRET is undefined or empty. Cannot sign JWT.')
+    throw new Error('REFRESH_TOKEN_SECRET is not configured properly.')
+  }
+
   const userForToken = {
     id: savedUser._id,
     userName: savedUser.userName,
   };
 
-  const token = jwt.sign(userForToken, config.SECRET_KEY, { expiresIn: '1h' });
+  const token = jwt.sign(userForToken,
+     config.SECRET_KEY,
+      { expiresIn: '1h' }
+    );
+
+    const refreshToken = jwt.sign(
+      userForToken,
+      config.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d'}
+    );
 
   response.status(201).json({
     message: 'Registration successful, loggging you in...',
     token,
+    refreshToken,
     user: {
       id: savedUser._id,
       userName: savedUser.userName,
@@ -89,6 +110,8 @@ if(!phoneNumber) {
   catch (error) {
         if (error.code === 11000 && error.keyPattern && error.keyPattern.userName) {
       return response.status(409).json({ error: 'Username already exists. Please choose a different one.' });
+    } else if(error.name === 'ValidationError'){
+     return response.status(400).json({ error: error.message });
     }
     next(error)
   }
@@ -118,7 +141,7 @@ usersRouter.post('/login', async(request, response, next) => {
     }
 
     if (!user.passwordHash) {
-      console.error(`LOGIN CRETICAL: User "${normalizedUserName}" (ID: ${user._id}) has no password hash.)`)
+      console.error(`LOGIN CRiTICAL: User "${normalizedUserName}" (ID: ${user._id}) has no password hash.)`)
       return response.status(500).json({ error: 'Server error: User account is not configured correctly.'})
     }
     const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
@@ -138,7 +161,14 @@ usersRouter.post('/login', async(request, response, next) => {
 
     if (!config.SECRET_KEY) {
       console.error('LOGIN CRITICAL: SECRET_KEY is undefined or empty. Cannot sign JWT.');
-      throw new Error('SECRET_KEY is not configured properly.')
+      //throw new Error('SECRET_KEY is not configured properly.')
+      return response.status(500).json({error: 'Server configuration error: JWT secret is missing.'});
+    }
+
+    if (!config.REFRESH_TOKEN_SECRET) {
+      console.error('LOGIN CRITICAL: REFRESH_TOKEN_SECRET is undefined or empty. Cannot sign JWT.');
+      //throw new Error('REFRESH_TOKEN_SECRET is not configured properly.')
+      return response.status(500).json({error: 'Server configuration error: JWT secret is missing.'});
     }
     const token = jwt.sign(
       userForToken,
@@ -153,15 +183,16 @@ usersRouter.post('/login', async(request, response, next) => {
     )
 
     response.status(200).json({
-      message: 'Login successful',
-      token: token,
+      message: 'Login successful.',
+      token,
       refreshToken,
-      user: {
+           user: {
         id: user._id,
         userName: user.userName,
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber
+
       }
     })
   } catch (error) {
@@ -203,8 +234,8 @@ usersRouter.post('/forget-password', async (request, response,next) => {
     }
 })
 
-usersRouter.post('/reset-password', async (request, response, next) => {
-  const { token } = request.body;
+usersRouter.post('/reset-password/:token', async (request, response, next) => {
+  const { token } = request.params;
   const { password } = request.body;
 
   try {

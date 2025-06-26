@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import userAxios from './userAxios';
+import style from './module/authStyle.module.css'
+
 
 const RegistrationForm = ({ onRegistrationSuccess }) => {
   const [userName, setUserName] = useState('');
@@ -18,7 +20,7 @@ const RegistrationForm = ({ onRegistrationSuccess }) => {
     setSuccessMessage('');
     setLoading(true);
 
-    if (!userName || !name || !phoneNumber || !password || !confirmPassword) {
+    if (!userName || !name || !email || !phoneNumber || !password || !confirmPassword) {
       setError('Please fill in all required fields (Username, Full Name, Phone Number, Password, Confirm Password).');
       setLoading(false);
       return;
@@ -37,30 +39,25 @@ const RegistrationForm = ({ onRegistrationSuccess }) => {
         return;
     }
 
-    const newUser = {
-      userName,
-      name,
-      email: email || undefined,
-      phoneNumber,
-      password,
-    };
+  
 
     try {
-      const response = await userAxios.createUser(newUser);
+      const registrationData = { userName, name, email, phoneNumber, password };
+
+      const response = await userAxios.createUser(registrationData);
+      console.log('Registration successful, logging in:', response);
       setSuccessMessage(response.message || 'Registration successful! You can now log in.');
-
-      
-          localStorage.setItem('authToken', response.token);
-          localStorage.setItem('currentUser', JSON.stringify(response.user))
-
+      localStorage.setItem('authToken', response.token);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('currentUser', JSON.stringify(response.user))
      setUserName('');
-      setName('');
-      setEmail('');
-      setPhoneNumber('');
-      setPassword('');
-      setConfirmPassword('');
+     setName('');
+     setEmail('');
+     setPhoneNumber('');
+     setPassword('');
+     setConfirmPassword('');
       if (onRegistrationSuccess) {
-        onRegistrationSuccess(response);
+        onRegistrationSuccess(response.user);
 
       }
     } catch (error) {
@@ -76,8 +73,8 @@ const RegistrationForm = ({ onRegistrationSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Register</h2>
+    <form  className={style.loginForm} onSubmit={handleSubmit}>
+      
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       <div>
@@ -101,7 +98,7 @@ const RegistrationForm = ({ onRegistrationSuccess }) => {
         />
       </div>
       <div>
-        <label htmlFor="reg-email">Email (Optional):</label>
+        <label htmlFor="reg-email">Email: * </label>
         <input
           type="email"
           id="reg-email"
@@ -140,7 +137,7 @@ const RegistrationForm = ({ onRegistrationSuccess }) => {
           disabled={loading}
         />
       </div>
-      <button type="submit" disabled={loading}>
+      <button  className={style.loginRegisterButton} type="submit" disabled={loading}>
         {loading ? 'Registering...' : 'Register'}
       </button>
     </form>

@@ -15,9 +15,6 @@ const CarDetailPage = () => {
     if (carId) {
       setLoading(true);
       setError(null);
-      // Assuming your motoract service has a getById method
-      // If not, you'll need to add it to your ./cars.js file
-      // e.g., const getById = (id) => axios.get(`${BASE_URL}/cars/${id}`).then(res => res.data);
       motoract.getById(carId) 
         .then((data) => {
           setCarDetails(data);
@@ -59,8 +56,7 @@ const CarDetailPage = () => {
     return <div className={styleCarDetails.notFound}>Car not found. <button onClick={() => navigate('/')}>Go Home</button></div>;
   }
 
-  // Determine the image source (handles string or array)
-  let imageToDisplay = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-no-image"; // Default placeholder
+  let imageToDisplay = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-no-image";
   if (carDetails.images) {
     if (Array.isArray(carDetails.images) && carDetails.images.length > 0) {
       imageToDisplay = carDetails.images[currentImageIndex];
@@ -73,12 +69,12 @@ const CarDetailPage = () => {
 
 
   return (
-    <div className={styleCarDetails.carDetailPageContainer}> {/* Add styleCarDetailss for this container */}
+    <div className={styleCarDetails.carDetailPageContainer}> 
       <button onClick={() => navigate(-1)} className={styleCarDetails.backButton}>&larr; Back</button>
       
       <h1 className={styleCarDetails.carDetailTitle}>{carDetails.brand} - {carDetails.model}</h1>
       
-      <div className={styleCarDetails.carDetailLayout}> {/* For layout, e.g., image on left, details on right */}
+      <div className={styleCarDetails.carDetailLayout}> 
         <div className={styleCarDetails.carDetailImageSection}>
           <img 
             src={imageToDisplay} 
@@ -112,11 +108,11 @@ const CarDetailPage = () => {
           {carDetails.otherDescription && <p><strong>Other Details:</strong> {carDetails.otherDescription}</p>}
           <p><strong>Listed On:</strong> {new Date(carDetails.createdAt).toLocaleDateString()}</p>
           
-          {/* Add to Cart, Contact Seller buttons can be added here if needed */}
+
           <div className={styleCarDetails.carDetailActions}>
             <button className={styleCarDetails.button}>Buy Now</button>
             <button className={styleCarDetails.button}>Contact Seller</button>
-            {/* <button className={styleCarDetails.button} onClick={() => handleAddToCart(carDetails)}>Add to Cart</button> */}
+
           </div>
         </div>
       </div>

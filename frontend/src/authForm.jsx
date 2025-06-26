@@ -2,8 +2,9 @@ import React, { useState }from 'react'
 import LoginForm from './loginForm'
 import RegistrationForm from './RegistrationForm'
 import ForgotPasswordForm from './forgotPasswordForm'
+import style from './module/authStyle.module.css'
 
-const AuthForm = ({ onLoginSuccess, onClose }) => {
+const AuthForm = ({ onLoginSuccess}) => {
   const [activeTab, setActiveTab] = useState('login');
 
   const tabButtonStyle = {
@@ -13,30 +14,20 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
     cursor: 'pointer',
     marginRight: '5px',
     borderRadius: '5px 5px 0 0 ',
-    outline: 'none'
+    outline: 'none',
+    
   };
  
   const activeTabStyle = {
     ...tabButtonStyle,
-    background: '#ddd'
-  };
+    background: '#ddd',
+     };
 
-    const containerStyle = {
-    maxWidth: '400px',
-    margin: '20px auto',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    backgroundColor: 'white',
-  };
 
-  const handleRegistrationSuccess = () => {
-    setActiveTab('login')
-  }
 
   return (
-    <div style={containerStyle}>
-       <div style={{ display: 'flex'}}>
+    <div className={style.containerStyle}>
+       <div className={style.tabContainer}>
         <button
         style={activeTab === 'login' ? activeTabStyle : tabButtonStyle}
         onClick={() => setActiveTab('login')}
@@ -64,10 +55,13 @@ Forgot password
         {activeTab === 'forgotPassword' && (
         <ForgotPasswordForm />
         )}
-
+  {/*   
+     {onClose && (
         <button onClick={onClose} style={{ marginTop: '10px' }}>
           Close
           </button>
+     )}
+*/}
     </div>
   );
   };

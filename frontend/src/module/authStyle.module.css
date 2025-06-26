@@ -1,0 +1,38 @@
+.containerStyle{
+    max-width: 400px;
+    margin: 0px auto;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.loginRegisterButton{
+ background-color: rgba(0, 150, 0, 0.9);
+ padding: min(0.5em, 10%);
+ border-radius: 20%;
+ box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+ border: 2px solid rgb(0, 0, 0);
+}
+
+.loginForm{
+  background-color: beige;
+  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2rem;
+}
+
+.loginForm input{
+  
+  right: 10px;
+  background-color: rgb(250, 250, 250);
+}
+
+.tabContainer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  
+}
