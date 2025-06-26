@@ -255,6 +255,32 @@ const renderAuthForm = () => {
         </div>
       )}
 
+
+      {showAuthForm && (
+        <div className={style.authContainer}>
+          <hr />
+          <h3 style={{ textAlign: 'center' }}>Please Login or Register to Continue</h3>
+          {isRegistering ? (
+            <form onSubmit={handleRegister} className={style.authForm}>
+              <input type="text" value={regUsername} onChange={e => setRegUsername(e.target.value)} placeholder="Username" required />
+              <input type="text" value={regName} onChange={e => setRegName(e.target.value)} placeholder="Full Name" required />
+              <input type="email" value={regEmail} onChange={e => setRegEmail(e.target.value)} placeholder="Email (Optional)" />
+              <input type="tel" value={regPhoneNumber} onChange={e => setRegPhoneNumber(e.target.value)} placeholder="Phone Number" required />
+              <input type="password" value={regPassword} onChange={e => setRegPassword(e.target.value)} placeholder="Password" required />
+              <button type="submit">Register</button>
+              <button type="button" onClick={() => setIsRegistering(false)}>Already have an account? Login</button>
+            </form>
+          ) : (
+            <form onSubmit={handleLogin} className={style.authForm}>
+              <input type="text" value={loginUsername} onChange={e => setLoginUsername(e.target.value)} placeholder="Enter your username" required />
+              <button type="submit">Login</button>
+              <button type="button" onClick={() => setIsRegistering(true)}>Don't have an account? Register</button>
+            </form>
+          )}
+          {authError && <p className={style.authError}>{authError}</p>}
+        </div>
+      )}
+
       <button type='button' onClick={makePayment} 
       disabled={cartItems.length === 0}>
         Buy Now

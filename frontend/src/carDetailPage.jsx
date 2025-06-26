@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
-import motoract from './cars'; // Assuming this is your service module
-import styleCarDetails from './module/styleCarDetails.module.css'; // You can reuse or create new styles
+import motoract from './cars'; 
+import styleCarDetails from './module/styleCarDetails.module.css'; 
 
 const CarDetailPage = () => {
   const { carId } = useParams();
