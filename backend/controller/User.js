@@ -161,13 +161,12 @@ usersRouter.post('/login', async(request, response, next) => {
 
     if (!config.SECRET_KEY) {
       console.error('LOGIN CRITICAL: SECRET_KEY is undefined or empty. Cannot sign JWT.');
-      //throw new Error('SECRET_KEY is not configured properly.')
       return response.status(500).json({error: 'Server configuration error: JWT secret is missing.'});
     }
 
     if (!config.REFRESH_TOKEN_SECRET) {
       console.error('LOGIN CRITICAL: REFRESH_TOKEN_SECRET is undefined or empty. Cannot sign JWT.');
-      //throw new Error('REFRESH_TOKEN_SECRET is not configured properly.')
+
       return response.status(500).json({error: 'Server configuration error: JWT secret is missing.'});
     }
     const token = jwt.sign(
@@ -202,7 +201,7 @@ usersRouter.post('/login', async(request, response, next) => {
   }
 })
 
-usersRouter.post('/forget-password', async (request, response,next) => {
+usersRouter.post('/forgot-password', async (request, response,next) => {
   const { email } = request.body;
 
   try{

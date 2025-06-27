@@ -20,7 +20,7 @@ mongoose.connect(url)
 
   const motorSchema =new mongoose.Schema({
   images: {type: String, required: true},
-  brand: {type: String, required: true},
+  brand: [{type: String, required: true}],
   model: {type: String, required: true},
   price: {type: Number, required: true},
   year: {type: Number, required: true},
@@ -45,7 +45,7 @@ mongoose.connect(url)
   })
 
   const userSchema = new mongoose.Schema({
-    usename: { type: String, required: true, unique: true },
+    userName: { type: String, required: true, unique: true },
     name: {type: String, required: true },
     phonenumber: { type: String, required: true },
     password: { type: String, required: true },
