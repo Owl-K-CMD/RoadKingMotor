@@ -38,8 +38,8 @@ const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
 if (process.env.NODE_ENV === 'production') {
-  app.get('/*path', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(frontendPath, 'index.html'));
   });
 }
 
