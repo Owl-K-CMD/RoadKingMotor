@@ -1,45 +1,3 @@
-/*
-require('dotenv').config()
-const express = require('express')
-const mongoose = require('mongoose')
-const config = require('./utils/config')
-const logger = require('./utils/logger')
-const middleware = require('./utils/middleware')
-const motorsRouter = require('./controller/Motor')
-const messageRouter = require('./controller/Message')
-const usersRouter = require('./controller/User')
-const cartRouter = require('./controller/cartRoute')
-
-
-const app = express()
-
-logger.info('connecting to', config.MONGODB_URI)
-
-mongoose
-  .connect(config.MONGODB_URI)
-  .then(() => {
-    logger.info('connected to MongoDB')
-  })
-  .catch((error) => {
-    logger.error('error connection to MongoDB:', error.message)
-  })
-
-app.use(express.static('dist'))
-app.use(express.json())
-app.use(middleware.requestLogger)
-
-app.use('/api/motors', motorsRouter)
-app.use('/api/messages', messageRouter)
-app.use('/api/user', usersRouter)
-app.use('/api/cart', cartRouter)
-
-
-app.use(middleware.unknownEndpoint)
-app.use(middleware.errorHandler)
-
-module.exports = app
-*/
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -71,10 +29,10 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 
-//app.use('/api/motors', motorsRouter);
-//app.use('/api/messages', messageRouter);
-//app.use('/api/user', usersRouter);
-//app.use('/api/cart', cartRouter);
+app.use('/api/motors', motorsRouter);
+app.use('/api/messages', messageRouter);
+app.use('/api/user', usersRouter);
+app.use('/api/cart', cartRouter);
 
 
 if (process.env.NODE_ENV === 'production') {
@@ -90,4 +48,4 @@ if (process.env.NODE_ENV === 'production') {
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
-module.exports = app;
+module.exports = app
