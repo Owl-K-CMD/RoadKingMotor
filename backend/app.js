@@ -34,10 +34,14 @@ app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
+
 
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, '../frontend/dist');
   app.use(express.static(frontendPath));
+
 
 
   app.get('/files{/*path}', (req, res) => {
