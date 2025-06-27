@@ -44,7 +44,7 @@ const REFRESH_TOKEN_SECRET = config.REFRESH_TOKEN_SECRET
 }
 
 
-CartRouter.post('/refresh_token', async (request, response) => {
+CartRouter.post('/refreshToken', async (request, response) => {
   const refreshToken = request.body.refreshToken;
   
   if (!refreshToken) {

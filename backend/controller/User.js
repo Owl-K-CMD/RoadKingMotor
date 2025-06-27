@@ -201,7 +201,7 @@ usersRouter.post('/login', async(request, response, next) => {
   }
 })
 
-usersRouter.post('/forgot-password', async (request, response,next) => {
+usersRouter.post('/forgotPassword', async (request, response,next) => {
   const { email } = request.body;
 
   try{
@@ -233,7 +233,7 @@ usersRouter.post('/forgot-password', async (request, response,next) => {
     }
 })
 
-usersRouter.post('/reset-password/:token', async (request, response, next) => {
+usersRouter.post('/resetPassword/:token', async (request, response, next) => {
   const { token } = request.params;
   const { password } = request.body;
 
