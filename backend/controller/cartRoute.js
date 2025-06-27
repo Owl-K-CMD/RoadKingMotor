@@ -43,6 +43,36 @@ const REFRESH_TOKEN_SECRET = config.REFRESH_TOKEN_SECRET
   }
 }
 
+
+CartRouter.post('/refresh_token', async (request, response) => {
+  const refreshToken = request.body.refreshToken;
+  
+  if (!refreshToken) {
+    return response.status(401).json({ message: 'Refresh token is required'})
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+
+    const newAccessToken = jwt.sign(
+      { id: decoded.id, userName: decoded.userName },
+      SECRET_KEY,
+      { expiresIn: '15m'}
+    );
+    
+
+    const newRefreshToken = jwt.sign(
+      { id: decoded.id, userName: decoded.userName },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d'}
+    )
+    response.json({ token: newAccessToken, refreshToken: newRefreshToken})
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+   return response.status(403).json({ message: 'Invalid refresh token'})
+  }
+})
+
 CartRouter.get('/:userId', authMiddleware, async(request, response) => {
    try {
     const { userId } = request.params;
@@ -94,33 +124,5 @@ CartRouter.post('/:userId', authMiddleware, async(request, response) => {
   }
 })
 
-CartRouter.post('/refresh_token', async (request, response) => {
-  const refreshToken = request.body.refreshToken;
-  
-  if (!refreshToken) {
-    return response.status(401).json({ message: 'Refresh token is required'})
-  }
-
-  try {
-    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
-
-    const newAccessToken = jwt.sign(
-      { id: decoded.id, userName: decoded.userName },
-      SECRET_KEY,
-      { expiresIn: '15m'}
-    );
-    
-
-    const newRefreshToken = jwt.sign(
-      { id: decoded.id, userName: decoded.userName },
-      REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d'}
-    )
-    response.json({ token: newAccessToken, refreshToken: newRefreshToken})
-  } catch (error) {
-    console.error('Error refreshing token:', error);
-   return response.status(403).json({ message: 'Invalid refresh token'})
-  }
-})
 
 module.exports = CartRouter;
