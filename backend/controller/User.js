@@ -4,7 +4,7 @@ const User = require('../module/user')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config');
 const crypto = require('crypto');
-//const { error } = require('console');
+
 
 
 usersRouter.get('/', async(request, response, next) => {

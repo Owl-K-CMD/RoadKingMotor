@@ -1,4 +1,3 @@
-// POST /api/verify-payment
 app.post('/api/verify-payment', async (req, res) => {
   const { transaction_id } = req.body;
 
@@ -12,7 +11,7 @@ app.post('/api/verify-payment', async (req, res) => {
   const data = await response.json();
 
   if (data.status === 'success') {
-    // Save transaction to database
+
     await Payment.create({
       carId: 'CAR-001',
       userEmail: data.data.customer.email,

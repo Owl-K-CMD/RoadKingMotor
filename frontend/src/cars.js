@@ -21,7 +21,7 @@ const deleteMotor = id => {
 };
 
 const getByName = name => {
-  const request = axios.get(`${baseUrl}/${name}`)
+  const request = axios.get(`${baseUrl}/name/${name}`)
   return request.then(response => response.data)
 };
 

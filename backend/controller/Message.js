@@ -49,9 +49,6 @@ try {
 const normalizedsender = sender.trim().replace(/\s\s+/g, ' ');
   const normalizedreceiver = receiver.trim().replace(/\s\s+/g, ' ');
 
- //const senderUser = await User.findOne({ sender: new RegExp('^' + normalizedsender + '$', 'i') });
-  //const receiverUser = await User.findOne({ receiver: new RegExp('^' + normalizedreceiver + '$', 'i') });
-
 const senderUser = await User.findById(normalizedsender);
 const receiverUser = await User.findById(normalizedreceiver);
 

@@ -1,6 +1,5 @@
 
 const motorsRouter = require('express').Router()
-//const { default: cars } = require('../../frontend/src/cars')
 
 const Motor = require('../module/motor')
 const multer = require('multer')
@@ -39,7 +38,7 @@ motorsRouter.get('/:id', (request, response, next) => {
   .catch(error => next(error))
 })
 
- motorsRouter.get('/:name', (request, response, next) => {
+ motorsRouter.get('/name/:name', (request, response, next) => {
   const name = request.params.name;
 
   Motor.find({ name: name })
@@ -82,7 +81,6 @@ if (!files || files.length === 0) {
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
  
-    //const s3Result = await s3Client.send(command);
     const imageUrl = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`
     imageUrls.push(imageUrl);
   }
