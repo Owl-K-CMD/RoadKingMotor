@@ -11,6 +11,8 @@ const motorsRouter = require('./controller/Motor');
 const messageRouter = require('./controller/Message');
 const usersRouter = require('./controller/User');
 const cartRouter = require('./controller/cartRoute');
+const commentRouter = require('./controller/Comment');
+
 
 const app = express();
 
@@ -33,13 +35,14 @@ app.use('/api/motors', motorsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/comments', commentRouter)
 
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
 if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(frontendPath, 'index.html'));
+  app.get('*', (request, response) => {
+    response.sendFile(path.resolve(frontendPath, 'index.html'));
   });
 }
 

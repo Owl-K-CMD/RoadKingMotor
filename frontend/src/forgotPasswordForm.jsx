@@ -16,7 +16,7 @@ const ForgotPasswordForm = () => {
 
 
 if (!email.trim()) {
-  setError('Please enter your username');
+  setError('Please enter your username or email');
   setLoading(false);
   return;
 }
@@ -47,13 +47,13 @@ return (
       {message && <p style={{color: 'green'}}>{message}</p>}
       {error && <p style={{color: 'red'}}>{error}</p>}
       <div>
-        <label htmlFor="forgot-email">Username:</label>
+        <label htmlFor="forgot-email">Username or Email:</label>
         <input
           type="text"
           id="forgot-email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder='Enter your username'
+          placeholder='Enter your username or email'
           disabled={loading}
           style={{ width: '100%', padding: '5px', marginBottom: '10px', boxSizing: 'border-box'}}
         />      

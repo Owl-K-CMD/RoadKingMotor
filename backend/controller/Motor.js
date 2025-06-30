@@ -1,6 +1,4 @@
-
 const motorsRouter = require('express').Router()
-
 const Motor = require('../module/motor')
 const multer = require('multer')
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3")

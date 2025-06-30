@@ -5,7 +5,6 @@ const baseUrl  = '/api/motors'
 
 const getAll = () => {
   const request = axios.get(baseUrl)
-  console.log('baseurl is', baseUrl)
   return request.then(response => response.data)
 };
 

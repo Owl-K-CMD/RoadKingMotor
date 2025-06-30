@@ -55,16 +55,27 @@
   align-items: flex-start;
   gap: 1em;
   border-radius: 10px;
-  align-items: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   position: relative;
   padding: min(0.5em, 9%); 
-  /*color: rgb(231, 250, 250); */
+  border: 2px solid aquamarine;
 }
 
+.carproparty .carpropartyOtherProperty{
+  display: flex;
+  flex-direction: row;
+  border: 1px solid red;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.otherDescription{
+   float: right;
+   border: 1px solid green;
+}
 
 .carproparty::before {
   content: "";
@@ -84,10 +95,10 @@
   flex-direction: row;
 }
 
-/* Ensure direct children of .carproparty are positioned above the overlay */
+
 .carproparty > * {
-  position: relative; /* Required for z-index to take effect */
-  z-index: 1;         /* Place content above the ::before pseudo-element */
+  position: relative;
+  z-index: 1;
 }
 
 .search{

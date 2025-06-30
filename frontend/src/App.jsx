@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import motoract from './cars'
 import style from './module/style.module.css'
-//import Brand from './brand'
 import Message from './message.jsx'
 import Addtocart from './addToCartButton.jsx'
 import Footer from './footer.jsx'
-import LoginForm from './loginForm.jsx'
 import AuthForm from './authForm.jsx'
 import cartAxios from './cartAxios.js'
 import { setLogoutCallback } from './cartAxios.js'
+import Comment from './comment.jsx'
 
 
 const App = () => {
@@ -41,7 +40,6 @@ const App = () => {
 const userId = user ? JSON.parse(user).id : null;
 if (userId && token) {
   cartAxios.getCart(userId)
-  //.then(userCart => setCartItems(userCart))
   .then(response => {
     setCartItems(response.data)
   })
@@ -379,12 +377,18 @@ const handleLogout = () => {
         ) : ( <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-no-image" />
         )}
       </div>
-     
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} </div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Price: </h3>{car.price}  $</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
+ <div className={style.carpropartyOtherProperty}>
+  <div className={style.carProperty}>
+        <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} </div>
+        <div className={style.carpropartyp}><h3 className={style.carContext}>Price: </h3>{car.price}  $</div>
+        <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
+  </div>
+    <div className={style.otherDescription}>
+      <div className={style.carpropartyp}><h3 className={style.carContext}>Other Details</h3>{car.otherDescription}</div>
+      </div>
+ </div>
     {isExpanded && (
-      <div className={style.carproparty}>
+      <div className={style.carpropartyDetails}>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Brand: </h3>{car.brand} </div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Made in: </h3>{car.madeIn}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Mileage: </h3>{car.mileage}</div>
@@ -397,7 +401,8 @@ const handleLogout = () => {
     <div className={style.carpropartyp}><h3 className={style.carContext}>Engine Size: </h3>{car.engineSize}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Status: </h3>{car.status}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Created At: </h3>{car.createdAt}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}>Other Details</h3>{car.otherDescription}</div>
+    
     </div>
     )}
     <div className={style.newbutton}>
@@ -431,7 +436,8 @@ onClick={(event) => {
   
 handleAddToCart(car)}}>Add to cart</button>
 </div>
-
+<Comment car={car}  
+currentUser={currentUser}/>
  </div>;
  </Link>
         )
@@ -440,8 +446,6 @@ handleAddToCart(car)}}>Add to cart</button>
     <div>No car here</div>
   )
  }
-
-{/*<Brand />*/}
 
 {isChatVisible && chatConfig && (
       <div className={style.chatContainer}>

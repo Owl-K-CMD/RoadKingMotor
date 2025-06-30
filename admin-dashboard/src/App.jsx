@@ -45,7 +45,6 @@ const App = () => {
 
       .catch(error => {
        console.error("Error fetching data:", error);
-        //alert("Error fetching data. Please try again later.");
       })
     }, []);
   const toggleNewCarForm = () => {
@@ -178,11 +177,11 @@ const handleCloseChat = () => {
                 }} />
             ) : (
                        <img 
-                src="https://via.placeholder.com/100x67.png?text=No+Image" // A more specific placeholder
+                src="https://via.placeholder.com/100x67.png?text=No+Image" 
                 alt="No image available" 
                 style={{
                   width: '100px',
-                  height: 'auto', // Or a fixed height like 67px to match aspect ratio
+                  height: 'auto', 
                   display: 'block',
                   margin: '0 auto'
                 }} 
@@ -204,7 +203,7 @@ const handleCloseChat = () => {
           <td >{car.engineSize}</td>
           <td >{car.status}</td>
           <td >{car.createdAt}</td>
-          <td >{car.otherDetails}</td>
+          <td >{car.otherDescription}</td>
           
            <td><Button className={style.buttonsvg} id = {car.id} handleDelete ={handleDelete} />
           </td>

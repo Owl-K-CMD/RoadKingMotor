@@ -22,35 +22,12 @@ const Newcar = () => {
   const [newEngineSize, setNewEngineSize] = useState('')
   const [newStatus, setNewStatus] = useState('')
   const [newCreatedAt, setNewCreatedAt] = useState('')
-  const [newOtherDetails, setNewOtherDetails] = useState('')
+  const [newOtherDescription, setNewOtherDescription] = useState('')
   
 
 const addCar = (e) => {
   e.preventDefault();
-/*
-  const newCarObject = {
-    //image: newImage,
-    brand: newBrand,
-    model: newModel,
-    price: newPrice,
-    year: newYear,
-    madeIn: newMadeIn,
-    mileage: newMileage,
-    fuelType: newFuelType,
-    transmission: newTransmission,
-    bodyType: newBodyType,
-    color: newColor,
-    seats: newSeats,
-    doors: newDoors,
-    engineSize: newEngineSize,
-    status: newStatus,
-    createdAt: newCreatedAt,
-    otherDetails: newOtherDetails,
-      }
-    */
-
 const formData = new FormData();
-//formData.append('image', newImage);
 if (newImages.length > 0) {
   newImages.forEach((imageFile) => {
     formData.append('images', imageFile)
@@ -71,7 +48,7 @@ formData.append('doors', newDoors);
 formData.append('engineSize', newEngineSize);
 formData.append('status', newStatus);
 formData.append('createdAt', newCreatedAt);
-formData.append('otherDetails', newOtherDetails);
+formData.append('otherDescription', newOtherDescription);
 
 
 
@@ -96,7 +73,7 @@ formData.append('otherDetails', newOtherDetails);
     setNewEngineSize('');
     setNewStatus('');
     setNewCreatedAt('');
-    setNewOtherDetails('');
+    setNewOtherDescription('');
 
    if (document.getElementById('newCarImageInput')) {
       document.getElementById('newCarImageInput').value = null;
@@ -111,7 +88,6 @@ formData.append('otherDetails', newOtherDetails);
 
     }
 const handleNewImage = (e) => {
-     //setNewImages(e.target.files[0]);
  
      if (e.target.files && e.target.files.length > 0) {
       setNewImages(Array.from(e.target.files));
@@ -181,8 +157,8 @@ const handleNewCreatedAt = (e) => {
 setNewCreatedAt(e.target.value);
 }
 
-const handleNewOtherDetails = (e) => {
-setNewOtherDetails(e.target.value);
+const handleNewOtherDescription = (e) => {
+setNewOtherDescription(e.target.value);
 }
 
 
@@ -273,8 +249,8 @@ setNewOtherDetails(e.target.value);
 </div>
 
 <div className = {style.inputnewcar}>
- Other details <input value= {newOtherDetails}
-  onChange= {handleNewOtherDetails} />
+ Other details <input value= {newOtherDescription}
+  onChange= {handleNewOtherDescription} />
 </div>
 
 

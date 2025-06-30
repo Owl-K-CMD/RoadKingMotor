@@ -202,17 +202,28 @@ usersRouter.post('/login', async(request, response, next) => {
 })
 
 usersRouter.post('/forgotPassword', async (request, response,next) => {
-  const { email } = request.body;
+  const { identifier } = request.body;
 
   try{
-    const user = await User.findOne({ userName: email });
+    if (!identifier || typeof identifier !== 'string' || identifier.trim() ==='') {
+      console.log('Forgot password attempt for identifier');
+      return response.status(400).json({ message: 'Username or email is required.'})
+
+    }
+
+    const trimmedIdentifier = identifier.trim();
+
+    const user = await User.findOne({
+      $or: [
+        { userName: new RegExp('^' + trimmedIdentifier + '$', 'i')},
+        { email: new RegExp('^' + trimmedIdentifier + '$', 'i')}
+      ]
+    })
 
     if (!user) {
-      console.log(`Forgot password attempt for non-existent user/email: ${email}`);
-      return response.status(404).json({ message: 'If an account with that email exists, a password reset link has been sent .'})
-
-    }   
-    
+      console.log(`Forgot password attemp for non-existent identifier: ${identifier}`)
+      return response.status(404).json({ message: 'If an account with  that email exists, a password reset link has been sent.'})
+    }
     const token = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000;

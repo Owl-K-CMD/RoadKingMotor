@@ -23,12 +23,12 @@ const getUserByUserName = async(userName) => {
   }
 
   const forgotPassword = async (emailOrUsername) => {
-    const response = await axios.post(`${userUrl}/forgot-password`, { email: emailOrUsername })
+    const response = await axios.post(`${userUrl}/forgotPassword`, { identifier: emailOrUsername })
     return response.data;
   }
 
   const resetPassword = async (token, newPassword) => {
-    const response = await axios.post(`${userUrl}/reset-password/${token}`, { password: newPassword })
+    const response = await axios.post(`${userUrl}/resetPassword/${token}`, { password: newPassword })
     return response.data;
   }
 
