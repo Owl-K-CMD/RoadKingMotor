@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { refreshAuthToken } from '../refreshToken'
 
-const commentURL = '/api/comments'
+//const commentURL = '/api/comments'
+const commentURL = `${import.meta.env.VITE_API_BASE_URL || ''}/api/comments`
 let isRefreshing = false;
 let failedQueue = [];
 let onLogoutCallback = null;
