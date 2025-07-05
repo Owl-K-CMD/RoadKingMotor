@@ -3,7 +3,8 @@ import { refreshAuthToken } from './refreshToken';
 
 let onLogoutCallback = null;
 
-const API_URL = '/api/';
+//const API_URL = '/api/';
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/api/`
 
   const cartAxiosInstance = axios.create({
     baseURL: API_URL,

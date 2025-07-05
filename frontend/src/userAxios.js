@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const userUrl = 'api/user'
+//const userUrl = 'api/user'
+const userUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/user`
 
 const createUser = async (user) => {
   const response = await axios.post(userUrl, user)

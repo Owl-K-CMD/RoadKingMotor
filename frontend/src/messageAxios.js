@@ -1,6 +1,6 @@
 import axios from 'axios'
-const messageUrl = '/api/messages'
-
+//const messageUrl = '/api/messages'
+const messageUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/messages`
 
 const getAllMessages = () => {
   const request = axios.get(messageUrl, { params: {_timestamp: new Date().getTime()}})
