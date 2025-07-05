@@ -27,7 +27,12 @@ mongoose
   .catch((error) => {
     logger.error('error connection to MongoDB:', error.message);
   });
-app.use(cors());
+
+  const corsOptions = {
+  origin: 'https://roadkingmotor-pkx5.onrender.com',
+  }
+
+app.use(cors(corsOptions));
 app.use(express.static('dist'))
 app.use(express.json());
 app.use(middleware.requestLogger);
@@ -39,7 +44,7 @@ app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/comments', commentRouter)
 
-{/*
+/*
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
@@ -48,7 +53,7 @@ if (process.env.NODE_ENV === 'production') {
     response.sendFile(path.resolve(frontendPath, 'index.html'));
   });
 }
-*/}
+*/
 
 
 
