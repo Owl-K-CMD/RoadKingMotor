@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path'); 
 
@@ -26,7 +27,7 @@ mongoose
   .catch((error) => {
     logger.error('error connection to MongoDB:', error.message);
   });
-
+app.use(cors());
 app.use(express.static('dist'))
 app.use(express.json());
 app.use(middleware.requestLogger);
@@ -37,6 +38,7 @@ app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/comments', commentRouter)
+
 {/*
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
@@ -47,6 +49,8 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 */}
+
+
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
