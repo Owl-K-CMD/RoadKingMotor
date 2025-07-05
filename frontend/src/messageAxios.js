@@ -14,7 +14,6 @@ const getMessageByUserName = async(userName) => {
 
 const createMessage = async(newObject) => {
   const request = await axios.post(messageUrl, newObject)
-  //return request.then(response => response.data)
   return request.data;
 };
 

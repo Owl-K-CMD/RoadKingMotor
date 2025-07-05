@@ -122,12 +122,12 @@ usersRouter.post('/login', async(request, response, next) => {
   console.log(`LOGIN ATTEMPT: User "${userName}"`)
 
   try{
-    if (!userName){
+    if (!userName || typeof userName !== 'string'){
       console.log('LOGIN FAIL: Username missing');
       return response.status(400).json({error: 'Username is required'})
     }
 
-    if (!password) {
+    if (!password || typeof password !== 'string') {
       console.log('LOGIN FAIL: password missing');
       return response.status(400).json({error: 'Password is required'})
     }
@@ -159,12 +159,12 @@ usersRouter.post('/login', async(request, response, next) => {
     console.log('Debug: SECRET_KEY for JWT:', config.SECRET_KEY);
     console.log('Debug: Type of SECRET_KEY:', typeof config.SECRET_KEY);
 
-    if (!config.SECRET_KEY) {
+    if (typeof config.SECRET_KEY !== 'string' || !config.SECRET_KEY) {
       console.error('LOGIN CRITICAL: SECRET_KEY is undefined or empty. Cannot sign JWT.');
       return response.status(500).json({error: 'Server configuration error: JWT secret is missing.'});
     }
 
-    if (!config.REFRESH_TOKEN_SECRET) {
+    if (typeof config.REFRESH_TOKEN_SECRET !== 'string' || !config.REFRESH_TOKEN_SECRET) {
       console.error('LOGIN CRITICAL: REFRESH_TOKEN_SECRET is undefined or empty. Cannot sign JWT.');
 
       return response.status(500).json({error: 'Server configuration error: JWT secret is missing.'});
@@ -198,6 +198,36 @@ usersRouter.post('/login', async(request, response, next) => {
     console.error('DEBUG: Error in /login route catch block:', error)
     console.error('LOGIN ERROR: Error in /login route catch block:', error.message, error.stack)
     next(error)
+  }
+})
+
+
+usersRouter.post('/refreshToken', async (request, response) => {
+  const refreshToken = request.body.refreshToken;
+  
+  if (!refreshToken) {
+    return response.status(401).json({ message: 'Refresh token is required'})
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
+
+    const newAccessToken = jwt.sign(
+      { id: decoded.id, userName: decoded.userName },
+      config.SECRET_KEY,
+      { expiresIn: '15m'}
+    );
+    
+
+    const newRefreshToken = jwt.sign(
+      { id: decoded.id, userName: decoded.userName },
+      config.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d'}
+    )
+    response.json({ token: newAccessToken, refreshToken: newRefreshToken})
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+   return response.status(403).json({ message: 'Invalid refresh token'})
   }
 })
 

@@ -8,14 +8,18 @@
   gap: 20px;
   border-radius: 10px;
   background-color: rgb(250, 250, 250);
+  box-sizing: border-box;
+
 
   @media (max-width: 768px) {
    grid-template-columns: 1fr;
- 
+
   }
 }
 
 .navbutton{
+  border: 1px solid navy;
+  font-size: max(1em, 10%);
   box-shadow: inset 0 4px 4px 4px rgb(205, 205, 205);
   border-radius: 3px;
   color:rgb(21, 20, 20);
@@ -23,25 +27,79 @@
   box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   width: fit-content;
-  padding: 3px
+  padding: min(0.1em, 13%);
+  flex-grow: 1;
+  padding: 0.5em 1em;
+}
+
+.filterContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 5px 0;
+}
+
+.filterHamburger {
+  display: none;
 }
 
 
 
-.img{
-   max-Width: 100%;
-   max-Height: 400px;
-   margin: 0 auto;
-   box-shadow:  0 4px 8px rgba(0, 0, 0, 0.5);
-   border-radius: 10px;
-   object-fit: cover;
-   z-index: 1;
-   
+
+@media (max-width: 768px) {
+  .search {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 100;
+    width: 90%;
+    max-width: 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .filterMenuOpen {
+    display: flex; 
+  }
+
+    .filterHamburger {
+    display: block;
+    padding: 8px 12px;
+    font-size: 1em;
+    font-weight: bold;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 }
 
 .imgandits{
-  width: 100%;
+  flex-shrink: 1;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-Width: 100%;
+  max-Height: 400px;
+  margin: 0 auto;
+  box-shadow:  0 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  z-index: 1;
+   
 }
+.img{
+  width: 100%;
+  min-width: 0;
+  height: auto;
+}
+
 
 .navbutton:hover {
   background-color: green;
@@ -61,13 +119,12 @@
   background-position: center;
   position: relative;
   padding: min(0.5em, 9%); 
-  border: 2px solid aquamarine;
+  box-sizing: border-box;
 }
 
 .carproparty .carpropartyOtherProperty{
   display: flex;
   flex-direction: row;
-  border: 1px solid red;
   width: 100%;
   justify-content: space-between;
 }
@@ -90,11 +147,6 @@
   z-index: 0;
 }
 
-.search{
-  display: flex;
-  flex-direction: row;
-}
-
 
 .carproparty > * {
   position: relative;
@@ -102,15 +154,17 @@
 }
 
 .search{
+  flex: 1 1 auto;
   display: flex;
   flex-direction: row;
   gap: 5px;
   border-radius: 10%;
-  padding: 2px;
+  padding: min(1rem, 10%);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   text-align: center;
   align-items: center;
   justify-content: center;
+  font-size: min(1em, 10%);
 }
 
 
@@ -124,13 +178,32 @@ padding: 3px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 10px; 
-  padding: 5px; 
+  gap: min(5px, 10%); 
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(250, 0, 0);
+  flex-shrink: 1;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+}
+
+.newbutton button{
+  width: fit-content;
+  flex-grow: 1;
+  min-width: 0;
+  font-size: clamp(0.65em, 2.2vw, 1em);
+  padding: clamp(0.3em, 1.5vw, 0.6em) clamp(0.5em, 2vw, 1em);
+  border-radius: 20%;
+  border: 1px solid rgb(0, 0, 230);
+  overflow: hidden;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  text-overflow: ellipsis;
 }
 
 .button{
   white-space: nowrap;
-  width:fit-content;
+ 
 }
 
 .lineAboveFooter{
@@ -147,42 +220,23 @@ padding: 3px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: min(1 em, 10%);
+  padding: min(1em, 10%);
   width: 100%;
-  background-image: url('https://roadkingmoor.s3.eu-north-1.amazonaws.com/RKM.png');
-   
+  
   @media (max-width: 768px) {
-    flex-direction: column;
-  }
+  flex-direction: column;
+    }
 }
 
-.title::before{
-  background-color: rgba(255, 255, 255, 0.2);
-}
 .titletext{
   text-shadow: 0 4px 8px rgba(250, 250, 0, 1);
-
-  color: rgb(231, 250, 250);
   font-size: 4vw;
-  box-shadow: inset 8px 8px 8px 8px rgba(20, 20, 0, 1);
- 
+  box-shadow:  8px 8px 8px 8px rgba(20, 20, 0, 1);
   border-radius: 10px;
-  background-color: rgb(33, 36, 33);
-
+  padding: min(0.1rem, 8%);
+  flex: 1 1 auto;
 }
 
-.navbuttonmyaccount{
-  background-color: rgb(33, 36, 33)
-}
-.logo {
-  @apply max-w-2xs;
-  height: 5em;
- 
-  will-change: filter;
-  transition: filter 300ms;
-  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-}
 
 .navbarbutton{
   display: flex;
@@ -192,14 +246,16 @@ padding: 3px;
 
 .navbarbutton button :hover{
    background-color: aquamarine;
+   
 }
 
 .newbutton button{
   box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  width: fit-content;
-  padding: 3px
-
+  border-radius: 10px;  
+  padding: 3px;
+  min-width: 0;
+  flex-shrink: 1;
+  flex-grow: 1;
 }
 
 .newbutton button:hover {
@@ -261,11 +317,11 @@ padding: 2px;
   margin: 0 10px;
   font-size: 0.9em;
 }
-
+/*
 .welcomeMessage{
-  color: rgb(255, 255, 255);
-
+ 
 }
+*/
 
 .chatContainer{
 
@@ -330,4 +386,11 @@ padding: 2px;
   overflow-y: auto;
   flex: 1;
   flex-direction: column;
+}
+
+.carContext{
+  font-size: 15px;
+  color: rgb(0, 0, 0);
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
 }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import motoract from './cars'
 import style from './module/style.module.css'
 import Message from './message.jsx'
@@ -8,8 +7,10 @@ import Footer from './footer.jsx'
 import AuthForm from './authForm.jsx'
 import cartAxios from './cartAxios.js'
 import { setLogoutCallback } from './cartAxios.js'
-import Comment from './comment.jsx'
-
+import AverageRating from './AverageRating.jsx'
+import CommentsList from './commentdisplay.jsx'
+import CommentForm from './commentForm.jsx'
+import CarDetailModal from './carDetailsModals.jsx'
 
 const App = () => {
 
@@ -26,6 +27,12 @@ const App = () => {
   const [currentUser, setCurrentUser] = useState(null)
   const [pendingChatAction, setPendingChatAction] = useState(null)
   const [pendingCartAction, setPendingCartAction] = useState(null)
+  const [commentSectionCarIds, setCommentSectionCarIds] = useState([])
+  const [refresh, setRefresh] = useState(0)
+  const [selectedCar, setSelectedCar] = useState(null)
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
+  
+
 
   const ADMIN_USERNAME = 'Road King Motor Support'
 
@@ -65,7 +72,7 @@ if (userId && token) {
     motoract.getAll()
     
       .then(initialCars => {
-        console.log('Data received from getAll:', initialCars);
+       // console.log('Data received from getAll:', initialCars);
 
         if (Array.isArray(initialCars)) {
           setCars(initialCars);
@@ -215,12 +222,28 @@ const handleLogout = () => {
   setCartItems([])
 }
 
+const handleToggleComments = (event, carId) => {
+  event.preventDefault();
+  event.stopPropagation();
+  setCommentSectionCarIds(prev =>
+    prev.includes(carId)
+      ? prev.filter(id => id !== carId)
+      : [...prev, carId]
+  );
+};
+
+const handleCommentPosted =  () => {
+  setRefresh(prev => prev + 1)
+}
+
+
+
 
   return (
   <div>
   <div className={style.contentToBeFixed}>
     <div className={style.title}>
-      <img className={style.logo} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/RKM.png" alt="logo" />
+  
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
   
 
@@ -234,7 +257,7 @@ const handleLogout = () => {
 
       {currentUser ? (
         <>
-          <span className={style.welcomeMessage}>Welcome {currentUser.userName}!</span>
+          <span className={style.welcomeMessage}>{currentUser.userName}!</span>
           <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
         </>
       ) : (
@@ -280,10 +303,10 @@ const handleLogout = () => {
  )
   }
 
-
+{/*
  <div className={style.search}>
   <button
-  className= {style.newbutton}
+  className= {style.navbutton}
   onClick = {() => setShowAll('')}
   >
   <strong>Show All cars</strong>
@@ -296,15 +319,62 @@ const handleLogout = () => {
       onClick = {() => setShowAll(brand)}>
        <strong> {brand}</strong>
       </button>
-  
-        ))}
+          ))}
+      
+
      </div>
+     */}
+
+     <div className={style.filterContainer}>
+      <button
+        className={style.filterHamburger}
+        onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+        aria-expanded={isFilterMenuOpen}
+        aria-controls="filter-menu"
+      >
+        ☰ Filter Brands
+      </button>
+
+      <div id="filter-menu" className={`${style.search} ${isFilterMenuOpen ? style.filterMenuOpen : ''}`}>
+        <button
+          className={style.navbutton}
+          onClick={() => { setShowAll(''); setIsFilterMenuOpen(false); }}
+        >
+          <strong>Show All cars</strong>
+        </button>
+        {uniqueCarNames.map((brand) => (
+          <button key={brand}
+            className={style.navbutton}
+            onClick={() => {
+              setShowAll(brand);
+              setIsFilterMenuOpen(false);
+            }}>
+            <strong> {brand}</strong>
+          </button>
+        ))}
+      </div>
+    </div>
      </div>
      <div className={style.contentToScroll}>
     <div className={style.filter}>
-     
      {filtercar.length > 0 ? (
   filtercar.map( car => {
+    if (selectedCar && selectedCar.id === car.id) {
+      return (
+        
+  <CarDetailModal car={selectedCar}
+    onClose={() => setSelectedCar(null)}
+    onAddToCart={handleAddToCart}
+    onOpenChat={handleOpenChat}
+    currentUser={currentUser}
+    onCommentPosted={handleCommentPosted}
+    refresh={refresh}
+
+  />
+
+      )
+    }
+
         const currentImageIndex = currentImageIndices[car.id] || 0; 
       //console.log(`Car: ${car.model}, First image URL: ${car.images ? car.images[0] : 'No images'}`)
         const isExpanded = expandedCarIds.includes(car.id);
@@ -326,18 +396,20 @@ const handleLogout = () => {
         const firstImageUrlForBackground = rawFirstImageUrl ? encodeURI(rawFirstImageUrl) : null;
 
         return (
-          <Link to={`/car/${car.id}`} key={car.id} className={style.carCardLink} style={{ textDecoration: 'none', color: 'inherit' }}>
     <div key={car.id} className={style.carproparty}
-    
-     style={firstImageUrlForBackground ? {
+    onClick={() => 
+      setSelectedCar(car)}
+
+         style={firstImageUrlForBackground ? {
         backgroundImage: `url(${firstImageUrlForBackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       } : {}}
-   
-
-    >
+  
+  
+  >
+    
         <div className={style.imgandits}>{car.images && Array.isArray(car.images) && car.images.length > 0 ? (
             <>
               <img
@@ -376,10 +448,12 @@ const handleLogout = () => {
          <img src = {car.images} alt={car.model} className={style.img}/>
         ) : ( <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-no-image" />
         )}
+        
       </div>
+    
  <div className={style.carpropartyOtherProperty}>
   <div className={style.carProperty}>
-        <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} </div>
+        <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} {car.year} </div>
         <div className={style.carpropartyp}><h3 className={style.carContext}>Price: </h3>{car.price}  $</div>
         <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
   </div>
@@ -436,17 +510,31 @@ onClick={(event) => {
   
 handleAddToCart(car)}}>Add to cart</button>
 </div>
-<Comment car={car}  
-currentUser={currentUser}/>
- </div>;
- </Link>
+
+<button onClick={(event) => handleToggleComments(event, car.id)}>
+{commentSectionCarIds.includes(car.id) ? 'Hide Comments' : 'Show Comments'}
+</button>
+
+ 
+ <AverageRating carId={car.id} refresh={refresh} />
+ {commentSectionCarIds.includes(car.id) && (
+  
+  <div>
+    <CommentsList carId={car.id} refresh={refresh} />
+    {currentUser && (
+      <CommentForm carId={car.id} onCommentPosted={handleCommentPosted} />
+    )}
+  </div>
+
+  )}
+  
+  </div>
         )
  })
   ) : (
     <div>No car here</div>
   )
  }
-
 {isChatVisible && chatConfig && (
       <div className={style.chatContainer}>
         <Message targetName={chatConfig.targetName} onClose={handleCloseChat} />

@@ -36,7 +36,7 @@ app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/comments', commentRouter)
-
+{/*
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
@@ -45,6 +45,7 @@ if (process.env.NODE_ENV === 'production') {
     response.sendFile(path.resolve(frontendPath, 'index.html'));
   });
 }
+*/}
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

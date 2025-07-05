@@ -43,7 +43,7 @@ const REFRESH_TOKEN_SECRET = config.REFRESH_TOKEN_SECRET
   }
 }
 
-
+/*
 CartRouter.post('/refreshToken', async (request, response) => {
   const refreshToken = request.body.refreshToken;
   
@@ -72,7 +72,7 @@ CartRouter.post('/refreshToken', async (request, response) => {
    return response.status(403).json({ message: 'Invalid refresh token'})
   }
 })
-
+*/
 CartRouter.get('/:userId', authMiddleware, async(request, response) => {
    try {
     const { userId } = request.params;

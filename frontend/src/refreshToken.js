@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const authAxios = axios.create({
-  baseURL: 'http://localhost:5173/api',
+  baseURL: '/api',
   headers: { 'Content-Type': 'application/json' }
 })
 
@@ -11,10 +11,10 @@ const refreshAuthToken = async () => {
     throw new Error('No refresh token found. User needsto re_authenticate. ')
   }
 
-  const response = await authAxios.post('/cart/refresh_token', { refreshToken });
-  const { token: newAuthToken } = response.data;
+  const response = await authAxios.post('/user/refreshToken', { refreshToken });
+  const { token: newAuthToken, refreshToken: newRefreshToken } = response.data;
   localStorage.setItem('authToken', newAuthToken);
-  localStorage.setItem('refreshToken', response.data.refreshToken)
+  localStorage.setItem('refreshToken', newRefreshToken)
   return newAuthToken
 }
 
