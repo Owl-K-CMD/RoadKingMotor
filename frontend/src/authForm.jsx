@@ -1,6 +1,6 @@
 import React, { useState }from 'react'
 import LoginForm from './loginForm'
-import RegistrationForm from './RegistrationForm'
+import RegistrationForm from './registrationForm.jsx'
 import ForgotPasswordForm from './forgotPasswordForm'
 import style from './module/authStyle.module.css'
 
