@@ -51,13 +51,14 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 
-//app.use('/api/motors', motorsRouter);
+app.use('/api/motors', motorsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/comments', commentRouter)
 
-app.get('*', (request, response) => {
+
+  app.get('/files{/*path}', (request, response) => {
   response.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
