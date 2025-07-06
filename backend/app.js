@@ -28,8 +28,20 @@ mongoose
     logger.error('error connection to MongoDB:', error.message);
   });
 
+  const allowedOrigins = [
+  'https://roadkingmotor-pkx5.onrender.com',
+  'http://localhost:5174',
+  'http://localhost:5173',
+  ]
+
   const corsOptions = {
-  origin: 'https://roadkingmotor-pkx5.onrender.com',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   }
 
@@ -39,23 +51,15 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 
-app.use('/api/motors', motorsRouter);
+//app.use('/api/motors', motorsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/comments', commentRouter)
 
-/*
-const frontendPath = path.join(__dirname, '../frontend/dist');
-app.use(express.static(frontendPath));
-
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (request, response) => {
-    response.sendFile(path.resolve(frontendPath, 'index.html'));
-  });
-}
-*/
-
+app.get('*', (request, response) => {
+  response.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 
 app.use(middleware.unknownEndpoint);

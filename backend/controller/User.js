@@ -260,7 +260,13 @@ usersRouter.post('/forgotPassword', async (request, response,next) => {
 
     await user.save();
 
-    const resetURL = `http://localhost:5173/reset-password/${token}`
+    const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173'
+
+    if (!process.env.FRONTEND_URL) {
+      console.log('WARN: FRONTEND_URL environment variable not set. Using default http://localhost:5173');
+    }
+
+    const resetURL = `${frontendURL}/reset-password/${token}`
     console.log('---PASSWORD RESET ---');
     console.log(`User: ${user.userName}`);
     console.log(`Reset Token: ${resetURL}`);

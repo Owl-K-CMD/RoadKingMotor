@@ -33,14 +33,7 @@ commentRouter.post('/', authMiddleware, async (request, response ) => {
     if (!car || !rating || !comment) {
       return response.status(400).json({ error: 'Missing required fields: car, rating, comment'})
       }
-/*
-      if (rating && Number(rating) > 0) {
-        const existingRating = await Comment.findOne({ car, user: userId, rating: { $exists: true, $ne: null} })
-        if (existingRating) {
-          return response.status(400).json({ error: 'You have already rated this car' })
-        }
-      }
-*/
+
  const newComment = new Comment({ 
       car,
       user: userId,
