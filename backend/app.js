@@ -30,6 +30,7 @@ mongoose
 
   const corsOptions = {
   origin: 'https://roadkingmotor-pkx5.onrender.com',
+  credentials: true,
   }
 
 app.use(cors(corsOptions));
