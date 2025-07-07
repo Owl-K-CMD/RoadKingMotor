@@ -16,30 +16,30 @@ const s3Client = new S3Client({
 });
 
 
-motorsRouter.get('/', (request, response) => {
-  const motors = request.query.motors
-
-  Motor.find({}).then(motors => {
+motorsRouter.get('/', async (request, response) => {
+  try {
+  const motors = await Motor.find({})
     response.json(motors)
-  })
+  } catch (error) {
+    console.error("Error fetching motors:", error);
+    next(error);
+}
 })
 
-motorsRouter.get('/:id', (request, response, next) => {
-  Motor.findById(request.params.id) 
-  .then(motor =>{
-    if (motor) {
+motorsRouter.get('/:id', async (request, response, next) => {
+  try{
+  const motor= await Motor.findById(request.params.id)
       response.json(motor)
-    } else {
+    } catch(error) {
       response.status(404).end()
+      next(error)
     }
   })
-  .catch(error => next(error))
-})
 
- motorsRouter.get('/name/:name', (request, response, next) => {
-  const name = request.params.name;
+motorsRouter.get('/model/:model', async (request, response, next) => {
+  const model = request.params.model;
 
-  Motor.find({ name: name })
+  Motor.find({ model: new RegExp(model, 'i')})
     .then(car => {
       response.json(car);
     })
@@ -115,25 +115,34 @@ catch(error) {
 })
 
 motorsRouter.delete('/:id', async(request, response) => {
+  try{
   await Motor.findByIdAndDelete(request.params.id)
     response.status(204).end()
+  } catch(error) {
+    next(error)
+  }
 })
-motorsRouter.put('/:id', (request, response,next) => {
-  const { images,
+
+motorsRouter.put('/:id', async (request, response, next) => {
+  const motorToUpdate = { images,
      brand, model,
      price, year,
      madeIn, mileage,
      fuelType, transmission,
      bodyType, color,
      seats, doors,
-     engineSize,
-     status,
+     engineSize, status,
      createdAt,
-     otherDescription } = request.body
+     otherDescription }
+ try {
+  const updatedmotor = await Motor.findByIdAndUpdate(
+    request.params.id,
+    motorToUpdate,
+    { new: true, runValidators: true, context: 'query' })
 
-  Motor.findById(request.params.id).then(motor => {
-    if (!motor) {
-      return response.status(404).end()
+  
+    if (!updatedmotor) {
+      return response.status(404).json({ error: 'Motor not found' })
     }
     motor.images = images
     motor.brand = brand
@@ -152,15 +161,12 @@ motorsRouter.put('/:id', (request, response,next) => {
     motor.status = status
     motor.createdAt = createdAt
     motor.otherDescription = otherDescription
-    
 
-
-
-    return motor.save().then(updatedmotor => {
       response.json(updatedmotor)
-    })
-})
-.catch(error => next(error))
+    }
+catch(error){
+next(error)
+}
 })
 
 

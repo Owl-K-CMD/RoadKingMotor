@@ -1,3 +1,4 @@
+/*
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -45,25 +46,93 @@ mongoose
   credentials: true,
   }
 
+
+
 app.use(cors(corsOptions));
-app.use(express.static('dist'))
 app.use(express.json());
 app.use(middleware.requestLogger);
-
 
 app.use('/api/motors', motorsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
-app.use('/api/comments', commentRouter)
+app.use('/api/comments', commentRouter);
 
+app.use(express.static(path.join(__dirname, 'dist')));
 
-  app.get('/files{/*path}', (request, response) => {
+app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
+
+
 
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
 module.exports = app
+*/
+
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const path = require('path'); 
+
+const config = require('./utils/config');
+const logger = require('./utils/logger');
+const middleware = require('./utils/middleware');
+
+const motorsRouter = require('./controller/Motor');
+const messageRouter = require('./controller/Message');
+const usersRouter = require('./controller/User');
+const cartRouter = require('./controller/cartRoute');
+const commentRouter = require('./controller/Comment');
+
+const app = express();
+
+// Connect MongoDB
+logger.info('connecting to', config.MONGODB_URI);
+mongoose.connect(config.MONGODB_URI)
+  .then(() => logger.info('connected to MongoDB'))
+  .catch((error) => logger.error('MongoDB connection error:', error.message));
+
+// CORS config
+const allowedOrigins = [
+  'https://roadking-frontend.onrender.com', // ✅ frontend
+  'http://localhost:5173',
+  'http://localhost:5174',
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use(express.json());
+app.use(middleware.requestLogger);
+
+// API routes
+app.use('/api/motors', motorsRouter);
+app.use('/api/messages', messageRouter);
+app.use('/api/user', usersRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/comments', commentRouter);
+/*
+// Serve frontend build
+app.use(express.static(path.join(__dirname, 'dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+*/
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
+
+module.exports = app;
