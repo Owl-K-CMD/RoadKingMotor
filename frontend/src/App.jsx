@@ -31,7 +31,6 @@ const App = () => {
   const [refresh, setRefresh] = useState(0)
   const [selectedCar, setSelectedCar] = useState(null)
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
-  
 
 
   const ADMIN_USERNAME = 'Road King Motor Support'
@@ -303,28 +302,6 @@ const handleCommentPosted =  () => {
  )
   }
 
-{/*
- <div className={style.search}>
-  <button
-  className= {style.navbutton}
-  onClick = {() => setShowAll('')}
-  >
-  <strong>Show All cars</strong>
-  </button>
-
-
-{ uniqueCarNames.map((brand) => (
-      <button key = {brand}
-      className= {style.navbutton}
-      onClick = {() => setShowAll(brand)}>
-       <strong> {brand}</strong>
-      </button>
-          ))}
-      
-
-     </div>
-     */}
-
      <div className={style.filterContainer}>
       <button
         className={style.filterHamburger}
@@ -389,7 +366,7 @@ const handleCommentPosted =  () => {
                // console.log(
           //`Car: ${car.model} (Background Image Processing)`,
           //`| car.images data:`, car.images,
-          //`| Extracted rawFirstImageUrl: "${rawFirstImageUrl}"`
+          //`| Extracted rawFirstImageUrl: "${rawFirstImageUrl}"` contentToBeFixed
         //);
 
 

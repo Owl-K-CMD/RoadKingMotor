@@ -1,6 +1,5 @@
 @import "tailwindcss";
 .filter{
-
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   justify-content: space-between;
@@ -18,18 +17,14 @@
 }
 
 .navbutton{
-  border: 1px solid navy;
-  font-size: max(1em, 10%);
-  box-shadow: inset 0 4px 4px 4px rgb(205, 205, 205);
-  border-radius: 3px;
+  font-size: clamp(1em, 1.5vw, 1.2em);
+  border-radius: 5%;
   color:rgb(21, 20, 20);
   white-space: nowrap;
   box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
   width: fit-content;
   padding: min(0.1em, 13%);
   flex-grow: 1;
-  padding: 0.5em 1em;
 }
 
 .filterContainer {
@@ -40,29 +35,31 @@
   padding: 5px 0;
 }
 
+
+
+.search{
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
 .filterHamburger {
   display: none;
 }
 
-
-
-
 @media (max-width: 768px) {
   .search {
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+
     position: absolute;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
     background-color: white;
-    border: 1px solid #ccc;
+
     border-radius: 5px;
-    padding: 10px;
     z-index: 100;
     width: 90%;
-    max-width: 300px;
+    max-width: 100%;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
 
@@ -131,7 +128,7 @@
 
 .otherDescription{
    float: right;
-   border: 1px solid green;
+ 
 }
 
 .carproparty::before {
@@ -153,19 +150,7 @@
   z-index: 1;
 }
 
-.search{
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  border-radius: 10%;
-  padding: min(1rem, 10%);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  font-size: min(1em, 10%);
-}
+
 
 
 .navbartop{
@@ -181,7 +166,6 @@ padding: 3px;
   gap: min(5px, 10%); 
   align-items: center;
   justify-content: center;
-  border: 1px solid rgb(250, 0, 0);
   flex-shrink: 1;
   box-sizing: border-box;
   min-width: 0;
@@ -192,13 +176,14 @@ padding: 3px;
   width: fit-content;
   flex-grow: 1;
   min-width: 0;
-  font-size: clamp(0.65em, 2.2vw, 1em);
+  font-size: clamp(0.85em, 2.2vw, 1em);
+  font-weight: bold;
   padding: clamp(0.3em, 1.5vw, 0.6em) clamp(0.5em, 2vw, 1em);
-  border-radius: 20%;
-  border: 1px solid rgb(0, 0, 230);
+  border-radius: 10%;
   overflow: hidden;
   box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
   text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 .button{
@@ -244,7 +229,7 @@ padding: 3px;
   gap: 20px;
 }
 
-.navbarbutton button :hover{
+.navbarbutton button:hover{
    background-color: aquamarine;
    
 }
@@ -271,11 +256,6 @@ padding: 3px;
    font-size: 15px;
 }
 
-.search{
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-}
 
 .footerContainer{
   background-color: black ;
