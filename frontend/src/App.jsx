@@ -71,7 +71,7 @@ if (userId && token) {
     motoract.getAll()
     
       .then(initialCars => {
-       // console.log('Data received from getAll:', initialCars);
+
 
         if (Array.isArray(initialCars)) {
           setCars(initialCars);
@@ -249,11 +249,11 @@ const handleCommentPosted =  () => {
    
  
  <div className= {style.navbarbutton}>
-
+{/*
       <button className = {style.navbuttonhome}>
       <img className= {style.home} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-home-48.png" 
       alt="home" /> </button>
-
+*/}
       {currentUser ? (
         <>
           <span className={style.welcomeMessage}>{currentUser.userName}!</span>
@@ -269,13 +269,13 @@ const handleCommentPosted =  () => {
  <button className = {style.navbuttonaddtocart} onClick={handleToggleCarVisibility}>
    <img className = {style.addtocart} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
     alt="addtocart"/> </button>
-
+{/*
 <button className= {style.settingsbutton}>
   <img className={style.settings}
    src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-settings-48.png"
   alt = "settings"/>
 </button>
-
+*/}
     {!isChatVisible && (
       <button onClick={() => handleOpenChat(null)}><img className={style.chat}
    src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
@@ -435,7 +435,7 @@ const handleCommentPosted =  () => {
         <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
   </div>
     <div className={style.otherDescription}>
-      <div className={style.carpropartyp}><h3 className={style.carContext}>Other Details</h3>{car.otherDescription}</div>
+      <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
       </div>
  </div>
     {isExpanded && (
@@ -452,7 +452,7 @@ const handleCommentPosted =  () => {
     <div className={style.carpropartyp}><h3 className={style.carContext}>Engine Size: </h3>{car.engineSize}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Status: </h3>{car.status}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Created At: </h3>{car.createdAt}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Other Details</h3>{car.otherDescription}</div>
+    <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
     
     </div>
     )}
