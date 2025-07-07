@@ -99,7 +99,7 @@ mongoose.connect(config.MONGODB_URI)
 
 // CORS config
 const allowedOrigins = [
-  'https://roadking-frontend.onrender.com', // ✅ frontend
+  'https://roadkingmotor-pkx5.onrender.com/',
   'http://localhost:5173',
   'http://localhost:5174',
 ];
