@@ -46,7 +46,9 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
 
   return (
     <div className={style.modalOverlay} onClick={onClose}>
-      <div className={style.carProparty} onClick={(e) => e.stopPropagation()}>
+      <div
+       className={style.carProparty}
+       onClick={(e) => e.stopPropagation()}>
 
      <div
       className={`${style.carproparty} ${styleCartContent.expandedDetailView}`}
@@ -60,23 +62,25 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
      
         <h1 className={styleCarDetails.carDetailTitle}>{car.brand} - {car.model}</h1>
         
-        <div className={styleCarDetails.carDetailLayout}> 
-          <div className={styleCarDetails.carDetailImageSection}>
+        
+          <div className={style.imgandits}>
             <img 
               src={imageToDisplay} 
               alt={`${car.model} ${Array.isArray(car.images) ? currentImageIndex + 1 : ''}`} 
-              className={styleCarDetails.carDetailImage} 
+              className={style.img} 
             />
             {canNavigateImages && (
-              <div className={styleCarDetails.imageNavigation}>
-                <button onClick={() => handleImageNavigation('prev')} className={styleCarDetails.imageNavButton}>&lt; Prev</button>
+              <div className={style.imageNavigation}>
+                <button onClick={() => handleImageNavigation('prev')}
+                 className={style.imageNavButton}>&lt; Prev</button>
                 <span>{currentImageIndex + 1} / {car.images.length}</span>
-                <button onClick={() => handleImageNavigation('next')} className={styleCarDetails.imageNavButton}>Next &gt;</button>
+                <button onClick={() => handleImageNavigation('next')}
+                 className={style.imageNavButton}>Next &gt;</button>
               </div>
             )}
           </div>
 
-          <div className={styleCarDetails.carDetailInfoSection}>
+          <div className={style.carProperty}>
             <p><strong>Price:</strong> {car.price} $</p>
             <p><strong>Year:</strong> {car.year}</p>
             <p><strong>Brand:</strong> {car.brand}</p>
@@ -93,14 +97,13 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
             {car.otherDescription && <p><strong>Other Details:</strong> {car.otherDescription}</p>}
             <p><strong>Listed On:</strong> {new Date(car.createdAt).toLocaleDateString()}</p>
             
-            <div className={styleCarDetails.carDetailActions}>
+            <div className={style.newbutton}>
               <button className={style.button}>Buy Now</button>
               <button className={style.button} onClick={() => onAddToCart(car)}>Add to Cart</button>
               <button className={style.button} onClick={() => onOpenChat(car)}>Contact Seller</button>
             </div>
           </div>
-        </div>
-
+        
         <div className={styleCarDetails.commentsSection}>
           <h2 className={styleCarDetails.commentsTitle}>Ratings & Comments</h2>
           <AverageRating carId={car.id} refresh={refresh} />

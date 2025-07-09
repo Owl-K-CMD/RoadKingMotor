@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 
@@ -13,22 +14,26 @@ const messageRouter = require('./controller/Message');
 const usersRouter = require('./controller/User');
 const cartRouter = require('./controller/cartRoute');
 const commentRouter = require('./controller/Comment');
+const initializeWebSocket = require('./websocketHandle');
 
 const app = express();
 
-// Connect MongoDB
+
+
 logger.info('connecting to', config.MONGODB_URI);
 mongoose.connect(config.MONGODB_URI)
   .then(() => logger.info('connected to MongoDB'))
   .catch((error) => logger.error('MongoDB connection error:', error.message));
+const server = http.createServer(app);
+initializeWebSocket(server);
 
-// Rate limiting middleware
+
 const pingLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests, please try again later.',
 });
-// CORS config
+
 const allowedOrigins = [
   'https://roadkingmotor-pkx5.onrender.com',
   'http://localhost:5173',
@@ -49,7 +54,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(middleware.requestLogger);
 
-// API routes
+
 app.use('/api/motors', motorsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);

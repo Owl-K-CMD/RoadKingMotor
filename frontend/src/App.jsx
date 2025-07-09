@@ -382,12 +382,10 @@ const handleCommentPosted =  () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
-      } : {}}
-  
-  
-  >
+      } : {}}>
     
-        <div className={style.imgandits}>{car.images && Array.isArray(car.images) && car.images.length > 0 ? (
+        <div className={style.imgandits}>
+          {car.images && Array.isArray(car.images) && car.images.length > 0 ? (
             <>
               <img
                 src={car.images[currentImageIndex]}

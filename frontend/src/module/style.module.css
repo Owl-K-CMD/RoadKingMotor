@@ -80,14 +80,14 @@
 .imgandits{
   flex-shrink: 1;
   box-sizing: border-box;
+  padding: 0;
   flex: 1 1 auto;
-  min-Width: 100%;
+  width: 100%;
   max-Height: 400px;
-  margin: 0 auto;
+  margin: 0 0;
   box-shadow:  0 4px 8px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   z-index: 1;
-   
 }
 .img{
   width: 100%;
