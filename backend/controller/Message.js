@@ -2,6 +2,7 @@ const messagesRouter = require('express').Router()
 const mongoose = require('mongoose')
 const Message = require('../module/message')
 const User = require ('../module/user');
+const { broadcast } = require('../websocketHandle');
 
 messagesRouter.get('/:chatId', async(request, response) => {
   const messages = await Message.find({ chatId: request.params.chatId }).sort({ createdAt: 1 });
@@ -62,8 +63,8 @@ const receiverUser = await User.findById(normalizedreceiver);
   }
 
 const message = new Message({
- sender: sender,
- receiver: receiver,
+ sender: sender._id,
+ receiver: receiver._id,
  content,
  createdAt
   });
@@ -73,6 +74,14 @@ let savedMessage = await message.save();
 savedMessage = await Message.findById(savedMessage._id)
   .populate('sender', 'userName _id')
   .populate('receiver', 'userName _id');
+  
+  broadcast({
+    //type: 'NEW_MESSAGE',
+    type: 'receiveMessage',
+    payload: savedMessage,
+  },
+    receiverUser._id.toString()
+);
 response.status(201).json(savedMessage);
 }
 catch (error) {

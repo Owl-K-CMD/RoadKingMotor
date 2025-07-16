@@ -5,6 +5,7 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3")
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
 const config = require('../utils/config')
+const { broadcast } = require('../websocketHandle')
 
 
 const s3Client = new S3Client({
@@ -104,6 +105,10 @@ if (!files || files.length === 0) {
  })
 
 const savedMotor= await motor.save()
+broadcast({
+  type: 'NEW_MOTOR',
+  payload: savedMotor,
+});
   response.status(201).json(savedMotor)
 
 }
@@ -114,9 +119,16 @@ catch(error) {
 
 })
 
-motorsRouter.delete('/:id', async(request, response) => {
+motorsRouter.delete('/:id', async(request, response, next) => {
   try{
-  await Motor.findByIdAndDelete(request.params.id)
+    const deletedMotor = await Motor.findByIdAndDelete(request.params.id)
+    if (!deletedMotor) {
+      return response.status(404).json({ error: 'Motor not found' })
+    }
+    broadcast({
+      type: 'DELETE_MOTOR',
+      payload: { id: request.params.id }
+    })
     response.status(204).end()
   } catch(error) {
     next(error)
@@ -140,10 +152,14 @@ motorsRouter.put('/:id', async (request, response, next) => {
     motorToUpdate,
     { new: true, runValidators: true, context: 'query' })
 
-  
     if (!updatedmotor) {
       return response.status(404).json({ error: 'Motor not found' })
     }
+
+    broadcast({
+      type: 'UPDATE_MOTOR',
+      payload: updatedMotor,
+    });
     motor.images = images
     motor.brand = brand
     motor.model = model
@@ -168,6 +184,5 @@ catch(error){
 next(error)
 }
 })
-
 
 module.exports = motorsRouter

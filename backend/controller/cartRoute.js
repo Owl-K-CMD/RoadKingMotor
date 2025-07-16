@@ -4,6 +4,7 @@ const Cart = require('../module/cart')
 const config = require('../utils/config')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
+const { broadcast } = require('../websocketHandle')
 
 
 const SECRET_KEY = config.SECRET_KEY
@@ -117,6 +118,14 @@ CartRouter.post('/:userId', authMiddleware, async(request, response) => {
       console.error('Cart.findOneAndUpdate return null or undefined for userId:', userId);
       return response.status(500).json({ message: 'Failed to update or create cart. Nocart document returned .'})
     }
+
+    broadcast({
+      type: 'CART_UPDATED',
+      payload: {
+        userId: userId,
+        items: cart.items,
+      },
+    })
     response.json(cart.items);
   } catch (error) {
     console.error('Error updating cart:', error);

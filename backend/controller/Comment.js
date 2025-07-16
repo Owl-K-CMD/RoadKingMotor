@@ -2,6 +2,7 @@ const commentRouter = require('express').Router()
 const Comment = require('../module/comment')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
+const { broadcast } = require('../websocketHandle')
 
 const authMiddleware = (request, response, next) => {
   const authHeader = request.headers.authorization;
@@ -43,6 +44,10 @@ commentRouter.post('/', authMiddleware, async (request, response ) => {
     const savedComment = await newComment.save()
 
     const populatedComment = await  savedComment.populate('user', 'userName');
+  broadcast({
+    type: 'NEW_COMMENT',
+    payload: populatedComment,
+  });
 
     response.status(201).json(populatedComment);
   } catch (error) {

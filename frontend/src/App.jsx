@@ -31,6 +31,8 @@ const App = () => {
   const [refresh, setRefresh] = useState(0)
   const [selectedCar, setSelectedCar] = useState(null)
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [chatMessages, setChatMessage] = useState([])
 
 
   const ADMIN_USERNAME = 'Road King Motor Support'
@@ -69,9 +71,8 @@ if (userId && token) {
 
    useEffect(() => {
     motoract.getAll()
-    
+    //setIsLoading(true)
       .then(initialCars => {
-
 
         if (Array.isArray(initialCars)) {
           setCars(initialCars);
@@ -91,11 +92,12 @@ if (userId && token) {
        alert("Could not load data correctly.")
            }
       })
-
+       .finally(() => setIsLoading(false))
       .catch(error => {
        console.error("Error fetching data:", error);
       })
     }, []);
+
 
     const handleImageNavigation = (carId, direction) => {
       const car = cars.find(c => c.id === carId);
@@ -331,6 +333,9 @@ const handleCommentPosted =  () => {
         ))}
       </div>
     </div>
+    { isLoading && (
+      <div className={style.loadingIndicator}>Loading Data...</div>
+    )}
      </div>
      <div className={style.contentToScroll}>
     <div className={style.filter}>
@@ -507,12 +512,16 @@ handleAddToCart(car)}}>Add to cart</button>
         )
  })
   ) : (
-    <div>No car here</div>
+    <div>Loading...</div>
   )
  }
 {isChatVisible && chatConfig && (
       <div className={style.chatContainer}>
-        <Message targetName={chatConfig.targetName} onClose={handleCloseChat} />
+        <Message 
+        targetName={chatConfig.targetName}
+        onClose={handleCloseChat}
+        //messages={chatMessages}
+        />
       </div>
     )}
 

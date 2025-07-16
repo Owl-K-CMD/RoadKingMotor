@@ -4,6 +4,7 @@ import Newcar from './newcar.jsx'
 import style from './style.module.css'
 import Button from './button.jsx'
 import Message from './message.jsx'
+import AuthForm from './authForm.jsx'
 
 
 const Notification = ({ message, className }) => {
@@ -24,6 +25,8 @@ const App = () => {
   const [showNewCarForm, setShowNewCarForm] = useState(false)
    const [isChatVisible, setIsChatVisible] = useState(false)
    const [chatTargetCar, setChatTargetCar] = useState(null)
+   const [isLoginVisible, setIsLoginVisible] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
 
 
 
@@ -92,6 +95,47 @@ const handleCloseChat = () => {
   setChatTargetCar(null)
 }
  
+const handleToggleLoginVisibility = () => {
+  setIsLoginVisible(prev => !prev);
+}
+
+const handleLoginSuccess = (userData) => {
+  setCurrentUser(userData);
+  setIsLoginVisible(false);
+  if (pendingChatAction && pendingChatAction.open) {
+    handleOpenChat(pendingChatAction.carContext);
+    setPendingChatAction(null);
+  }
+
+  //if (pendingCartAction && pendingCartAction.type === 'add') {
+    //handleAddToCart(pendingCartAction.car);
+    //setPendingCartAction(null);
+    //setPendingChatAction(null);
+  //}
+}
+
+
+const handleLogout = () => {
+  console.log("Executing handleLogout: Clearing session.");
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('refreshToken');
+  //setCurrentUser(null);
+  //setCartItems([])
+}
+
+const handleToggleComments = (event, carId) => {
+  event.preventDefault();
+  event.stopPropagation();
+  setCommentSectionCarIds(prev =>
+    prev.includes(carId)
+      ? prev.filter(id => id !== carId)
+      : [...prev, carId]
+  );
+};
+
+
+
   return (
     <div>
       <div className="flex items-center justify-center">
@@ -102,6 +146,35 @@ const handleCloseChat = () => {
   alt = "chat"/>
 
   </button>
+
+{currentUser ? (
+        <>
+          <span className={style.welcomeMessage}>{currentUser.userName}!</span>
+          <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
+        </>
+      ) : (
+        <button className= {style.navbuttonmyaccount} onClick={handleToggleLoginVisibility}>
+          <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
+            alt = "myaccount" />
+        </button>
+      )}
+
+       {isLoginVisible && !currentUser && (
+        <div className={style.authFormContainer}>
+                  <button onClick={handleToggleLoginVisibility}
+                  className={style.closebutton}
+               style={{ marginTop: '10px' }}>
+                Close
+              </button>
+                      <AuthForm onLoginSuccess={handleLoginSuccess}
+                      onClose={handleToggleLoginVisibility}
+                       />
+      
+            </div>
+      
+       )
+        }
+
 </div>
 {isChatVisible && chatTargetCar && (
       <div style={{position: 'fixed', overflowY: 'auto', bottom: '20px',  right: '20px',

@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import messageAct from './messageAxios';
 import userAct from './userAxios.js';
 import style from './module/styleMessage.module.css';
+import io from 'socket.io-client';
+
 
 
 const Message = ({ targetName, onClose }) => {
@@ -17,7 +19,16 @@ const Message = ({ targetName, onClose }) => {
   const [newPassword, setNewPassword] = useState('');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [supportUser, setSupportUser] = useState(null)
+  const [tokenReady, setTokenReady] = useState(false);
+ const socket = useRef(null);
   const messagesEndRef = useRef(null);
+
+  const processUserObject = (userObj) => {
+  if (userObj && typeof userObj === 'object' && typeof userObj.id !=='undefined' && typeof userObj._id === 'undefined') {
+    return {...userObj, _id: userObj.id }
+  }
+  return userObj;
+}
 
 
   const processedUserResponse = (userData) => {
@@ -26,6 +37,13 @@ const Message = ({ targetName, onClose }) => {
     }
     return userData;
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setTokenReady(true);
+    }
+  }, []);
 
 useEffect(() => {
   const token = localStorage.getItem('authToken');
@@ -54,10 +72,8 @@ const processUserResponse = (userData) => {
   return userData;
 }
 
-
-
 useEffect(() => {
-  if (targetName && nameConfirmed && user && user._id) {
+  if (targetName && nameConfirmed && user && user._id && tokenReady) {
     let isMounted = true;
 
     const fetchSupportUserDetails = async () => {
@@ -94,53 +110,70 @@ useEffect(() => {
           setSupportUser(null);
         }
       } catch (error) {
+        if (error.response.status === 404) {
+          console.error(`Support user "${targetName}" not found`);
+          setError(`Support user not found`);
+          setSupportUser(null);
+        } else {
         console.error(`Error fetching support user ${targetName}:`, error);
         if (isMounted) setError(`Could not retrieve details for ${targetName}.`);
         setSupportUser(null);
       }
+    }
     };
 
     fetchSupportUserDetails();
 
+      const token = localStorage.getItem('authToken');
+
+    const newSocket = io('http://localhost:5000', {
+      auth: {
+        userId: user._id,
+        token: token,
+      },
+      transports: ['websocket'],
+    })
+
+    socket.current = newSocket;
+
+    newSocket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('WebSocket connection error:', error);
+    });
+
+    newSocket.on('receiveMessage', (message) => {
+      console.log('Received message via Socket.IO:', message);
+
+
+      const processedMessage = {
+      ...message,
+      sender: processUserObject(message.sender),
+      receiver: processUserObject(message.receiver),
+    };
+  
+
+       setMessages(prevMessages => [...prevMessages, processedMessage]);
+    })
+
+    newSocket.on('disconnect', (reason) => {
+      console.log('Disconnected from WebSocket server', reason);
+    });
+
     return () => {
       isMounted = false;
+      newSocket.off('connect');
+      newSocket.off('receiveMessage');
+      newSocket.off('disconnect');
+      newSocket.close();
     };
   } else {
     setMessages([]);
     setSupportUser(null);
   }
-}, [targetName, nameConfirmed, user]);
-
-//  New polling effect placed below the above useEffect
-useEffect(() => {
-  if (!user?._id || !supportUser?._id) return;
-
-  let isMounted = true;
-
-  const fetchMessages = async () => {
-    try {
-      const rawMessages = await messageAct.getAllMessages();
-      if (isMounted && Array.isArray(rawMessages)) {
-        const processedMessages = rawMessages.map((msg) => ({
-          ...msg,
-          sender: processUserResponse(msg.sender),
-          receiver: processUserResponse(msg.receiver),
-        }));
-        setMessages(processedMessages);
-      }
-    } catch (error) {
-      console.error("Polling error:", error);
-    }
-  };
-
-  const intervalId = setInterval(fetchMessages, 5000);
-  fetchMessages();
-
-  return () => {
-    isMounted = false;
-    clearInterval(intervalId);
-  };
-}, [user, supportUser]);
+}, [targetName, nameConfirmed, user, user?._id, tokenReady]);
 
 
 const scrollToBottom = () => {
@@ -268,13 +301,9 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 
     try {
       setError(null);
-      const savedMessage = await messageAct.createMessage( messagePayload );
-       const processedSavedMessage = {
-        ...savedMessage,
-        sender: processUserResponse(savedMessage.sender),
-        receiver: processUserResponse(savedMessage.receiver)
-       } 
-      setMessages((prev) => [...prev, processedSavedMessage]);
+
+      await messageAct.createMessage(messagePayload);
+      socket.current.emit('sendMessage', messagePayload);
       setInput('');
     } catch (error) {
       console.error("Error sending message:", error);
@@ -290,13 +319,28 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
         const currentUserId = user && user._id ? user._id.toString() : null;
         const supportUserId = supportUser && supportUser._id ? supportUser._id.toString() : null;
 
-        if (!senderId || !receiverId || !currentUserId || !supportUserId ) return false;
+        if (!senderId || !receiverId || !currentUserId || !supportUserId ) {
+          
+          console.log("msg.sender", msg.sender)
+          console.log("msg.receiver", msg.receiver)
+          console.log("Filtering skipped due to missing info:", {
+          senderId, receiverId, currentUserId, supportUserId, msg
+        });
 
-        return (
-          (senderId === currentUserId && receiverId === supportUserId) ||
-        (senderId === supportUserId && receiverId === currentUserId)
-      );
-      })
+          return false;
+      }
+
+            const isFromCurrentUserToSupport = (senderId === currentUserId && receiverId === supportUserId);
+      const isFromSupportToCurrentUser = (senderId === supportUserId && receiverId === currentUserId);
+
+      const isRelevant = isFromCurrentUserToSupport || isFromSupportToCurrentUser;
+
+      if (!isRelevant) {
+        //console.log("Filtered out irrelevant message:", msg);
+      }
+
+      return isRelevant;
+    }); 
 
 
   return (
@@ -402,7 +446,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
                 </div>
                ) })
             )}
-            {/*<div ref={messagesEndRef} />*/}
+            <div ref={messagesEndRef} />
           
           </div>
 

@@ -3,7 +3,6 @@ import { refreshAuthToken } from './refreshToken';
 
 let onLogoutCallback = null;
 
-//const API_URL = '/api/';
 const API_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/api/`
 
   const cartAxiosInstance = axios.create({
@@ -85,7 +84,6 @@ const cartService = {
           return await cartAxiosInstance(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError, null);
-          //window.location.href = '/login';
           if (onLogoutCallback) {
             console.log("Interceptor: Refresh token failed. Calling logout callback.");
             onLogoutCallback();

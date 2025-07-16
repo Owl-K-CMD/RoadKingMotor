@@ -1,15 +1,19 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import messageAct from './messageAxios.js';
 import userAct from './userAxios.js'
+import io from 'socket.io-client';
 
-const Message = ({ targetName, onClose }) => {
+const Message = ({ onClose }) => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
   const [input, setInput] = useState('');
   const [adminUser, setAdminUser] = useState(null)
-  const [selectedUserToReply, setSelectedUserToReply] = useState(null)
+  const userId = adminUser?.id;
+  const [selectedUserToReply, setSelectedUserToReply] = useState(null);
   const ADMIN_USERNAME = 'Road King Motor Support'
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const socket = useRef(null)
 
 const processUserObject = (userObj) => {
   if (userObj && typeof userObj === 'object' && typeof userObj.id !=='undefined' && typeof userObj._id === 'undefined') {
@@ -71,49 +75,58 @@ useEffect(() => {
   };
 }, []);
 
-// Second useEffect: Start polling only after adminUser is loaded
+const token ='admin';
+const userName='Road King Motor Support';
+
 useEffect(() => {
-  if (!adminUser) return;
+  console.log('useEffect started', Date.now())
 
-  let isMountedMessagesFetch = true;
-
-  const fetchMessages = async () => {
-    try {
-      const rawFetchedMessages = await messageAct.getMessage();
-      console.log("Fetched Messages:", rawFetchedMessages);
-
-      if (isMountedMessagesFetch) {
-        if (Array.isArray(rawFetchedMessages)) {
-          const processedFetchedMessages = rawFetchedMessages.map(msg => {
-            const processedSender = processUserObject(msg.sender)
-            return {...msg, sender: processedSender }
-          })
-          setMessages(processedFetchedMessages);
-          setError(null);
-        } else {
-          console.error("Expected array from backend, got:", rawFetchedMessages);
-          setMessages([]);
-          setError("Failed to load messages.");
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-      if (isMountedMessagesFetch) {
-        setError("Failed to fetch messages. Please try again later.");
-        setMessages([]);
-      }
+  const newSocket = io('http://localhost:5000', {
+    auth: {
+      token: token,
+      userId: adminUser?._id,
+      userName: userName,
     }
+  });
+  socket.current = newSocket;
+
+newSocket.on('connect', () => {
+  console.log('Socket connected', userId);
+  setIsSocketConnected(true);
+});
+
+newSocket.on('connect_error', (error) => {
+  console.error('Socket connction error:', error);
+  setIsSocketConnected(false);
+});
+
+newSocket.on('disconnect', () => {
+  console.log('Socket disconnected', socket.id);
+  setIsSocketConnected(false);
+});
+
+newSocket.on('receiveMessage', (message) => {
+  console.log('Message received:', message, 'Timestamp:', Date.now());
+  setMessages(prevMessages => {
+    const processedMessage = {
+    ...message,
+    sender: processUserObject(message.sender),
+    receiver: processUserObject(message.receiver),
   };
+    return [...prevMessages, processedMessage]
+  
+  });
+});
 
-  fetchMessages(); // Initial poll
-  const intervalId = setInterval(fetchMessages, 5000); // Poll every 5s
-
-  return () => {
-    isMountedMessagesFetch = false;
-    clearInterval(intervalId);
-  };
-}, [adminUser]);
-
+return () => {
+  newSocket.off('connect');
+  newSocket.off('receiveMessage');
+  newSocket.off('connect_error');
+  newSocket.off('disconnect');
+  newSocket.close();
+  console.log('UseEffect cleanup', Date.now());
+};
+}, [adminUser?._id, userId])
 
   const sendMessage = async () => {
     if (!input.trim()) {
@@ -137,18 +150,12 @@ useEffect(() => {
       content: input,
     };
 
-    //if (selectedUserToReply) {
-      //messagePayload.receiver = selectedUserToReply;
-    //}
-
     try {
-      setError(null);
-      const savedMessage = await messageAct.createMessage(messagePayload);
-      setMessages(prev => [...prev, savedMessage]);
+      socket.current.emit('sendMessage', messagePayload);
       setInput('');
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Failed to send message.';
-      console.error("Error sending message:", error); // Keep console error for debugging
+      console.error("Error sending message:", error);
       setError(errorMessage);
     }
   };
@@ -157,7 +164,7 @@ return (
   <div className="message-container">
 
     <div style={{
-      padding: '10px 15px',
+            padding: '10px 15px',
       borderBottom: '1px solid #e0e0e0',
       display: 'flex',
       justifyContent: 'space-between',
@@ -178,7 +185,7 @@ return (
       )}
     </div>
 
-    {/* Error Display */}
+  
     {error && (
       <p style={{
         color: 'red',
@@ -191,7 +198,6 @@ return (
       </p>
     )}
 
-    {/* Selected User to Reply */}
     {selectedUserToReply && (
       <div style={{
         padding: '8px 15px',
@@ -218,7 +224,6 @@ return (
       </div>
     )}
 
-    {/* Message List */}
     <div className="message-list" style={{
       flexGrow: 1,
       overflowY: 'auto',
@@ -237,10 +242,6 @@ const isSentByAdmin =
   msg.sender._id &&
   adminUser._id &&
   msg.sender._id.toString() === adminUser._id.toString();
-
-
-  const senderName = (msg.sender && typeof msg.sender === 'object' && msg.sender.userName)
-          ? msg.sender.userName : 'Unknown User';
 
 const canReplyTo = msg.sender && typeof msg.sender === 'object' && msg.sender._id;
 const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.sender._id.slice(0, 6)})`): 'Unknown User';
@@ -264,10 +265,7 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
               boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
               wordBreak: 'break-word',
             }}>
-         {/*
-                {!isSentByAdmin && msg.sender && (
-                  (msg.sender && typeof msg.sender === 'object' && msg.sender._id && msg.sender.userName) ? (
-           */}
+
                 {!isSentByAdmin && canReplyTo ? (
                     <strong
                   style={{
@@ -284,29 +282,22 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
                       userName: msg.sender.userName || msg.sender._id
                     })
                   }
-                  //title={`Reply to ${msg.sender.userName}`}
-                  title={senderDisplayName}
-
-                >
- {/*{msg.sender.userName}*/}
+                  title={senderDisplayName}>
+ 
  {senderDisplayName}
-                  
                 </strong>
                   
-              ):( // Else part of the ternary: Sender not fully identified
+              ):( 
                 <strong
                   style={{
                     display: 'block',
                     marginBottom: '4px',
-                    color: '#6c757d', // Indicate non-interactive or issue
+                    color: '#6c757d',
                     fontSize: '0.9em',
                   }}
-                 // title={senderName} // senderName will be "Unknown User" or similar
+                 
                  title={typeof msg.sender === 'string' ? `User ID: ${msg.sender}` : senderDisplayName}
-
-                >
-                {senderName} 
-                  {/* {typeof msg.sender === 'string' ? `User ID: ${msg.sender.slice(0,6)}...` : senderDisplayName}*/}
+                 >
                 </strong>
               )
             }
@@ -319,7 +310,7 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
                     fontSize: '0.9em'
                   }}
                 >
-                  {adminUser.userName} (you)
+                  {adminUser.userName}(you)
                 </strong>
               )}
               <div>{msg.content}</div>
@@ -341,7 +332,7 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
       })}
     </div>
 
-    {/* Input and Send */}
+    
     <div style={{
       padding: '10px',
       borderTop: '1px solid #e0e0e0',

@@ -14,7 +14,7 @@ const messageRouter = require('./controller/Message');
 const usersRouter = require('./controller/User');
 const cartRouter = require('./controller/cartRoute');
 const commentRouter = require('./controller/Comment');
-const initializeWebSocket = require('./websocketHandle');
+const { initializeWebSocket } = require('./websocketHandle');
 
 const app = express();
 
@@ -68,4 +68,4 @@ app.get('/api/ping', pingLimiter, (request, response) => {
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
-module.exports = app;
+module.exports = { app, server };
