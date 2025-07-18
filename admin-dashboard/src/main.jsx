@@ -3,7 +3,6 @@ import App from './App.jsx'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import LoginPage from './loginForm.jsx'
-import './style.module.css'
 import './index.css'
 
 

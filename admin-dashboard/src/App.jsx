@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import motoractadmin from './carsAdmin.js'
 import Newcar from './newcar.jsx'
-import style from './style.module.css'
+import style from './module/style.module.css'
 import Button from './button.jsx'
 import Message from './message.jsx'
 import AuthForm from './authForm.jsx'
@@ -16,7 +16,6 @@ const Notification = ({ message, className }) => {
   </div> 
 )
 }
-
 
 const App = () => {
 
@@ -102,17 +101,8 @@ const handleToggleLoginVisibility = () => {
 const handleLoginSuccess = (userData) => {
   setCurrentUser(userData);
   setIsLoginVisible(false);
-  if (pendingChatAction && pendingChatAction.open) {
-    handleOpenChat(pendingChatAction.carContext);
-    setPendingChatAction(null);
   }
 
-  //if (pendingCartAction && pendingCartAction.type === 'add') {
-    //handleAddToCart(pendingCartAction.car);
-    //setPendingCartAction(null);
-    //setPendingChatAction(null);
-  //}
-}
 
 
 const handleLogout = () => {
@@ -120,22 +110,7 @@ const handleLogout = () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
   localStorage.removeItem('refreshToken');
-  //setCurrentUser(null);
-  //setCartItems([])
 }
-
-const handleToggleComments = (event, carId) => {
-  event.preventDefault();
-  event.stopPropagation();
-  setCommentSectionCarIds(prev =>
-    prev.includes(carId)
-      ? prev.filter(id => id !== carId)
-      : [...prev, carId]
-  );
-};
-
-
-
   return (
     <div>
       <div className="flex items-center justify-center">
@@ -177,11 +152,7 @@ const handleToggleComments = (event, carId) => {
 
 </div>
 {isChatVisible && chatTargetCar && (
-      <div style={{position: 'fixed', overflowY: 'auto', bottom: '20px',  right: '20px',
-        width: '350px',   maxHeight: '100%',   backgroundColor: 'white',   border: '1px solid #ccc',
-        borderRadius: '8px',  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',   zIndex: 1000,
-        display: 'flex',  flexDirection: 'column',     padding: '15px'
-      }}>
+      <div className={style.message}>
         < Message targetName={`Seller for  ${chatTargetCar.model}`} onClose={handleCloseChat} />
       </div>
     )}

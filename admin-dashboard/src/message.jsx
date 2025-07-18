@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import messageAct from './messageAxios.js';
 import userAct from './userAxios.js'
 import io from 'socket.io-client';
+import style from './module/messageStyle.module.css'
 
 const Message = ({ onClose }) => {
   const [messages, setMessages] = useState([]);
@@ -13,6 +14,7 @@ const Message = ({ onClose }) => {
   const [selectedUserToReply, setSelectedUserToReply] = useState(null);
   const ADMIN_USERNAME = 'Road King Motor Support'
   const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [socketStatus, setSocketStatus] = useState('disconnected');
   const socket = useRef(null)
 
 const processUserObject = (userObj) => {
@@ -80,13 +82,18 @@ const userName='Road King Motor Support';
 
 useEffect(() => {
   console.log('useEffect started', Date.now())
+   const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
-  const newSocket = io('http://localhost:5000', {
+  const newSocket = io(socketUrl, {
     auth: {
       token: token,
       userId: adminUser?._id,
       userName: userName,
-    }
+    },
+    transports: ['websocket'],
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000
   });
   socket.current = newSocket;
 
@@ -104,6 +111,16 @@ newSocket.on('disconnect', () => {
   console.log('Socket disconnected', socket.id);
   setIsSocketConnected(false);
 });
+
+newSocket.on('reconnect_attempt', (attempt) => {
+  console.error('Attemptin to reconnect....', attempt);
+  setSocketStatus('error');
+})
+
+newSocket.on('reconnect_failed', () => {
+  console.error('Failed to reconnect to webSocket server after multiple attempts.');
+  setSocketStatus('disconneted')
+})
 
 newSocket.on('receiveMessage', (message) => {
   console.log('Message received:', message, 'Timestamp:', Date.now());
@@ -123,6 +140,8 @@ return () => {
   newSocket.off('receiveMessage');
   newSocket.off('connect_error');
   newSocket.off('disconnect');
+  newSocket.off('reconnect_attempt');
+  newSocket.off('reconnect_failed');
   newSocket.close();
   console.log('UseEffect cleanup', Date.now());
 };
@@ -163,75 +182,44 @@ return () => {
 return (
   <div className="message-container">
 
-    <div style={{
-            padding: '10px 15px',
-      borderBottom: '1px solid #e0e0e0',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      backgroundColor: '#f7f7f7'
-    }}>
+    <div className={style.chatTitle}>
       <h5 style={{ margin: 0, fontWeight: 'bold' }}>
         {adminUser ? `${adminUser.userName} - Admin Chat` : 'Admin Chat Loading...'}
       </h5>
       {onClose && (
-        <button
+        <button className={style.closeChat}
           onClick={onClose}
-          style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
           aria-label="Close chat"
         >
           &times;
         </button>
       )}
-    </div>
 
-  
-    {error && (
-      <p style={{
-        color: 'red',
-        padding: '10px',
-        margin: 0,
-        backgroundColor: '#ffebee',
-        textAlign: 'center'
-      }}>
-        {error}
-      </p>
-    )}
-
-    {selectedUserToReply && (
-      <div style={{
-        padding: '8px 15px',
-        backgroundColor: '#e6f7ff',
-        borderBottom: '1px solid #e0e0e0',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '0.9em'
-      }}>
+          {selectedUserToReply && (
+      <div className={style.selectedReceiver}>
         <span>Replying to: <strong>{selectedUserToReply.userName}</strong></span>
         <button
           onClick={() => setSelectedUserToReply(null)}
-          style={{
-            background: 'none',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            padding: '2px 8px'
-          }}
-        >
+          className={style.clearButton}>
           Clear
         </button>
       </div>
     )}
 
-    <div className="message-list" style={{
-      flexGrow: 1,
-      overflowY: 'auto',
-      padding: '10px',
-      backgroundColor: '#fafafa'
-    }}>
+    </div>
+
+  
+    {error && (
+      <p className={style.error}>
+        {error}
+      </p>
+    )}
+    {socketStatus === 'error' && <p className={style.error}>Failed to conect to chat servive.</p>}
+
+
+    <div className={style.messageList} >
       {messages.length === 0 && !error && (
-        <p style={{ textAlign: 'center', color: '#777' }}>No messages yet.</p>
+        <p className={style.noMessage}>No messages yet.</p>
       )}
       {messages.map((msg, index) => {
 
@@ -250,32 +238,14 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
         return (
           <div
           key={msg._id || `msg-${index}-${msg.sender?._id}-${msg.createdAt}`}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: isSentByAdmin ? 'flex-end' : 'flex-start',
-              margin: '8px 0',
-            }}
-          >
-            <div style={{
+            className={style.messageSender}
+             style={{alignItems: isSentByAdmin ? 'flex-end' : 'flex-start',}}>
+            <div className={style.message} style={{
               backgroundColor: isSentByAdmin ? '#dcf8c6' : '#e9e9eb',
-              padding: '10px 14px',
-              borderRadius: '15px',
-              maxWidth: '70%',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-              wordBreak: 'break-word',
             }}>
 
                 {!isSentByAdmin && canReplyTo ? (
-                    <strong
-                  style={{
-                    display: 'block',
-                    marginBottom: '4px',
-                    color: '#007bff',
-                    fontSize: '0.9em',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
+                    <strong className={style.userName}
                   onClick={() =>
                     setSelectedUserToReply({
                       _id: msg.sender._id,
@@ -333,26 +303,13 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
     </div>
 
     
-    <div style={{
-      padding: '10px',
-      borderTop: '1px solid #e0e0e0',
-      display: 'flex',
-      backgroundColor: '#f7f7f7'
-    }}>
+    <div className={style.messageFooter}>
       <textarea
         placeholder="Type your message..."
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        rows="2"
-        style={{
-          flexGrow: 1,
-          resize: 'none',
-          borderRadius: '16px',
-          border: '1px solid #ccc',
-          padding: '10px',
-          outline: 'none',
-          marginRight: '10px',
-        }}
+        rows="4"
+        className={style.messageInput}
         onKeyPress={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -363,15 +320,8 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
       <button
         onClick={sendMessage}
         disabled={!input.trim() || !selectedUserToReply}
-        style={{
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          padding: '10px 16px',
-          borderRadius: '16px',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
+        className={style.sendButton}
+        aria-label="Send message"
       >
         Send
       </button>

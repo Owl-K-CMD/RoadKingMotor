@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 
 
 
-const Message = ({ targetName, onClose }) => {
+const Message = ({ targetName, onClose, onNewMessage,  unreadMessagesCount, setUnreadMessagesCount}) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [userName, setUserName] = useState('');
@@ -20,7 +20,9 @@ const Message = ({ targetName, onClose }) => {
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [supportUser, setSupportUser] = useState(null)
   const [tokenReady, setTokenReady] = useState(false);
- const socket = useRef(null);
+  const [socketStatus, setSocketStatus] = useState('connecting');
+  
+  const socket = useRef(null);
   const messagesEndRef = useRef(null);
 
   const processUserObject = (userObj) => {
@@ -126,23 +128,41 @@ useEffect(() => {
 
       const token = localStorage.getItem('authToken');
 
-    const newSocket = io('http://localhost:5000', {
+  const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    
+    const newSocket = io(socketUrl, {
       auth: {
         userId: user._id,
         token: token,
       },
       transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     })
 
     socket.current = newSocket;
 
     newSocket.on('connect', () => {
       console.log('Connected to WebSocket server');
+      setSocketStatus('connected');
     });
 
     newSocket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);
+      setSocketStatus('error');
     });
+
+    newSocket.on('reconnect_attempt', (attempt) => {
+      console.log("Attempting to reconnect....", attempt);
+      setSocketStatus('connecting');
+    })
+
+    newSocket.on('recconnect_failed', () => {
+      console.log('Failed to recconnect to webSocket server after multiple attemps');
+      setSocketStatus('disconnected');
+      setError('Chat is temporarily unavailable. Please try again later')
+    })
 
     newSocket.on('receiveMessage', (message) => {
       console.log('Received message via Socket.IO:', message);
@@ -156,6 +176,15 @@ useEffect(() => {
   
 
        setMessages(prevMessages => [...prevMessages, processedMessage]);
+       if(processedMessage.sender && processedMessage.sender.userName === targetName) {
+        console.log('New message from support user, triggering onNewMessage',{ 
+        processedMessageSender : processedMessage.sender,
+        supportUserName : targetName
+       })
+        onNewMessage()
+       } else {
+        console.log('New message, but not from support user', { processedMessage })
+       }
     })
 
     newSocket.on('disconnect', (reason) => {
@@ -167,6 +196,8 @@ useEffect(() => {
       newSocket.off('connect');
       newSocket.off('receiveMessage');
       newSocket.off('disconnect');
+      newSocket.off('reconnect_attempt');
+      newSocket.off('reconnect_failed');
       newSocket.close();
     };
   } else {
@@ -353,8 +384,8 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
       <h4 className={style.chatTitlesmall}><strong>{supportUser ? `Chat with ${supportUser.userName}` : (targetName ? `Connecting to ${targetName}...` : 'Chat support')}</strong></h4>
 
 
-
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {socketStatus === 'error' && <p style={{ color: 'red' }}>Failed to connect to chat service. Please try again later.</p>}
       </div>
       {!nameConfirmed && (
         <>

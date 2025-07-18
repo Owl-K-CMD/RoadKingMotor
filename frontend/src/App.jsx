@@ -32,8 +32,8 @@ const App = () => {
   const [selectedCar, setSelectedCar] = useState(null)
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [chatMessages, setChatMessage] = useState([])
-
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const ADMIN_USERNAME = 'Road King Motor Support'
 
@@ -135,6 +135,7 @@ const handleOpenChat = (car) => {
   setChatTargetCar(car);
   setChatConfig({
     targetName: ADMIN_USERNAME,
+    unreadMessageCount: 0,
     carContext: car,
   })
   setIsChatVisible(true);
@@ -145,10 +146,19 @@ const handleCloseChat = () => {
   setIsChatVisible(false);
   setChatTargetCar(null)
   setChatConfig(null)
+  setUnreadMessagesCount(0);
 }
 
-    const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
-    const uniqueCarNames = [...new Set(cars.map(car => car.brand).filter(brand => brand))];
+  const filterCarsByBrand = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
+  const filtercar = filterCarsByBrand.filter(car => 
+    (car.model || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (car.brand || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
+  //const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
+  const uniqueCarNames = [...new Set(cars.map(car => car.brand).filter(brand => brand))];
+
 
 const closeAddToCartContent = () => {
   setIsAddToCartButtonVisible(false);
@@ -238,8 +248,6 @@ const handleCommentPosted =  () => {
 }
 
 
-
-
   return (
   <div>
   <div className={style.contentToBeFixed}>
@@ -278,10 +286,25 @@ const handleCommentPosted =  () => {
   alt = "settings"/>
 </button>
 */}
-    {!isChatVisible && (
+<button className={style.navbuttonNotification}>
+  <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/notification_icon.svg"
+  alt="notification" />
+</button>
+    {!isChatVisible ? (
       <button onClick={() => handleOpenChat(null)}><img className={style.chat}
    src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
-  alt = "chat"/></button>
+
+  alt = "chat"/>
+     {unreadMessagesCount > 0 && (
+    <span className={style.notificationBadge}>
+      {unreadMessagesCount}
+    </span>
+       )}
+  </button>
+    ) : (
+      <button onClick={handleCloseChat}>
+        <img className={style.chat} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png" alt="chat" />
+      </button>
     )}
   
 
@@ -303,8 +326,20 @@ const handleCommentPosted =  () => {
 
  )
   }
-
+    
+    <div className={style.searchContainer}>
+          <button className={style.svgsearch}>
+          <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/search_icon.svg" alt='search'/>
+        </button>
+        <input
+         type="text"
+         placeholder='Search by model or brand...'
+         value={searchQuery}
+         onChange={(e) => setSearchQuery(e.target.value)}
+         className={style.searchInput}
+       /></div>
      <div className={style.filterContainer}>
+      
       <button
         className={style.filterHamburger}
         onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
@@ -315,6 +350,7 @@ const handleCommentPosted =  () => {
       </button>
 
       <div id="filter-menu" className={`${style.search} ${isFilterMenuOpen ? style.filterMenuOpen : ''}`}>
+        
         <button
           className={style.navbutton}
           onClick={() => { setShowAll(''); setIsFilterMenuOpen(false); }}
@@ -333,9 +369,7 @@ const handleCommentPosted =  () => {
         ))}
       </div>
     </div>
-    { isLoading && (
-      <div className={style.loadingIndicator}>Loading Data...</div>
-    )}
+    
      </div>
      <div className={style.contentToScroll}>
     <div className={style.filter}>
@@ -520,7 +554,9 @@ handleAddToCart(car)}}>Add to cart</button>
         <Message 
         targetName={chatConfig.targetName}
         onClose={handleCloseChat}
-        //messages={chatMessages}
+        onNewMessage={() => setUnreadMessagesCount(prev => prev + 1)}
+        unreadMessagesCount={unreadMessagesCount}
+        setUnreadMessagesCount={setUnreadMessagesCount}
         />
       </div>
     )}
