@@ -29,7 +29,7 @@ const App = () => {
 
   <h2>4. Third-Party Services</h2>
   <p>
-    This app integrates with Facebook's Graph API to allow posting. Facebook'’'s privacy policies apply when you use their services.
+    This app integrates with Facebook's Graph API to allow posting. Facebook’s privacy policies apply when you use their services.
   </p>
 
   <h2>5. Contact Us</h2>
