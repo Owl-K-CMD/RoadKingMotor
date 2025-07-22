@@ -6,6 +6,7 @@ const storage = multer.memoryStorage()
 const upload = multer({ storage })
 const config = require('../utils/config')
 const { broadcast } = require('../websocketHandle')
+const { postToFacebook } = require('../utils/facebook')
 
 
 const s3Client = new S3Client({
@@ -109,6 +110,13 @@ broadcast({
   type: 'NEW_MOTOR',
   payload: savedMotor,
 });
+
+try {
+  const userId = request.user.id;
+  await postToFacebook(savedMotor );
+} catch (facebookError) {
+  console.error("Error posting to Facebook:", facebookError.message);
+}
   response.status(201).json(savedMotor)
 
 }

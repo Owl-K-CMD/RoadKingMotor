@@ -1,0 +1,27 @@
+.container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: none;
+  width: min(60%, 100%);
+  justify-content: center;
+  margin: 0 auto;
+  background-color: rgba(250, 250, 250, 0.5);
+  box-shadow: 10px 5px -5px -1px rgba(10, 99, 169, 0.16),
+              -10px 10px 10px -1px rgba(255, 255, 255, 0.70);
+  border-radius: 10px;
+}
+
+.container h1{
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.container p{
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.container h2{
+  color: rgba(0, 0, 0, 0.7);
+  padding: min(10px, 2vw);
+}

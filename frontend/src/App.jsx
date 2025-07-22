@@ -326,7 +326,7 @@ const handleCommentPosted =  () => {
 
  )
   }
-    
+    <div className={style.searchAndFilter}>
     <div className={style.searchContainer}>
           <button className={style.svgsearch}>
           <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/search_icon.svg" alt='search'/>
@@ -368,6 +368,7 @@ const handleCommentPosted =  () => {
           </button>
         ))}
       </div>
+    </div>
     </div>
     
      </div>
