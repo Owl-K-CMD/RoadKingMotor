@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import motoractadmin from './carsAdmin.js'
-import style from './module/style.module.css'
+import style from './module/newCarStyle.module.css'
 
 const Newcar = () => {
   
@@ -163,88 +163,104 @@ setNewOtherDescription(e.target.value);
 
 
   return (
-<div>
+<div className={style.newcar}>
 <form className={style.formnewcar} onSubmit= {addCar}>
 <div className = {style.inputnewcar}>
  Images <input type="file" id="newCarImageInput"
   multiple
   accept="image/*"
   onChange= {handleNewImage} />
-  {newImages.length > 0 && <div>Selected files: {newImages.map(f => f.name).join(', ')}</div>}
+  {newImages.length > 0 && <div className={style.inputValue}>Selected files: {newImages.map(f => f.name).join(', ')}</div>}
 </div>
 
 <div className = {style.inputnewcar}>
- Brand <input value= {newBrand}
+ Brand <input className={style.inputValue} value= {newBrand}
   onChange= {handleNewBrand} />
 </div>
 
 <div className = {style.inputnewcar}>
- Model <input value= {newModel}
+ Model <input className={style.inputValue} value= {newModel}
   onChange= {handleNewModel} />
 </div>
 
 <div className = {style.inputnewcar}>
- Price <input type="number" value= {newPrice}
+ Price <input type="number" className={style.inputValue} value= {newPrice}
   onChange= {handleNewPrice} />
 </div>
 
 <div className = {style.inputnewcar}>
- Year <input type="number" value= {newYear}
+ Year <input type="number" className={style.inputValue} value= {newYear}
   onChange= {handleNewYear} />
 </div>
 
 <div className = {style.inputnewcar}>
- Made in <input value= {newMadeIn}
+ Made in <input className={style.inputValue} value= {newMadeIn}
   onChange= {handleNewMadeIn} />
 </div>
 
 <div className = {style.inputnewcar}>
- Mileage <input type="number" value= {newMileage}
+ Mileage <input type="number" className={style.inputValue} value= {newMileage}
   onChange= {handleNewMileage} />
 </div>
 
 <div className = {style.inputnewcar}>
- Fuel type <input value= {newFuelType}
-  onChange= {handleNewFuelType} />
+ Fuel type <select className={style.inputValue} value= {newFuelType}
+  onChange= {handleNewFuelType}>
+  <option value="Petrol">Petrol</option>
+  <option value="diesel">Diesel</option>
+  <option value="electric">Electric</option>
+  <option value="hybrid">Hybrid</option>
+</select>
 </div>
 
 <div className = {style.inputnewcar}>
- Transmission <input value= {newTransmission}
-  onChange= {handleNewTransmission} />
+ Transmission <select className={style.inputValue} value= {newTransmission}
+  onChange= {handleNewTransmission} >
+  <option value="manual">Manual</option>
+  <option value="automatic">Automatic</option>
+  <option value="semi-automatic">Semi-Automatic</option>
+  <option value="hybrid">Hybrid</option>
+  <option value="electric">Electric</option>
+</select>
 </div>
 
 <div className = {style.inputnewcar}>
- Body type <input value= {newBodyType}
+ Body type <input className={style.inputValue} value= {newBodyType}
   onChange= {handleNewBodyType} />
 </div>
 
 <div className = {style.inputnewcar}>
- Color <input value= {newColor}
+ Color <input className={style.inputValue} value= {newColor}
   onChange= {handleNewColor} />
 </div>
 
 <div className = {style.inputnewcar}>
- Seats <input type="number" value= {newSeats}
+ Seats <input type="number" className={style.inputValue} value= {newSeats}
   onChange= {handleNewSeats} />
 </div>
 
 <div className = {style.inputnewcar}>
- Doors <input type="number" value= {newDoors}
+ Doors <input type="number" className={style.inputValue} value= {newDoors}
   onChange= {handleNewDoors} />
 </div>
 
 <div className = {style.inputnewcar}>
- Engine size <input type="number" value= {newEngineSize}
+ Engine size <input type="number" className={style.inputValue} value= {newEngineSize}
   onChange= {handleNewEngineSize} />
 </div>
 
 <div className = {style.inputnewcar}>
- Status <input value= {newStatus}
-  onChange= {handleNewStatus} />
+ Status <select className={style.inputValue} value= {newStatus}
+  onChange= {handleNewStatus}>
+  <option value="available">Available</option>
+  <option value="sold">Sold</option>
+  <option value="reserved">Reserved</option>
+  <option value="not-available">Not Available</option>
+</select>
 </div>
 
 <div className = {style.inputnewcar}>
- Created at <input type="date" value= {newCreatedAt}
+ Created at <input type="date" className={style.inputValue} value= {newCreatedAt}
   onChange= {handleNewCreatedAt} />
 </div>
 

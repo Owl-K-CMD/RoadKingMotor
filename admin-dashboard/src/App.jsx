@@ -23,10 +23,10 @@ const App = () => {
   const [errorMessage, SetErrorMessage] = useState(null)
   const [showNewCarForm, setShowNewCarForm] = useState(false)
    const [isChatVisible, setIsChatVisible] = useState(false)
+  const [showTable, setShowTable] = useState(false);
    const [chatTargetCar, setChatTargetCar] = useState(null)
    const [isLoginVisible, setIsLoginVisible] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
-
 
 
   useEffect(() => {
@@ -113,13 +113,11 @@ const handleLogout = () => {
 }
   return (
     <div>
-      <div className="flex items-center justify-center">
-<h1 className="text-4xl font-extrabold text-center my-8 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Road king motor admin dashboard </h1>
-<button className={style.chatbutton} onClick={() => handleOpenChat(cars)}>
-  <img className={style.chat}
-   src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
-  alt = "chat"/>
+<h1 className={style.title}>Road king motor admin dashboard </h1>
 
+<div className={style.navbar}>
+<button className={style.chatbutton} onClick={() => handleOpenChat(cars)}>
+Message
   </button>
 
 {currentUser ? (
@@ -129,8 +127,7 @@ const handleLogout = () => {
         </>
       ) : (
         <button className= {style.navbuttonmyaccount} onClick={handleToggleLoginVisibility}>
-          <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
-            alt = "myaccount" />
+          My Account
         </button>
       )}
 
@@ -150,6 +147,14 @@ const handleLogout = () => {
        )
         }
 
+<button>Comments</button>
+<button>Users</button>
+<button>brands</button>
+<button>Models</button>
+<button>Orders</button>
+<button>Add To Cart</button>
+<button>Statistics</button>
+
 </div>
 {isChatVisible && chatTargetCar && (
       <div className={style.message}>
@@ -160,6 +165,17 @@ const handleLogout = () => {
 
  <Notification message = {errorMessage} className={style.error}/>
 
+<button className={style.button} onClick={() => setShowTable(!showTable)}>
+        {showTable ? 'Hide Cars Table' : 'Show Cars Table'}
+      </button>
+
+      <button onClick = {toggleNewCarForm }
+ className={style.button}>
+
+  {showNewCarForm ? 'Cancel Adding Newcar' : 'Add new car'}
+ </button>
+
+{showTable && (
 
 <table className=" text-sm text-left text-gray-500 dark:text-gray-400" >
   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -268,13 +284,13 @@ const handleLogout = () => {
   </tbody>
 </table>
 
-<button onClick = {toggleNewCarForm }
- className="mt-6 mb-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition ease-in-out duration-150"
- >
-  {showNewCarForm ? 'Cancel' : 'Add new car'}
- </button>
+
+)}
+
+
 {showNewCarForm && <Newcar />}
     </div>
+
   )
 }
 export default App

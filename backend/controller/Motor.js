@@ -49,16 +49,19 @@ motorsRouter.get('/model/:model', async (request, response, next) => {
 });
 
 
-motorsRouter.post('/', upload.array('images',10), async(request, response, next) => {
+motorsRouter.post('/',upload.array('images',10), async(request, response, next) => {
   const body =  request.body
-const files = request.files
+  const files = request.files
 
 try {
+  
+  console.log("Request body:", request.body);
+  console.log("Request files:", request.files);
 if (!files || files.length === 0) {
   return response.status(400).json({error: 'At least one images is required'})
 }
 
-   const params = {
+  const params = {
     Bucket: config.AWS_BUCKET_NAME,
     Key: `${Date.now()}-${files.originalname}`,
     Body: files.buffer,
@@ -106,17 +109,24 @@ if (!files || files.length === 0) {
  })
 
 const savedMotor= await motor.save()
-broadcast({
+/*broadcast({
   type: 'NEW_MOTOR',
   payload: savedMotor,
 });
-
+*//*
 try {
+     if (!request.user || !request.user.id) {
+        console.warn("User is not authenticated. Skipping Facebook post.");
+        return;
+      }
   const userId = request.user.id;
-  await postToFacebook(savedMotor );
+  console.log("User ID from request:", userId);
+   await postToFacebook(savedMotor, userId);
 } catch (facebookError) {
-  console.error("Error posting to Facebook:", facebookError.message);
+  console.error("Error posting to Facebook try again:", facebookError.message);
 }
+  */
+ await postToFacebook(savedMotor)
   response.status(201).json(savedMotor)
 
 }
@@ -124,7 +134,6 @@ catch(error) {
   console.log("Error in POST /api/motors:", error);
   next(error)
 }
-
 })
 
 motorsRouter.delete('/:id', async(request, response, next) => {
@@ -133,10 +142,12 @@ motorsRouter.delete('/:id', async(request, response, next) => {
     if (!deletedMotor) {
       return response.status(404).json({ error: 'Motor not found' })
     }
+    /*
     broadcast({
       type: 'DELETE_MOTOR',
       payload: { id: request.params.id }
     })
+      */
     response.status(204).end()
   } catch(error) {
     next(error)
