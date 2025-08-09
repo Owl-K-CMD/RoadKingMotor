@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import motoract from './cars'
 import style from './module/style.module.css'
 import Message from './message.jsx'
@@ -34,7 +34,9 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [topCarId, setTopCarId] = useState(null);
 
+  const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
 
   useEffect(() => {
@@ -236,6 +238,7 @@ const handleLogout = () => {
 const handleToggleComments = (event, carId) => {
   event.preventDefault();
   event.stopPropagation();
+  setTopCarId(carId)
   setCommentSectionCarIds(prev =>
     prev.includes(carId)
       ? prev.filter(id => id !== carId)
@@ -243,10 +246,17 @@ const handleToggleComments = (event, carId) => {
   );
 };
 
-const handleCommentPosted =  () => {
-  setRefresh(prev => prev + 1)
-}
 
+
+const sortedCars = [...filtercar].sort((a, b) => {
+  if (topCarId === a.id) {
+    return -1;
+  } else if (topCarId === b.id) {
+    return 1;
+  } else {
+    return 0;
+  }
+})
 
   return (
   <div>
@@ -254,44 +264,30 @@ const handleCommentPosted =  () => {
     <div className={style.title}>
   
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
-  
-
-   
- 
  <div className= {style.navbarbutton}>
-{/*
-      <button className = {style.navbuttonhome}>
-      <img className= {style.home} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-home-48.png" 
-      alt="home" /> </button>
-*/}
+
       {currentUser ? (
         <>
           <span className={style.welcomeMessage}>{currentUser.userName}!</span>
-          <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
+          <button onClick={handleLogout} className={style.topButton}>Logout</button>
         </>
       ) : (
         <button className= {style.navbuttonmyaccount} onClick={handleToggleLoginVisibility}>
-          <img className={style.myaccount} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
+          <img className={style.topButton} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
             alt = "myaccount" />
         </button>
       )}
 
  <button className = {style.navbuttonaddtocart} onClick={handleToggleCarVisibility}>
-   <img className = {style.addtocart} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
+   <img className = {style.topButton} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
     alt="addtocart"/> </button>
-{/*
-<button className= {style.settingsbutton}>
-  <img className={style.settings}
-   src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-settings-48.png"
-  alt = "settings"/>
-</button>
-*/}
 <button className={style.navbuttonNotification}>
-  <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/notification_icon.svg"
+  <img className={style.topButton}
+  src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/notification_icon.svg"
   alt="notification" />
 </button>
     {!isChatVisible ? (
-      <button onClick={() => handleOpenChat(null)}><img className={style.chat}
+      <button onClick={() => handleOpenChat(null)}><img className={style.topButton}
    src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
 
   alt = "chat"/>
@@ -315,7 +311,7 @@ const handleCommentPosted =  () => {
   <div className={style.authFormContainer}>
             <button onClick={handleToggleLoginVisibility}
             className={style.closebutton}
-         style={{ marginTop: '10px' }}>
+         style={{marginTop: '10px' }}>
           Close
         </button>
                 <AuthForm onLoginSuccess={handleLoginSuccess}
@@ -374,7 +370,7 @@ const handleCommentPosted =  () => {
      </div>
      <div className={style.contentToScroll}>
     <div className={style.filter}>
-     {filtercar.length > 0 ? (
+     {sortedCars.length > 0 ? (
   filtercar.map( car => {
     if (selectedCar && selectedCar.id === car.id) {
       return (
@@ -403,13 +399,6 @@ const handleCommentPosted =  () => {
         } else if (typeof car.images === 'string' && car.images.trim() !== '') {
           rawFirstImageUrl = car.images.trim();
         }
-               // console.log(
-          //`Car: ${car.model} (Background Image Processing)`,
-          //`| car.images data:`, car.images,
-          //`| Extracted rawFirstImageUrl: "${rawFirstImageUrl}"` contentToBeFixed
-        //);
-
-
         const firstImageUrlForBackground = rawFirstImageUrl ? encodeURI(rawFirstImageUrl) : null;
 
         return (
@@ -468,9 +457,13 @@ const handleCommentPosted =  () => {
     
  <div className={style.carpropartyOtherProperty}>
   <div className={style.carProperty}>
+    {/*
         <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} {car.year} </div>
         <div className={style.carpropartyp}><h3 className={style.carContext}>Price: </h3>{car.price}  $</div>
         <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
+  */}
+  {car.model} {car.year} <h5> ${car.price} </h5>
+  
   </div>
     <div className={style.otherDescription}>
       <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
@@ -525,8 +518,9 @@ onClick={(event) => {
   
 handleAddToCart(car)}}>Add to cart</button>
 </div>
-
-<button onClick={(event) => handleToggleComments(event, car.id)}>
+<div className={`${style.comment} ${commentSectionCarIds.includes(car.id) ? `${style.absolute} ${style.otherStyle}` : style.static}`}>
+<button className={`${style.hideAndShowButton}`}
+ onClick={(event) => handleToggleComments(event, car.id)}>
 {commentSectionCarIds.includes(car.id) ? 'Hide Comments' : 'Show Comments'}
 </button>
 
@@ -534,15 +528,10 @@ handleAddToCart(car)}}>Add to cart</button>
  <AverageRating carId={car.id} refresh={refresh} />
  {commentSectionCarIds.includes(car.id) && (
   
-  <div>
-    <CommentsList carId={car.id} refresh={refresh} />
-    {currentUser && (
-      <CommentForm carId={car.id} onCommentPosted={handleCommentPosted} />
-    )}
-  </div>
+    <CommentsList carId={car.id} refresh={refresh} onCommentPosted={handleCommentPosted}/>
 
   )}
-  
+  </div>
   </div>
         )
  })

@@ -107,7 +107,7 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
         <div className={styleCarDetails.commentsSection}>
           <h2 className={styleCarDetails.commentsTitle}>Ratings & Comments</h2>
           <AverageRating carId={car.id} refresh={refresh} />
-          <CommentsList carId={car.id} refresh={refresh} />
+          <CommentsList carId={car.id} refresh={refresh} onCommentPosted={onCommentPosted}/>
           {currentUser ? <CommentForm carId={car.id} onCommentPosted={onCommentPosted} /> : <p>You must be logged in to post a comment.</p>}
         </div>
      </div>

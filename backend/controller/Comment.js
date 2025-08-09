@@ -2,7 +2,7 @@ const commentRouter = require('express').Router()
 const Comment = require('../module/comment')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
-const { broadcast } = require('../websocketHandle')
+//const { broadcast } = require('../websocketHandle')
 
 const authMiddleware = (request, response, next) => {
   const authHeader = request.headers.authorization;
@@ -34,21 +34,24 @@ commentRouter.post('/', authMiddleware, async (request, response ) => {
     if (!car || !rating || !comment) {
       return response.status(400).json({ error: 'Missing required fields: car, rating, comment'})
       }
+const parentComment = request.body.parentComment || null;
 
  const newComment = new Comment({ 
       car,
       user: userId,
+      parentComment: parentComment,
       rating,
       comment,
   })
     const savedComment = await newComment.save()
 
     const populatedComment = await  savedComment.populate('user', 'userName');
-  broadcast({
+  
+  /*  broadcast({
     type: 'NEW_COMMENT',
     payload: populatedComment,
   });
-
+*/
     response.status(201).json(populatedComment);
   } catch (error) {
     console.error('Error posting comment:', error)

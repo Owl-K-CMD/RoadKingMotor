@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import commentAct from './axios/commentAxios'
+import style from './module/styleComment.module.css'
 
 
-
-const CommentForm = ({ carId, onCommentPosted }) => {
+const CommentForm = ({ carId, onCommentPosted, parentCommentId = null}) => {
      const [comment, setComment] = useState('')
      const [rating, setRating] = useState(0)
      const [hover, setHover] = useState(0)
+  
      const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault()
     setError('')
 
@@ -19,7 +20,7 @@ const CommentForm = ({ carId, onCommentPosted }) => {
     }
 
     try {
-      const commentData = { comment: comment, rating: rating, car: carId};
+      const commentData = { comment: comment, rating: rating, car: carId, parentComment: parentCommentId };
       await commentAct.createComment(commentData)
       setComment('')
       setRating(0)
@@ -31,13 +32,15 @@ const CommentForm = ({ carId, onCommentPosted }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}
+    <form className={style.commentForm} onSubmit={handleSubmit}
+
     onClick= {(event) =>{
       event.stopPropagation()
     }}
+      
     >
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div>
+      <div className={style.commentFormInput}>
         {[...Array(5)].map((star, index) => {
           const ratingValue = index + 1
 
@@ -50,7 +53,7 @@ const CommentForm = ({ carId, onCommentPosted }) => {
               border: 'none',
               outline: 'none',
               cursor: 'pointer',
-              fontSize: '2rem',
+              fontSize: '1rem',
               color: ratingValue<= (hover || rating) ? '#ffc107': '#e4e5e9'
             }}
             onClick={(event) => {{setRating(ratingValue)}
@@ -67,8 +70,9 @@ const CommentForm = ({ carId, onCommentPosted }) => {
           )
         })}
         </div>
-
+<div className={style.textareaAndPost}>
               <textarea
+              className={style.textarea}
        value={comment}
        onChange={(e) => setComment(e.target.value)}
        placeholder="Your comment..." 
@@ -77,7 +81,8 @@ const CommentForm = ({ carId, onCommentPosted }) => {
     event.stopPropagation();
   }} 
        />
-      <button type="submit">Post</button>
+      <button className={style.postButton} type="submit">Post</button>
+      </div>
     </form>
   )
 }

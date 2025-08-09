@@ -1,0 +1,74 @@
+.comment{
+  border-radius: 2px;
+  border-bottom:  1px solid rgba(0, 0, 0, 0.3);
+}
+
+.comment p{
+  font-size: 1rem;
+  padding: 2;
+  background-color: rgba(70, 70, 85, 0.1);
+}
+
+.replybutton{
+  font-size: small;
+  font-weight: bold;
+  color:rgba(70, 70, 85, 0.8);
+  cursor: pointer;
+  
+  position: relative;
+}
+
+.textarea{
+  background-color: rgba(80, 80, 95, 0.1);
+  width: 80%
+}
+
+.textareaAndPost{
+justify-content: space-between;
+width: 100%;
+}
+.postButton{
+  float: right;
+  position: relative;
+  right: 1rem;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 2px;
+  border: 1px solid rgba(80, 190, 95, 0.7);
+}
+
+.commentBox{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+  z-index: 3;
+  background-color: rgba(240, 240, 255, 0.9);
+  max-height: 23rem;
+   overflow-y: scroll;
+}
+
+.childComment {
+  margin-left: 2rem;
+  background-color: rgba(240, 238, 249, 0.9);
+  border-left:  1px solid rgba(0, 0, 0, 0.5);
+  z-index: 4;
+  width: 90%;
+  border-bottom: none;
+  
+}
+
+.commentForm{
+  background-color: rgb(16, 98, 109);
+  width: 100%;
+}
+
+.commentandrepply{
+  border: 0px solid blue
+}
+
+.date{
+  font-size: xx-small;
+  float: right;
+  color: rgba(0, 0, 0, 0.5);
+}

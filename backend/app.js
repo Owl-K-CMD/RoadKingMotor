@@ -4,11 +4,9 @@ const cors = require('cors');
 const http = require('http');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
-
 const config = require('./utils/config');
 const logger = require('./utils/logger');
 const middleware = require('./utils/middleware');
-
 const motorsRouter = require('./controller/Motor');
 const messageRouter = require('./controller/Message');
 const usersRouter = require('./controller/User');

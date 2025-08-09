@@ -204,23 +204,66 @@ setNewOtherDescription(e.target.value);
 </div>
 
 <div className = {style.inputnewcar}>
- Fuel type <select className={style.inputValue} value= {newFuelType}
+ Fuel type {/* <select className={style.inputValue} value= {newFuelType}
   onChange= {handleNewFuelType}>
   <option value="Petrol">Petrol</option>
   <option value="diesel">Diesel</option>
   <option value="electric">Electric</option>
   <option value="hybrid">Hybrid</option>
 </select>
+*/}
+<div className={style.fuelType}>
+<label>
+    <input
+      type="radio"
+      name="fuelType"
+      value="Petrol"
+      checked={newFuelType === "Petrol"}
+       onChange={handleNewFuelType} 
+    />
+    Petrol
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="fuelType"
+      value="diesel"
+      checked={newFuelType === "diesel"}
+       onChange={handleNewFuelType} 
+    />
+    Diesel
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="fuelType"
+      value="electric"
+      checked={newFuelType === "electric"}
+       onChange={handleNewFuelType}
+    />
+    Electric
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="fuelType"
+      value="hybrid"
+      checked={newFuelType === "hybrid"}
+       onChange={handleNewFuelType} 
+    />
+    Hybrid
+  </label>
+  </div>
 </div>
 
 <div className = {style.inputnewcar}>
  Transmission <select className={style.inputValue} value= {newTransmission}
   onChange= {handleNewTransmission} >
-  <option value="manual">Manual</option>
-  <option value="automatic">Automatic</option>
-  <option value="semi-automatic">Semi-Automatic</option>
-  <option value="hybrid">Hybrid</option>
-  <option value="electric">Electric</option>
+  <option value="Manual">Manual</option>
+  <option value="Automatic">Automatic</option>
+  <option value="Semi-automatic">Semi-Automatic</option>
+  <option value="Hybrid">Hybrid</option>
+  <option value="Electric">Electric</option>
 </select>
 </div>
 

@@ -49,7 +49,6 @@ opacity: 90%;
 .navbar{
   display: flex;
   align-items: center;
-  padding: 10px ;
   gap: 10px;
   background-color: rgba(25, 25, 55, 0.7);
 
@@ -59,9 +58,102 @@ opacity: 90%;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  text-decoration: underline;
+  
 }
 
-.navbar button hover{
-background-color: red;
+.navbar button:hover{
+background-color: rgba(0, 0, 0, 0.4);
+}
+
+.table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.thead{
+  background-color: rgba(100, 90, 120, 0.7);
+  font-size: 0.7rem;
+  color: #333;
+  text-align: center;
+  justify-content: space-between;
+  box-shadow: 12px 2px 4px rgba(0,0,0,0.8);
+}
+
+.thead th {
+  border: none;
+}
+
+
+.tableBody {
+  font-size: 0.6rem;
+  text-align: center;
+  padding: auto;
+  margin-top: 10px;
+}
+
+.tableBody:nth-child(odd) {
+  background-color: rgba(29, 20, 29, 1);
+}
+
+.tableBody:nth-child(even) {
+  background-color: rgba(39, 46, 55, 1);
+}
+
+.tableBody:hover {
+  background-color: rgba(229, 31, 35, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tableBody {
+    border-color: rgba(55, 65, 81, 1);
+  }
+
+  .tableBody:nth-child(odd) {
+    background-color: rgba(74, 81, 130, 0.8);
+  }
+
+  .tableBody:nth-child(even) {
+    background-color: rgba(70, 64, 125, 0.8);
+  }
+
+  .tableBody:hover {
+    background-color: rgba(55, 65, 81, 0.8);
+  }
+}
+
+.tableImage{
+  width: 50px;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+  transition: width 0.3s ease;
+}
+
+.tableImage:hover {
+  width: 160px;
+  height: auto;
+}
+
+.buttonModify {
+  color: rgba(20, 25, 29, 1);
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  box-shadow: 4px 3px 3px 4px rgba(0, 0, 0, 0.4);
+  padding: 5px 10px;
+  transition: background-color 0.3s ease;
+  
+}
+
+.buttonModify:hover {
+  background-color: rgba(4, 4, 39, 0.8);
+}
+
+.modify {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }

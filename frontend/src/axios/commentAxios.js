@@ -2,7 +2,7 @@ import axios from 'axios'
 import { refreshAuthToken } from '../refreshToken'
 
 //const commentURL = '/api/comments'
-const commentURL = `${import.meta.env.VITE_API_BASE_URL || ''}/api/comments`
+const commentURL = `${import.meta.env.VITE_API_BASE_URL || ''}http://localhost:5000/api/comments`
 let isRefreshing = false;
 let failedQueue = [];
 let onLogoutCallback = null;
@@ -88,7 +88,7 @@ return Promise.reject(error)
 )
 const createComment = async(commentData) => {
   const response = await api.post(commentURL, commentData)
-  return response.data
+  return response.data;
 };
 
 
