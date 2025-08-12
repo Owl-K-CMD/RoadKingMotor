@@ -11,6 +11,10 @@
 
    @media (max-width: 768px) {
    grid-template-columns: 1fr;
+   border-bottom: 2px solid rgba(250, 250, 10, 0.9);
+   gap: 30px;
+   background-color: rgba(0, 0, 0, 0.263);
+   
 
   }
 
@@ -18,7 +22,7 @@
 }
 
 .navbutton{
-  font-size: clamp(0.5em, 1.1vw, 1.1em);
+  font-size: clamp(0.5rem, 1.1vw, 1.1em);
   border-radius: 5%;
   color:rgb(21, 20, 20);
   white-space: nowrap;
@@ -122,8 +126,9 @@
   font-size: 1rem;
   color: rgb(100, 10, 10);
   font-weight: 600;
-  font-family: serif
-
+  font-family: serif;
+  border: 0.1px solid rgba(230, 10, 10, 0.6);
+  background-color: rgba(250, 250, 250, 0.7);
 }
 
 .price{
@@ -131,7 +136,9 @@
   font-weight: bold;
   position: absolute;
   top: 70%;
-  right: 1%
+  right: 1%;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 0.1px solid rgba(230, 0, 0, 0.5)
 }
 .imgandits{
   flex-shrink: 1;
@@ -141,7 +148,7 @@
   width: 100%;
   max-Height: 400px;
   margin: 0 0;
-  box-shadow:  0 4px 8px rgba(0, 0, 0, 0.5);
+  box-shadow:  0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   z-index: 5;
   position: relative;
@@ -174,7 +181,12 @@
   grid-template-areas:
     "image"
     "details";
+
+    @media (max-width: 768px) {
+    }
 }
+
+
 
 .carproparty .carpropartyOtherProperty{
   display: flex;
@@ -185,8 +197,13 @@
 
 .otherDescription{
   color: indigo;
-  font-weight: bold;
+  font-weight: 400;
   float: right;
+  width: 50%;
+  font-size: 0.7rem;
+  right: 50%;
+  
+
  
 }
 .carProperty h5{
@@ -242,14 +259,13 @@ padding: 3px;
   min-width: 0;
   font-size: clamp(0.7em, 1.2vw, 0.51em);
   font-weight: bold;
-  padding: clamp(0.3em, 1.5vw, 0.6em) clamp(0.5em, 2vw, 1em);
+  padding: 1px;
   border-radius: 2px;
   overflow: hidden;
-  box-shadow: 2px 2px 2px 1px rgba(0, 0, 110, 0.3);
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 110, 0.0);
   text-overflow: ellipsis;
   flex-shrink: 1;
-  border-radius: 10px;  
-  padding: 3px;
+  border: 0.12px solid rgba(0, 0, 0, 0.16);
   min-width: 0;
   flex-shrink: 1;
   
@@ -265,15 +281,6 @@ padding: 3px;
  
 }
 
-.lineAboveFooter{
-  height:5px;
-   background: linear-gradient(
-    200deg,
-    blue, gray, olive,  pink, purple, olive, red, orange, yellow, green,
-    cyan,blue,violet,indigo,white,black,gold,maroon,cyan, violet
-  );
-
-}
 
 .title{
   display: flex;
@@ -295,7 +302,7 @@ padding: 3px;
   display: flex;
   align-items: center;
   gap: 20px;
-  
+  border: 1px solid red
 }
 
 .navbarbutton button:hover{
@@ -337,7 +344,7 @@ padding: 2px;
 .imageNavigation {
   display: flex;
   align-items: center;
-  justify-content: center; /* Or space-between, as you prefer */
+  justify-content: center;
   margin-top: 8px;
 }
 
