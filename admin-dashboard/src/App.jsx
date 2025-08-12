@@ -197,6 +197,7 @@ Message
       <th >Doors</th>
       <th >Engine size</th>
       <th >Status</th>
+      <th>Condition</th>
       <th >Created at</th>
       <th >Other details</th>
       <th >Modify</th>
@@ -255,6 +256,7 @@ Message
           <td >{car.doors}</td>
           <td >{car.engineSize}</td>
           <td >{car.status}</td>
+          <td>{car.condition}</td>
           <td >{car.createdAt}</td>
           <td >{car.otherDescription}</td>
           

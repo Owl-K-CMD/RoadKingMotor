@@ -33,13 +33,18 @@
     .inputnewcar{
       padding: 10px;
     }
-.fuelType{
+.radio{
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   width: fit-content;
+  border: 1px solid red;
   width: 100%;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 1rem;
+  font-weight: italic
+}
+
+.radio label:hover{
+  background-color: maroon
 }

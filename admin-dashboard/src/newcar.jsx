@@ -21,6 +21,7 @@ const Newcar = () => {
   const [newDoors, setNewDoors] = useState('')
   const [newEngineSize, setNewEngineSize] = useState('')
   const [newStatus, setNewStatus] = useState('')
+  const [newCondition, setNewCondition] = useState('')
   const [newCreatedAt, setNewCreatedAt] = useState('')
   const [newOtherDescription, setNewOtherDescription] = useState('')
   
@@ -47,6 +48,7 @@ formData.append('seats', newSeats);
 formData.append('doors', newDoors);
 formData.append('engineSize', newEngineSize);
 formData.append('status', newStatus);
+formData.append('condition', newCondition);
 formData.append('createdAt', newCreatedAt);
 formData.append('otherDescription', newOtherDescription);
 
@@ -72,6 +74,7 @@ formData.append('otherDescription', newOtherDescription);
     setNewDoors('');
     setNewEngineSize('');
     setNewStatus('');
+    setNewCondition('')
     setNewCreatedAt('');
     setNewOtherDescription('');
 
@@ -161,7 +164,9 @@ const handleNewOtherDescription = (e) => {
 setNewOtherDescription(e.target.value);
 }
 
-
+const handleNewCondition = (e) => {
+  setNewCondition(e.target.value)
+}
   return (
 <div className={style.newcar}>
 <form className={style.formnewcar} onSubmit= {addCar}>
@@ -204,15 +209,8 @@ setNewOtherDescription(e.target.value);
 </div>
 
 <div className = {style.inputnewcar}>
- Fuel type {/* <select className={style.inputValue} value= {newFuelType}
-  onChange= {handleNewFuelType}>
-  <option value="Petrol">Petrol</option>
-  <option value="diesel">Diesel</option>
-  <option value="electric">Electric</option>
-  <option value="hybrid">Hybrid</option>
-</select>
-*/}
-<div className={style.fuelType}>
+ Fuel type
+<div className={style.radio}>
 <label>
     <input
       type="radio"
@@ -224,9 +222,7 @@ setNewOtherDescription(e.target.value);
     Petrol
   </label>
   <label>
-    <input
-      type="radio"
-      name="fuelType"
+    <input type="radio" name="fuelType"
       value="diesel"
       checked={newFuelType === "diesel"}
        onChange={handleNewFuelType} 
@@ -257,15 +253,48 @@ setNewOtherDescription(e.target.value);
 </div>
 
 <div className = {style.inputnewcar}>
- Transmission <select className={style.inputValue} value= {newTransmission}
-  onChange= {handleNewTransmission} >
-  <option value="Manual">Manual</option>
-  <option value="Automatic">Automatic</option>
-  <option value="Semi-automatic">Semi-Automatic</option>
-  <option value="Hybrid">Hybrid</option>
-  <option value="Electric">Electric</option>
-</select>
+ Transmission
+<div className={style.radio}>
+<label><input type="radio" name="Transmition"
+      value="Manuel" checked={newTransmission === "Manuel"}
+       onChange={handleNewTransmission}/>
+    Manuel
+</label>
+
+<label><input type="radio" name="Transmition"
+      value="Automatic" checked={newTransmission === "Automatic"}
+       onChange={handleNewTransmission}/>
+    Automatic
+</label>
+
+<label><input type="radio" name="Transmition"
+      value="Hybrid" checked={newTransmission === "Hybrid"}
+       onChange={handleNewTransmission}/>
+    Hybrid
+</label>
+
+<label><input type="radio" name="Transmition"
+      value="Sem-Automatic" checked={newTransmission === "Sem-Automatic"}
+       onChange={handleNewTransmission}/>
+    Sem-Automatic
+</label>
 </div>
+</div>
+
+<div className= {style.inputnewcar}>
+Condition
+<div className={style.radio}>
+  <label>
+    <input type="radio" name="Condition"
+    value="New" checked={newCondition ==="New"}
+    onChange={handleNewCondition}/>
+    New Car
+  </label>
+  <label><input type="radio" name="Condition"
+  value="Used" checked={newCondition ==="Used"}
+  onChange={handleNewCondition}/>
+  Used Car</label>
+  </div></div>
 
 <div className = {style.inputnewcar}>
  Body type <input className={style.inputValue} value= {newBodyType}
@@ -293,13 +322,24 @@ setNewOtherDescription(e.target.value);
 </div>
 
 <div className = {style.inputnewcar}>
- Status <select className={style.inputValue} value= {newStatus}
-  onChange= {handleNewStatus}>
-  <option value="available">Available</option>
-  <option value="sold">Sold</option>
-  <option value="reserved">Reserved</option>
-  <option value="not-available">Not Available</option>
-</select>
+ Status
+<div className={style.radio}>
+<label><input type="radio" name="status"
+      value="Available"checked={newStatus === "Available"}
+       onChange={handleNewStatus}/>
+    Available
+</label>
+<label><input type="radio" name="status"
+      value="Sold"checked={newStatus === "Sold"}
+       onChange={handleNewStatus}/>
+    Sold
+</label>
+<label><input type="radio" name="status"
+      value="Reserved"checked={newStatus === "Reserved"}
+       onChange={handleNewStatus}/>
+    Reseverd
+</label>
+</div>
 </div>
 
 <div className = {style.inputnewcar}>

@@ -35,6 +35,7 @@ const App = () => {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [topCarId, setTopCarId] = useState(null);
+  const [conditionFilter, setConditionFilter] = useState('')
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
@@ -150,15 +151,24 @@ const handleCloseChat = () => {
   setChatConfig(null)
   setUnreadMessagesCount(0);
 }
-
+/*
   const filterCarsByBrand = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
   const filtercar = filterCarsByBrand.filter(car => 
     (car.model || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (car.brand || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+  */
 
+    const filterCarsByBrand = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
+    let filtercar = filterCarsByBrand.filter(car =>
+    (car.model || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (car.brand || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  //const filtercar = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
+ if (conditionFilter === 'New' || conditionFilter === 'Used') {
+    filtercar = filtercar.filter(car => car.condition === conditionFilter);
+  }
+
   const uniqueCarNames = [...new Set(cars.map(car => car.brand).filter(brand => brand))];
 
 
@@ -262,8 +272,11 @@ const sortedCars = [...filtercar].sort((a, b) => {
   <div>
   <div className={style.contentToBeFixed}>
     <div className={style.title}>
-  
+
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
+      <button onClick={() => setConditionFilter('New')}>New Car</button>
+      <button onClick={() => setConditionFilter('Used')}>Used Car</button>
+      <button>Pending Car</button>
  <div className= {style.navbarbutton}>
 
       {currentUser ? (
@@ -414,6 +427,7 @@ const sortedCars = [...filtercar].sort((a, b) => {
       } : {}}>
     
         <div className={style.imgandits}>
+
           {car.images && Array.isArray(car.images) && car.images.length > 0 ? (
             <>
               <img
@@ -449,20 +463,39 @@ const sortedCars = [...filtercar].sort((a, b) => {
             </>
         ) : car.images && typeof car.images === 'string' ? (
 
-         <img src = {car.images} alt={car.model} className={style.img}/>
+        <img src = {car.images} alt={car.model} className={style.img}/>
         ) : ( <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-no-image" />
         )}
         
+
+              <svg className={`${style.buttonSvg} ${car.condition === 'Used' ? style['buttonSvg-Used'] : ''}`}
+      viewBox="0 0 200 250"
+      xmlns="http://www.w3.org/2000/svg">
+      <polygon
+      id = "starburst"
+      points = {generateStarPoints(25, 100, 80, 90, 80).join(',')}
+        fill={car.condition === 'Used' ? 'blue' : 'red'}
+        transform = "rotate(-90, 100, 100)"
+      />
+      <text
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fontSize={car.condition === 'New' ? '55' : '65'}
+        fill="white"
+        y="40%"
+        x="40%"
+      >
+        {car.condition}
+      </text>
+</svg>
+  <div className={style.model}>{car.model}</div>
+  <div className={style.price}> ${car.price} </div>
       </div>
     
  <div className={style.carpropartyOtherProperty}>
   <div className={style.carProperty}>
-    {/*
-        <div className={style.carpropartyp}><h3 className={style.carContext}>Model: </h3>{car.model} {car.year} </div>
-        <div className={style.carpropartyp}><h3 className={style.carContext}>Price: </h3>{car.price}  $</div>
-        <div className={style.carpropartyp}><h3 className={style.carContext}>Year of realise: </h3>{car.year} </div>
-  */}
-  {car.model} {car.year} <h5> ${car.price} </h5>
+
+  year: {car.year}
   
   </div>
     <div className={style.otherDescription}>
@@ -483,7 +516,6 @@ const sortedCars = [...filtercar].sort((a, b) => {
     <div className={style.carpropartyp}><h3 className={style.carContext}>Engine Size: </h3>{car.engineSize}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Status: </h3>{car.status}</div>
     <div className={style.carpropartyp}><h3 className={style.carContext}>Created At: </h3>{car.createdAt}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
     
     </div>
     )}
@@ -565,4 +597,15 @@ handleAddToCart(car)}}>Add to cart</button>
   )
 }
 
+function generateStarPoints(numPoints, cx, cy, outerRadius, innerRadius) {
+  const points = [];
+  for (let i = 0; i < numPoints * 2; i++) {
+    const angle = i * Math.PI / numPoints;
+    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    points.push(`${x},${y}`);
+  }
+  return points;
+}
 export default App

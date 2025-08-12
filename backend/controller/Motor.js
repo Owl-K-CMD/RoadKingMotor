@@ -104,6 +104,7 @@ if (!files || files.length === 0) {
     doors : body.doors,
     engineSize: body.engineSize,
     status: body.status,
+    condition: body.condition,
     createdAt: body.createdAt,
     otherDescription: body.otherDescription
  })
@@ -162,7 +163,7 @@ motorsRouter.put('/:id', async (request, response, next) => {
      fuelType, transmission,
      bodyType, color,
      seats, doors,
-     engineSize, status,
+     engineSize, status, condition,
      createdAt,
      otherDescription }
  try {
@@ -194,6 +195,7 @@ motorsRouter.put('/:id', async (request, response, next) => {
     motor.doors = doors
     motor.engineSize = engineSize
     motor.status = status
+    motor.condition = condition 
     motor.createdAt = createdAt
     motor.otherDescription = otherDescription
 

@@ -16,6 +16,7 @@ const mongoose = require('mongoose')
   doors: {type: Number, required: true},
   engineSize: {type: String, required: true},
   status: { type: String, default: 'pending' },
+  condition: { type: String, required: true},
   createdAt: { type: Date, default: Date.now },
   otherDescription: {type: String, required: true},
     })
