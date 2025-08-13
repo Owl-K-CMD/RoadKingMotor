@@ -151,14 +151,6 @@ const handleCloseChat = () => {
   setChatConfig(null)
   setUnreadMessagesCount(0);
 }
-/*
-  const filterCarsByBrand = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
-  const filtercar = filterCarsByBrand.filter(car => 
-    (car.model || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (car.brand || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  */
-
     const filterCarsByBrand = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
     let filtercar = filterCarsByBrand.filter(car =>
     (car.model || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -274,9 +266,11 @@ const sortedCars = [...filtercar].sort((a, b) => {
     <div className={style.title}>
 
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
+      <div className={style.conditionbutton}>
       <button onClick={() => setConditionFilter('New')}>New Car</button>
       <button onClick={() => setConditionFilter('Used')}>Used Car</button>
       <button>Pending Car</button>
+      </div>
  <div className= {style.navbarbutton}>
 
       {currentUser ? (
@@ -357,6 +351,19 @@ const sortedCars = [...filtercar].sort((a, b) => {
       >
         ☰ Filter Brands
       </button>
+
+<div className={style.conditionbuttonOnPhone}>
+  <select
+    value={conditionFilter}
+    onChange={(e) => setConditionFilter(e.target.value)}
+  >
+    <option value="">Filter Condition</option>
+    <option value="New">New</option>
+    <option value="Used">Used</option>
+  </select>
+</div>
+
+
 
       <div id="filter-menu" className={`${style.search} ${isFilterMenuOpen ? style.filterMenuOpen : ''}`}>
         
