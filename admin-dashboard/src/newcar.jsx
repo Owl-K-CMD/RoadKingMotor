@@ -330,9 +330,9 @@ Condition
     Available
 </label>
 <label><input type="radio" name="status"
-      value="Sold"checked={newStatus === "Sold"}
+      value="Pending"checked={newStatus === "Pending"}
        onChange={handleNewStatus}/>
-    Sold
+    Pending
 </label>
 <label><input type="radio" name="status"
       value="Reserved"checked={newStatus === "Reserved"}

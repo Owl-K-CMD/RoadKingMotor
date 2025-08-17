@@ -495,6 +495,26 @@ const sortedCars = [...filtercar].sort((a, b) => {
         {car.condition}
       </text>
 </svg>
+
+<svg className={`${style.buttonSvgOvel} ${car.status === 'Pending' ? style['buttonSvgOvel-Pending'] : ''}`}
+        viewBox="0 0 250 250" style={{ display: car.status === 'Pending' ? 'block' : 'none' }}
+      xmlns="http://www.w3.org/2000/svg">
+<polygon 
+id="starBustOval"
+const points={generateStarPointsOval( 45, 170, 100, 25, 60, 30, 65).join(' ')}
+        fill={car.status == 'Pending' ? 'orange' : 'yellow'}
+        transform = "rotate(-90, 100, 100)"/>
+        <text
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fontSize= "25"
+        fontWeight="bold"
+        fill="blue"
+        y="13%"
+        x="40%" >
+      {car.status}
+    </text>
+</svg>
   <div className={style.model}>{car.model}</div>
   <div className={style.price}> ${car.price} </div>
       </div>
@@ -615,4 +635,19 @@ function generateStarPoints(numPoints, cx, cy, outerRadius, innerRadius) {
   }
   return points;
 }
+
+function generateStarPointsOval(numPoints, cx, cy, outerRadiusX, outerRadiusY, innerRadiusX, innerRadiusY) {
+  const points = [];
+  for (let i = 0; i < numPoints * 2; i++) {
+    const angle = (i * Math.PI) / numPoints;
+    const radiusX = i % 2 === 0 ? outerRadiusX : innerRadiusX;
+    const radiusY = i % 2 === 0 ? outerRadiusY : innerRadiusY;
+
+    const x = cx + radiusX * Math.cos(angle);
+    const y = cy + radiusY * Math.sin(angle);
+    points.push(`${x},${y}`);
+  }
+  return points;
+}
+
 export default App
