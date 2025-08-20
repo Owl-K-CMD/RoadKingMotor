@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const Message = require('../module/message')
 const User = require('../module/user');
 const { initializeWebSocket, io } = require('../websocketHandle');
-const { useReducer } = require('react');
+
 
 messagesRouter.get('/:chatId', async(request, response) => {
   const messages = await Message.find({ chatId: request.params.chatId }).sort({ createdAt: 1 });
