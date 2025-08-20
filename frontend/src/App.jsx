@@ -42,22 +42,6 @@ const App = () => {
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
-/*
-  const socket = io('http://localhost:5000')
-
-useEffect(() => {
-    socket.on('notification', (data) => {
-      toast.info(data.message || 'New Notification!', {
-        position: 'top-right',
-      });
-
-      // Optional: update notification list in state
-      // setNotifications(prev => [...prev, data]);
-    });
-
-    return () => socket.off('notification');
-  }, [socket]);
-*/
 
   useEffect(() => {
     try{
@@ -67,24 +51,11 @@ let socket;
     if (token && user) {
       setCurrentUser(JSON.parse(user));
 }
-/*
-const userId = user ? JSON.parse(user).id : null;
-if (userId && token) {
-  cartAxios.getCart(userId)
-  .then(response => {
-    setCartItems(response.data)
-  })
-    
-  .catch (error => console.error("Error fetching cart on initial load:", error))
-} else {
-  setCartItems([])
-}
-  */
-
-
       const userId = JSON.parse(user).id;
 
-      socket = io('http://localhost:5000', {
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+
+      socket = io(socketUrl, {
         auth: {
           userId: userId,
           token: token,
