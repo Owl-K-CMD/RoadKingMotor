@@ -333,7 +333,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
     try {
       setError(null);
 
-      await messageAct.createMessage(messagePayload);
+      await messageAct.createMessage(messagePayload)
       socket.current.emit('sendMessage', messagePayload);
       setInput('');
     } catch (error) {
@@ -344,12 +344,12 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
   };
 
 
-      const filteredMessages = messages.filter((msg) => {
+ const filteredMessages = messages.filter((msg) => {
         const senderId = msg.sender && msg.sender._id ? msg.sender._id.toString() : null;
         const receiverId = msg.receiver && msg.receiver._id ? msg.receiver._id.toString() : null;
         const currentUserId = user && user._id ? user._id.toString() : null;
         const supportUserId = supportUser && supportUser._id ? supportUser._id.toString() : null;
-
+/*
         if (!senderId || !receiverId || !currentUserId || !supportUserId ) {
           
           console.log("msg.sender", msg.sender)
@@ -360,7 +360,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 
           return false;
       }
-
+*/
             const isFromCurrentUserToSupport = (senderId === currentUserId && receiverId === supportUserId);
       const isFromSupportToCurrentUser = (senderId === supportUserId && receiverId === currentUserId);
 

@@ -11,6 +11,8 @@ import AverageRating from './AverageRating.jsx'
 import CommentsList from './commentdisplay.jsx'
 import CommentForm from './commentForm.jsx'
 import CarDetailModal from './carDetailsModals.jsx'
+import io from 'socket.io-client';
+import { toast } from 'react-toastify';
 
 const App = () => {
 
@@ -33,31 +35,78 @@ const App = () => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState([]);
+  const [newCommentsCount, setNewCommentsCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [topCarId, setTopCarId] = useState(null);
   const [conditionFilter, setConditionFilter] = useState('')
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
+/*
+  const socket = io('http://localhost:5000')
+
+useEffect(() => {
+    socket.on('notification', (data) => {
+      toast.info(data.message || 'New Notification!', {
+        position: 'top-right',
+      });
+
+      // Optional: update notification list in state
+      // setNotifications(prev => [...prev, data]);
+    });
+
+    return () => socket.off('notification');
+  }, [socket]);
+*/
 
   useEffect(() => {
     try{
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('currentUser');
-
+let socket;
     if (token && user) {
       setCurrentUser(JSON.parse(user));
 }
+/*
 const userId = user ? JSON.parse(user).id : null;
 if (userId && token) {
   cartAxios.getCart(userId)
   .then(response => {
     setCartItems(response.data)
   })
+    
   .catch (error => console.error("Error fetching cart on initial load:", error))
 } else {
   setCartItems([])
 }
+  */
+
+
+      const userId = JSON.parse(user).id;
+
+      socket = io('http://localhost:5000', {
+        auth: {
+          userId: userId,
+          token: token,
+        },
+        transports: ['websocket'],
+      });
+
+      socket.on('notification', (data) => {
+        toast.info(data.message || 'New Notification!', {
+          position: 'top-right',
+        });
+      });
+
+      cartAxios.getCart(userId)
+        .then(response => {
+          setCartItems(response.data);
+        })
+        .catch(error => console.error("Error fetching cart on initial load:", error));
+    //} else {
+      //setCartItems([]);
+    //}
+    //return () => {socket?.disconnect()}
     } catch (error) {
       console.error("Error initialing app state from localStorage:", error);
       localStorage.removeItem('authToken');
@@ -66,7 +115,7 @@ if (userId && token) {
       setCurrentUser(null);
       setCartItems([]);
     }
-}, [])
+ }, [])
 
    useEffect(() => {
     setLogoutCallback(handleLogout)
@@ -292,6 +341,11 @@ const sortedCars = [...filtercar].sort((a, b) => {
   <img className={style.topButton}
   src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/notification_icon.svg"
   alt="notification" />
+  {newCommentsCount > 0 && (
+    <span className={style.notificationBadge}>
+      {newCommentsCount}
+    </span>
+  )}
 </button>
     {!isChatVisible ? (
       <button onClick={() => handleOpenChat(null)}><img className={style.topButton}
@@ -501,7 +555,7 @@ const sortedCars = [...filtercar].sort((a, b) => {
       xmlns="http://www.w3.org/2000/svg">
 <polygon 
 id="starBustOval"
-const points={generateStarPointsOval( 45, 170, 100, 25, 60, 30, 65).join(' ')}
+ points={generateStarPointsOval( 45, 170, 100, 25, 60, 30, 65).join(' ')}
         fill={car.status == 'Pending' ? 'orange' : 'yellow'}
         transform = "rotate(-90, 100, 100)"/>
         <text

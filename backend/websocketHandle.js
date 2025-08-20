@@ -8,6 +8,7 @@ const SECRET = config.SECRET_KEY;
 const REFRESH_SECRET = config.REFRESH_SECRET_KEY;
 
 const initializeWebSocket = (server) => {
+  logger.info('Initializing WebSocket...')
   const io = new Server(server, {
     cors: {
       origin: [
@@ -24,6 +25,7 @@ const initializeWebSocket = (server) => {
 io.use((socket, next) => {
   const userId = socket.handshake.auth.userId;
   const token = socket.handshake.auth.token;
+  logger.info(`Authenicating socket with userId: ${userId} and token: ${token}`)
 
 if (token === 'admin' && userId === '68437f46357ee88b6d9b492d') {
   socket.userId = userId;
@@ -71,7 +73,7 @@ if (token === 'admin' && userId === '68437f46357ee88b6d9b492d') {
       logger.error("Error saving message:", error);
     }
     })
-
+     logger.info('senderMessage event is successfully')
     socket.on('disconnect', () => {
       logger.info(`Socket disconnected: ${socket.id}`);
     });
@@ -79,4 +81,4 @@ if (token === 'admin' && userId === '68437f46357ee88b6d9b492d') {
   logger
 }
 
-module.exports = { initializeWebSocket}
+module.exports = { initializeWebSocket, io: null};

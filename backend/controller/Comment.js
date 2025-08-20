@@ -3,6 +3,7 @@ const Comment = require('../module/comment')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 //const { broadcast } = require('../websocketHandle')
+const { io } = require('../websocketHandle')
 
 const authMiddleware = (request, response, next) => {
   const authHeader = request.headers.authorization;
@@ -45,13 +46,17 @@ const parentComment = request.body.parentComment || null;
   })
     const savedComment = await newComment.save()
 
-    const populatedComment = await  savedComment.populate('user', 'userName');
+    const populatedComment = await savedComment.populate('user', 'userName');
   
-  /*  broadcast({
-    type: 'NEW_COMMENT',
-    payload: populatedComment,
-  });
-*/
+    if (io) {
+  io.emit(`car_${car}`, {
+    type: 'newComment',
+    comment: populatedComment,
+  })
+} else {
+  console.error("Socket.io is not initialized. Cannot emit new comment.");
+}
+
     response.status(201).json(populatedComment);
   } catch (error) {
     console.error('Error posting comment:', error)
@@ -70,6 +75,6 @@ commentRouter.get('/car/:carId', async (request, response, next) => {
     response.status(500).json({ error: 'Failed to fetch comments' })
     next(error)
   }
-})
+});
 
 module.exports = commentRouter
