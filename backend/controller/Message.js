@@ -2,7 +2,7 @@ const messagesRouter = require('express').Router()
 const mongoose = require('mongoose')
 const Message = require('../module/message')
 const User = require('../module/user');
-const { initializeWebSocket, io } = require('../websocketHandle');
+const { io } = require('../websocketHandle');
 
 
 messagesRouter.get('/:chatId', async(request, response) => {
@@ -75,14 +75,6 @@ let savedMessage = await message.save();
 savedMessage = await Message.findById(savedMessage._id)
   .populate('sender', 'userName _id')
   .populate('receiver', 'userName _id');
-  
-  //broadcast({
-    //type: 'NEW_MESSAGE',
-    //type: 'receiveMessage',
-    //payload: savedMessage,
-  //},
-    //receiverUser._id.toString()
-//);
 
    if (io) {
   io.emit(`message`, {

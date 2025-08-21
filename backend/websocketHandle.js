@@ -81,4 +81,4 @@ if (token === 'admin' && userId === '68437f46357ee88b6d9b492d') {
   logger
 }
 
-module.exports = { initializeWebSocket, io: null};
+module.exports = { initializeWebSocket};
