@@ -55,7 +55,7 @@ let socket;
 if (user) {
       const userId = JSON.parse(user).id;
 
-      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.hostname + ':5000';
 
       socket = io(socketUrl, {
         auth: {
@@ -76,7 +76,7 @@ if (user) {
       setNewCommentsCount((prevCount) => prevCount + 1);
       toast.info('New comment posted!', {
         position: 'top-right',
-        autoClose: 3000,
+        autoClose: 13000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,

@@ -159,8 +159,8 @@ useEffect(() => {
       setSocketStatus('connecting');
     })
 
-    newSocket.on('recconnect_failed', () => {
-      console.log('Failed to recconnect to webSocket server after multiple attemps');
+    newSocket.on('reconnect_failed', () => {
+      console.log('Failed to reconnect to webSocket server after multiple attemps');
       setSocketStatus('disconnected');
       setError('Chat is temporarily unavailable. Please try again later')
     })
@@ -205,7 +205,7 @@ useEffect(() => {
     setMessages([]);
     setSupportUser(null);
   }
-}, [targetName, nameConfirmed, user, user?._id, tokenReady]);
+}, [targetName, nameConfirmed, user, user?._id, tokenReady, onNewMessage]);
 
 
 const scrollToBottom = () => {
