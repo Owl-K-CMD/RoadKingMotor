@@ -3,7 +3,7 @@ const Comment = require('../module/comment')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 //const { broadcast } = require('../websocketHandle')
-const { io } = require('../websocketHandle')
+const { getIO } = require('../websocketHandle')
 
 const authMiddleware = (request, response, next) => {
   const authHeader = request.headers.authorization;
@@ -48,8 +48,8 @@ const parentComment = request.body.parentComment || null;
 
     const populatedComment = await savedComment.populate('user', 'userName');
   
-    if (io) {
-  io.emit(`car_${car}`, {
+    if (getIO()) {
+  getIO().emit(`car_${car}`, {
     type: 'newComment',
     comment: populatedComment,
   })
