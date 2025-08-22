@@ -165,7 +165,7 @@ useEffect(() => {
       setError('Chat is temporarily unavailable. Please try again later')
     })
 
-    newSocket.on('receiveMessage', (message) => {
+    newSocket.on('message', (message) => {
       console.log('Received message via Socket.IO:', message);
 
 

@@ -77,9 +77,9 @@ const initializeWebSocket = (server) => {
       }
     });
 
-        socket.on('newComment', (comment) => {
+        socket.on('newComment', async (comment) => {
       logger.info(`New comment received from ${socket.id}: ${JSON.stringify(comment)}`);
-      io.emit('newComment', comment);
+      io.emit('newComment', {comment: comment});
     });
     
     logger.info('senderMessage event is successfully');

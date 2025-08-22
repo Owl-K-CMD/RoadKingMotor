@@ -76,11 +76,12 @@ savedMessage = await Message.findById(savedMessage._id)
   .populate('sender', 'userName _id')
   .populate('receiver', 'userName _id');
 
-   if (getIO()) {
+ if (getIO()) {
   getIO().emit('message', {
     type: 'newMessage',
     message: savedMessage,
   })
+
 } else {
   console.error("Socket.io is not initialized. Cannot emit new message.");
 }
