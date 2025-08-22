@@ -165,7 +165,7 @@ useEffect(() => {
       setError('Chat is temporarily unavailable. Please try again later')
     })
 
-    newSocket.on('message', (message) => {
+    newSocket.on('receiveMessage', (message) => {
       console.log('Received message via Socket.IO:', message);
 
 
@@ -176,16 +176,16 @@ useEffect(() => {
     };
   
 
-       setMessages(prevMessages => [...prevMessages, processedMessage]);
-       if(processedMessage.sender && processedMessage.sender.userName === targetName) {
+      setMessages(prevMessages => [...prevMessages, processedMessage]);
+      if(processedMessage.sender && processedMessage.sender.userName === targetName) {
         console.log('New message from support user, triggering onNewMessage',{ 
         processedMessageSender : processedMessage.sender,
         supportUserName : targetName
-       })
+      })
         onNewMessage()
-       } else {
+      } else {
         console.log('New message, but not from support user', { processedMessage })
-       }
+      }
     })
 
     newSocket.on('disconnect', (reason) => {

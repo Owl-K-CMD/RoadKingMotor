@@ -65,8 +65,8 @@ if (user) {
         transports: ['websocket'],
       });
 
-      socket.on('notification', (data) => {
-        toast.info(data.message || 'New Notification!', {
+      socket.on('receiveMessage', (data) => {
+        toast.info(data.message || 'New message!', {
           position: 'top-right',
         });
       });
