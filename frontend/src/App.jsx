@@ -14,6 +14,7 @@ import CarDetailModal from './carDetailsModals.jsx'
 import io from 'socket.io-client';
 import { toast } from 'react-toastify';
 
+
 const App = () => {
 
   const [cars, setCars] = useState([])
@@ -51,6 +52,7 @@ let socket;
     if (token && user) {
       setCurrentUser(JSON.parse(user));
 }
+if (user) {
       const userId = JSON.parse(user).id;
 
       const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
@@ -69,15 +71,24 @@ let socket;
         });
       });
 
+    socket.on('newComment', (data) => {
+      console.log('New comment received:', data);
+      setNewCommentsCount((prevCount) => prevCount + 1);
+      toast.info('New comment posted!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    });
       cartAxios.getCart(userId)
         .then(response => {
           setCartItems(response.data);
         })
         .catch(error => console.error("Error fetching cart on initial load:", error));
-    //} else {
-      //setCartItems([]);
-    //}
-    //return () => {socket?.disconnect()}
+      }
     } catch (error) {
       console.error("Error initialing app state from localStorage:", error);
       localStorage.removeItem('authToken');

@@ -5,8 +5,7 @@ import style from './module/styleMessage.module.css';
 import io from 'socket.io-client';
 
 
-
-const Message = ({ targetName, onClose, onNewMessage,  unreadMessagesCount, setUnreadMessagesCount}) => {
+const Message = ({ targetName, onClose, onNewMessage}) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [userName, setUserName] = useState('');
@@ -145,6 +144,7 @@ useEffect(() => {
 
     newSocket.on('connect', () => {
       console.log('Connected to WebSocket server');
+
       setSocketStatus('connected');
     });
 
@@ -152,6 +152,7 @@ useEffect(() => {
       console.error('WebSocket connection error:', error);
       setSocketStatus('error');
     });
+
 
     newSocket.on('reconnect_attempt', (attempt) => {
       console.log("Attempting to reconnect....", attempt);
@@ -495,6 +496,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
                 }
               }}
             />
+
             <button className={style.sendButton} onClick={sendMessage} disabled={!input.trim() || !user || !supportUser}>Send</button>
           </div>
         </div>

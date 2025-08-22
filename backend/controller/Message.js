@@ -77,7 +77,7 @@ savedMessage = await Message.findById(savedMessage._id)
   .populate('receiver', 'userName _id');
 
    if (getIO()) {
-  getIO().emit(`message`, {
+  getIO().emit('message', {
     type: 'newMessage',
     message: savedMessage,
   })
