@@ -9,7 +9,6 @@ import cartAxios from './cartAxios.js'
 import { setLogoutCallback } from './cartAxios.js'
 import AverageRating from './AverageRating.jsx'
 import CommentsList from './commentdisplay.jsx'
-import CommentForm from './commentForm.jsx'
 import CarDetailModal from './carDetailsModals.jsx'
 import io from 'socket.io-client';
 import { toast } from 'react-toastify';
@@ -36,10 +35,13 @@ const App = () => {
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState([]);
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+  const [lastMessageTime, setLastMessageTime] = useState(null);
   const [newCommentsCount, setNewCommentsCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [topCarId, setTopCarId] = useState(null);
   const [conditionFilter, setConditionFilter] = useState('')
+  const [notifications, setNotifications] = useState([]);
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
@@ -48,12 +50,12 @@ const App = () => {
     try{
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('currentUser');
-let socket;
+    let socket;
     if (token && user) {
       setCurrentUser(JSON.parse(user));
 }
 if (user) {
-      const userId = JSON.parse(user).id;
+      const userId = JSON.parse(user)?.id;
 
       const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.hostname + ':5000';
 
@@ -66,23 +68,43 @@ if (user) {
       });
 
       socket.on('receiveMessage', (data) => {
-        toast.info(data.message || 'New message!', {
+        const message = data.message || 'New message!'
+        toast.info(message, {
           position: 'top-right',
         });
+        setUnreadMessagesCount(prevCount => prevCount + 1);
+        setLastMessageTime(new Date());
       });
 
     socket.on('newComment', (data) => {
-      console.log('New comment received:', data);
+      console.log('New comment received:',data);
       setNewCommentsCount((prevCount) => prevCount + 1);
       toast.info('New comment posted!', {
-        position: 'top-right',
+        position: 'center',
         autoClose: 13000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
       });
+
     });
+
+    socket.on('receiveNotification', (data) => {
+    console.log('Notification received:', data);
+    toast.info(data.message, {
+    position: 'top',
+});
+
+    // optional: add to state list if you want to display later
+    const newNotification = { type: data.type || 'notification', text: data.message, time: new Date() };
+    console.log('New notification object:', newNotification);
+
+    setNotifications(prev => [
+      ...prev,
+      { type: data.type || 'notification', text: data.message, time: new Date() }
+    ]);
+  });
       cartAxios.getCart(userId)
         .then(response => {
           setCartItems(response.data);
@@ -98,6 +120,7 @@ if (user) {
       setCartItems([]);
     }
  }, [])
+
 
    useEffect(() => {
     setLogoutCallback(handleLogout)
@@ -279,7 +302,9 @@ const handleToggleComments = (event, carId) => {
   );
 };
 
-
+const toggleNotificationVisibility = () => {
+  setIsNotificationVisible(!isNotificationVisible);
+};
 
 const sortedCars = [...filtercar].sort((a, b) => {
   if (topCarId === a.id) {
@@ -319,22 +344,30 @@ const sortedCars = [...filtercar].sort((a, b) => {
  <button className = {style.navbuttonaddtocart} onClick={handleToggleCarVisibility}>
    <img className = {style.topButton} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
     alt="addtocart"/> </button>
-<button className={style.navbuttonNotification}>
+{/*
+<button 
+className={style.navbuttonNotification}
+onClick={toggleNotificationVisibility}>
   <img className={style.topButton}
   src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/notification_icon.svg"
   alt="notification" />
+
   {newCommentsCount > 0 && (
     <span className={style.notificationBadge}>
       {newCommentsCount}
     </span>
   )}
 </button>
+*/}
     {!isChatVisible ? (
-      <button onClick={() => handleOpenChat(null)}><img className={style.topButton}
-   src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
-
+      <button onClick={() => handleOpenChat(null)}>
+      {/*
+        <img className={style.topButton}
+  src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
   alt = "chat"/>
-     {unreadMessagesCount > 0 && (
+  */}
+  <span>Message</span>
+    {unreadMessagesCount > 0 && (
     <span className={style.notificationBadge}>
       {unreadMessagesCount}
     </span>
@@ -345,7 +378,26 @@ const sortedCars = [...filtercar].sort((a, b) => {
         <img className={style.chat} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png" alt="chat" />
       </button>
     )}
-  
+
+{isNotificationVisible && (
+  <div className={style.notificationDropdown}>
+    <button onClick={toggleNotificationVisibility} className={style.closeButton}>Close</button>
+    <h3>Notifications</h3>
+    {notifications.length > 0 ? (
+      notifications.map((n, idx) => {
+        return (
+        <div key={idx} className={style.notificationItem}>
+          <strong>{n.type.toUpperCase()}:</strong> {n.text}
+          <small>{n.time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small>
+        </div>
+        )
+})
+    ) : (
+      <p>No new notifications</p>
+    )}
+  </div>
+)}
+
 
   </div>
  </div>
@@ -639,7 +691,10 @@ handleAddToCart(car)}}>Add to cart</button>
         <Message 
         targetName={chatConfig.targetName}
         onClose={handleCloseChat}
-        onNewMessage={() => setUnreadMessagesCount(prev => prev + 1)}
+        onNewMessage={() => {
+        console.log('onNewMessage callback triggered!')
+        setUnreadMessagesCount(prev => prev + 1)}}
+
         unreadMessagesCount={unreadMessagesCount}
         setUnreadMessagesCount={setUnreadMessagesCount}
         />
@@ -660,7 +715,7 @@ handleAddToCart(car)}}>Add to cart</button>
   )
 }
 
-function generateStarPoints(numPoints, cx, cy, outerRadius, innerRadius) {
+  function generateStarPoints(numPoints, cx, cy, outerRadius, innerRadius) {
   const points = [];
   for (let i = 0; i < numPoints * 2; i++) {
     const angle = i * Math.PI / numPoints;
@@ -686,4 +741,4 @@ function generateStarPointsOval(numPoints, cx, cy, outerRadiusX, outerRadiusY, i
   return points;
 }
 
-export default App
+export default App;

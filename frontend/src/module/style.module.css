@@ -318,14 +318,11 @@ padding: 3px;
   width: 100%;
   flex-wrap: nowrap;
   white-space: nowrap;
-  border: 1px solid red
-  
 }
 
 .titletext{
   font-size: 2vw;
   flex: 1 1 auto;
-  border: 1px solid blue;
 }
 
 
@@ -481,8 +478,8 @@ padding: 2px;
 
  .notificationBadge {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 15px;
+  right: 15px;
   background-color: red;
   color: white;
   border-radius: 50%;
@@ -491,6 +488,7 @@ padding: 2px;
   z-index: 10;
   transform: translate(50%, -50%);
 }
+
 
 .searchContainer {
   left: 2px;
@@ -544,4 +542,34 @@ padding: 2px;
   cursor: pointer;
   
   box-shadow: 0.5px 0.1px 0.1px 01px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.notificationDropdown {
+  position: absolute;
+  top: 0px; 
+  right: 0px; 
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 300px; 
+  border: 1px solid blue ;
+}
+
+.notificationDropdown h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.notificationDropdown .closeButton {
+  position: relative;
+  top: 0;
+  right: o;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border: 1px solid blue ;
 }

@@ -3,6 +3,7 @@ const logger = require('./utils/logger');
 const config = require('./utils/config.js');
 const Message = require('./module/message');
 const jwt = require('jsonwebtoken');
+const Notification = require('./module/notification');
 
 const SECRET = config.SECRET_KEY;
 const REFRESH_SECRET = config.REFRESH_SECRET_KEY;
@@ -23,7 +24,7 @@ const initializeWebSocket = (server) => {
     }
   });
 
-  const users = {};
+  const users = {}; // Track online users { userId: socketId }
 
   io.use((socket, next) => {
     const userId = socket.handshake.auth.userId;
@@ -53,6 +54,7 @@ const initializeWebSocket = (server) => {
   io.on('connection', (socket) => {
     logger.info(`Socket connected: ${socket.id}, User: ${socket.userId}`);
 
+    // ✅ Chat message event
     socket.on('sendMessage', async (message) => {
       logger.info(`Message received from ${socket.id}: ${JSON.stringify(message)}`);
 
@@ -77,15 +79,58 @@ const initializeWebSocket = (server) => {
       }
     });
 
-        socket.on('newComment', async (comment) => {
+    // ✅ Comment event
+    socket.on('newComment', async (comment) => {
       logger.info(`New comment received from ${socket.id}: ${JSON.stringify(comment)}`);
-      io.emit('newComment', {comment: comment});
+      io.emit('newComment', { comment: comment });
     });
-    
+
+    // ✅ NEW: Notification event
+    socket.on('sendNotification', async (notification) => {
+      logger.info(`Notification from ${socket.userId}: ${JSON.stringify(notification)}`);
+
+      try {
+         //Optionally save to DB
+         const savedNotification = await Notification.create({
+           sender: socket.userId,
+           receiver: notification.receiver,
+           type: notification.type,
+           message: notification.message,
+         });
+
+        if (notification.receiver && users[notification.receiver]) {
+          // Send to specific receiver
+          io.to(users[notification.receiver]).emit('receiveNotification', {
+            type: notification.type,
+            message: notification.message,
+            sender: socket.userId,
+            timestamp: new Date(),
+          });
+        } else {
+          // Broadcast to everyone
+          logger.info(`User ${notification.receiver} not found or not connected. Not broadcasting notification.`);
+          //io.emit('receiveNotification', {
+            //type: notification.type,
+            //message: notification.message,
+            //sender: socket.userId,
+            //timestamp: new Date(),
+          //});
+        }
+      } catch (error) {
+        logger.error("Error sending notification:", error);
+      }
+    });
+
     logger.info('senderMessage event is successfully');
 
     socket.on('disconnect', () => {
       logger.info(`Socket disconnected: ${socket.id}`);
+      // cleanup user
+      for (let [userId, socketId] of Object.entries(users)) {
+        if (socketId === socket.id) {
+          delete users[userId];
+        }
+      }
     });
   });
 };
