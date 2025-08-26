@@ -56,8 +56,8 @@ const App = () => {
 }
 if (user) {
       const userId = JSON.parse(user)?.id;
-
-      const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.hostname + ':5000';
+      const socketUrl= import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+      //const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.hostname + ':5000';
 
       socket = io(socketUrl, {
         auth: {
@@ -360,18 +360,13 @@ onClick={toggleNotificationVisibility}>
 </button>
 */}
     {!isChatVisible ? (
-      <button onClick={() => handleOpenChat(null)}>
-      {/*
-        <img className={style.topButton}
-  src= "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png"
-  alt = "chat"/>
-  */}
-  <span>Message</span>
+            <button onClick={() => handleOpenChat(null)}>
+  <span>Chat</span>
     {unreadMessagesCount > 0 && (
     <span className={style.notificationBadge}>
       {unreadMessagesCount}
     </span>
-       )}
+      )}
   </button>
     ) : (
       <button onClick={handleCloseChat}>
