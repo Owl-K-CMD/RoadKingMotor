@@ -142,16 +142,16 @@ if (user) {
 
           setCurrentImageIndices(initialIndices);
           console.log('Cars state succesfully');
-           } else {
+          } else {
             console.error("Error: Data received from server is not array!", initialCars)
-           
+
         setCars([])
-       alert("Could not load data correctly.")
-           }
+      alert("Could not load data correctly.")
+          }
       })
-       .finally(() => setIsLoading(false))
+      .finally(() => setIsLoading(false))
       .catch(error => {
-       console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error);
       })
     }, []);
 
