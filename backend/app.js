@@ -34,7 +34,7 @@ const pingLimiter = rateLimit({
 
 const allowedOrigins = [
   'https://roadkingmotor-pkx5.onrender.com',
-    config.SOCKET_URL,
+    //config.SOCKET_URL,
   'http://localhost:5173',
   'http://localhost:5174',
 ];
