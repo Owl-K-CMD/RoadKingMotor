@@ -56,7 +56,7 @@ const App = () => {
 }
 if (user) {
       const userId = JSON.parse(user)?.id;
-      const socketUrl= import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+      const socketUrl= import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
       //const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.hostname + ':5000';
 
       socket = io(socketUrl, {
