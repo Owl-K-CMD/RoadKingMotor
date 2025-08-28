@@ -15,24 +15,25 @@ const initializeWebSocket = (server) => {
 
   io = new Server(server, {
     cors: {
-      //origin: [
-        //"http://localhost:5173",
-        //"http://localhost:5174",
-        //"https://roadkingmotor-pkx5.onrender.com"
-      //],
+      origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://roadkingmotor-pkx5.onrender.com"
+      ],
+    /*
       origin: (origin, callbacck) => {
         const allowedOrigins = [
           "http://localhost:5173",
           "http://localhost:5174",
           "https://roadkingmotor-pkx5.onrender.com",
-          //config.SOCKET_URL
-        ];
+          ];
         if (!origin || allowedOrigins.includes(origin)) {
           callbacck(null, true);
         } else {
           callbacck(new Error("CORS policy: This origin is not allowed"));
         }
       },
+       */
       methods: ["GET", "POST"],
     }
   });
