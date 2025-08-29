@@ -20,25 +20,11 @@ const initializeWebSocket = (server) => {
         "http://localhost:5174",
         "https://roadkingmotor-pkx5.onrender.com"
       ],
-    /*
-      origin: (origin, callbacck) => {
-        const allowedOrigins = [
-          "http://localhost:5173",
-          "http://localhost:5174",
-          "https://roadkingmotor-pkx5.onrender.com",
-          ];
-        if (!origin || allowedOrigins.includes(origin)) {
-          callbacck(null, true);
-        } else {
-          callbacck(new Error("CORS policy: This origin is not allowed"));
-        }
-      },
-       */
       methods: ["GET", "POST"],
     }
   });
 
-  const users = {}; // Track online users { userId: socketId }
+  const users = {}; //Track online users { userId: socketId }
 
   io.use((socket, next) => {
     const userId = socket.handshake.auth.userId;
@@ -121,18 +107,12 @@ const initializeWebSocket = (server) => {
             timestamp: new Date(),
           });
         } else {
-          // Broadcast to everyone
           logger.info(`User ${notification.receiver} not found or not connected. Not broadcasting notification.`);
-          //io.emit('receiveNotification', {
-            //type: notification.type,
-            //message: notification.message,
-            //sender: socket.userId,
-            //timestamp: new Date(),
-          //});
-        }
+          }
       } catch (error) {
         logger.error("Error sending notification:", error);
       }
+        
     });
 
     logger.info('senderMessage event is successfully');

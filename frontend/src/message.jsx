@@ -143,7 +143,7 @@ useEffect(() => {
     socket.current = newSocket;
 
     newSocket.on('connect', () => {
-      console.log('Connected to WebSocket server');
+      console.log('Connected to WebSocket server', socketUrl);
       setSocketStatus('connected');
     });
 
