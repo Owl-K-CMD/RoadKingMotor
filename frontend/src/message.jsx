@@ -85,6 +85,7 @@ useEffect(() => {
         if (isMounted && processedSupport && processedSupport._id) {
           setSupportUser(processedSupport);
           setError(null);
+          console.log("Support user details:", processedSupport);
 
           try {
             const rawMessages = await messageAct.getAllMessages();
@@ -109,6 +110,7 @@ useEffect(() => {
         } else {
           console.error(`Support user "${targetName}" not found.`);
           setSupportUser(null);
+          setError(`Support user "${targetName}" not found.`);
         }
       } catch (error) {
         if (error.response.status === 404) {
@@ -408,7 +410,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
                 }
               }}
             />
-            <button onClick={handleUserLookupAndProceed}>Start Chat</button>
+            <button onClick={handleUserLookupAndProceed} disabled={!userName.trim()}>Start Chat</button>
           </div>
 
           {showRegistrationForm && (
