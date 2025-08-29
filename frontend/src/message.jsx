@@ -167,13 +167,20 @@ useEffect(() => {
     newSocket.on('receiveMessage', (message) => {
       console.log('Received message via Socket.IO:', message);
 
+      const receivedMessage = message.type === 'newMessage' ? message.message : message;
+
 
       const processedMessage = {
-      ...message,
+      ...receivedMessage,
       sender: processUserObject(message.sender),
       receiver: processUserObject(message.receiver),
     };
   
+      // Log the processed message to check its structure
+      console.log('Processed message:', processedMessage);
+
+      // Log the targetName and sender's userName for debugging
+      console.log('targetName:', targetName, 'Sender userName:', processedMessage.sender.userName);
 
       setMessages(prevMessages => [...prevMessages, processedMessage]);
       if(processedMessage.sender && processedMessage.sender.userName === targetName) {
