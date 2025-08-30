@@ -516,5 +516,3 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 };
 
 export default Message;
-
-socket.current.emit('sendMessage', messagePayload)
