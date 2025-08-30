@@ -187,7 +187,7 @@ useEffect(() => {
       setMessages(prevMessages => [...prevMessages, processedMessage]);
       if(processedMessage.sender && processedMessage.sender.userName === targetName) {
         console.log('New message from support user, triggering onNewMessage',{ 
-        processedMessageSender : processedMessage.sender,
+        processedMessageSender : processedMessage.sender ? processedMessage.sender.userName: 'Unknown Sender',
         supportUserName : targetName
       })
         onNewMessage()
@@ -343,7 +343,9 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
       setError(null);
 
       await messageAct.createMessage(messagePayload)
+      /*
       socket.current.emit('sendMessage', messagePayload);
+      */
       setInput('');
     } catch (error) {
       console.error("Error sending message:", error);
@@ -514,3 +516,5 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
 };
 
 export default Message;
+
+socket.current.emit('sendMessage', messagePayload)
