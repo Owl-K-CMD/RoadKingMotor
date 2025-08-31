@@ -82,7 +82,7 @@ const userName='Road King Motor Support';
 
 useEffect(() => {
   console.log('useEffect started', Date.now())
-   const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+   const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
   const newSocket = io(socketUrl, {
     auth: {
