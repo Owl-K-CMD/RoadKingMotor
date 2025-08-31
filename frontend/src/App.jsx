@@ -57,7 +57,6 @@ const App = () => {
 if (user) {
       const userId = JSON.parse(user)?.id;
       const socketUrl= import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
-      //const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.hostname + ':5000';
 
       socket = io(socketUrl, {
         auth: {
@@ -65,6 +64,7 @@ if (user) {
           token: token,
         },
         transports: ['websocket'],
+           withCredentials: true,
       });
 
       socket.on('receiveMessage', (data) => {
@@ -737,3 +737,4 @@ function generateStarPointsOval(numPoints, cx, cy, outerRadiusX, outerRadiusY, i
 }
 
 export default App;
+

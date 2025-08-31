@@ -343,9 +343,9 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
       setError(null);
 
       await messageAct.createMessage(messagePayload)
-      /*
+      
       socket.current.emit('sendMessage', messagePayload);
-      */
+      
       setInput('');
     } catch (error) {
       console.error("Error sending message:", error);

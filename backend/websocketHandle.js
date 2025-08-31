@@ -21,10 +21,11 @@ const initializeWebSocket = (server) => {
         "https://roadkingmotor-pkx5.onrender.com"
       ],
       methods: ["GET", "POST"],
+          credentials: true,
     }
   });
 
-  const users = {}; //Track online users { userId: socketId }
+  const users = {};
 
   io.use((socket, next) => {
     const userId = socket.handshake.auth.userId;

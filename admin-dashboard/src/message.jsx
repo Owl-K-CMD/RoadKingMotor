@@ -90,6 +90,7 @@ useEffect(() => {
       userId: adminUser?._id,
       userName: userName,
     },
+      withCredentials: true,
     transports: ['websocket'],
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
