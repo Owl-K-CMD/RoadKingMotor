@@ -737,7 +737,5 @@ function generateStarPointsOval(numPoints, cx, cy, outerRadiusX, outerRadiusY, i
     points.push(`${x},${y}`);
   }
   return points;
-
-
+}
 export default App;
-
