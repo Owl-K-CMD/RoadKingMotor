@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const commentUrl = 'http://localhost:5000/api/comments';
+//const commentUrl = 'http://localhost:5000/api/comments';
+const commentUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/comments`
 
 const getComments = async (carId) => {
   try {

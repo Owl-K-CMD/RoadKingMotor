@@ -82,7 +82,8 @@ const userName='Road King Motor Support';
 
 useEffect(() => {
   console.log('useEffect started', Date.now())
-   const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+//  const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const socketUrl = 'https://roadkingmotor.onrender.com'
 
   const newSocket = io(socketUrl, {
     auth: {
@@ -90,7 +91,7 @@ useEffect(() => {
       userId: adminUser?._id,
       userName: userName,
     },
-      withCredentials: true,
+    withCredentials: true,
     transports: ['websocket'],
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
