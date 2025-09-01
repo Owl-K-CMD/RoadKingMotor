@@ -72,7 +72,7 @@ if (user) {
         toast.info(message, {
           position: 'top-right',
         });
-        setUnreadMessagesCount(prevCount => prevCount + 1);
+        setUnreadMessagesCount(prevCount => parseInt(prevCount, 10) + 1);
         setLastMessageTime(new Date());
       });
 
