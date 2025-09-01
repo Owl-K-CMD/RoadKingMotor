@@ -68,12 +68,15 @@ if (user) {
       });
 
       socket.on('receiveMessage', (data) => {
-        const message = data.message || 'New message!'
-        toast.info(message, {
-          position: 'top-right',
-        });
-        setUnreadMessagesCount(prevCount => prevCount + 1);
-        setLastMessageTime(new Date());
+        const message = data.message || 'New message!';
+        const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
+        if (data.message.receiver === receiverId) {
+          toast.info(message, {
+            position: 'top-right',
+          });
+          setUnreadMessagesCount(prevCount => prevCount + 1);
+        }
+          setLastMessageTime(new Date());
       });
 
     socket.on('newComment', (data) => {
@@ -734,7 +737,7 @@ function generateStarPointsOval(numPoints, cx, cy, outerRadiusX, outerRadiusY, i
     points.push(`${x},${y}`);
   }
   return points;
-}
+
 
 export default App;
 
