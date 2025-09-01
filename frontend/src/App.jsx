@@ -34,7 +34,7 @@ const App = () => {
   const [selectedCar, setSelectedCar] = useState(null)
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [unreadMessagesCount, setUnreadMessagesCount] = useState([]);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [newCommentsCount, setNewCommentsCount] = useState(0);
@@ -72,7 +72,7 @@ if (user) {
         toast.info(message, {
           position: 'top-right',
         });
-        setUnreadMessagesCount(prevCount => parseInt(prevCount, 10) + 1);
+        setUnreadMessagesCount(prevCount => prevCount + 1);
         setLastMessageTime(new Date());
       });
 
