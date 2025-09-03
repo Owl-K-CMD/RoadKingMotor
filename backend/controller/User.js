@@ -117,6 +117,46 @@ if(!phoneNumber) {
   }
 })
 
+usersRouter.post('/guest', async (request, response, next) => {
+  try {
+    // Generate a unique guest username
+    const guestUserName = "Guest_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+    // Create user document (minimal fields)
+    const guestUser = new User({
+      userName: guestUserName,
+      name: "Guest User",
+      isGuest: true,   // <-- new field in schema (boolean)
+    });
+
+    const savedGuest = await guestUser.save();
+
+    const userForToken = {
+      id: savedGuest._id,
+      userName: savedGuest.userName,
+      guest: true
+    };
+
+    const token = jwt.sign(userForToken, config.SECRET_KEY, { expiresIn: '1h' });
+    const refreshToken = jwt.sign(userForToken, config.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+
+    response.status(201).json({
+      message: 'Guest login successful',
+      token,
+      refreshToken,
+      user: {
+        id: savedGuest._id,
+        userName: savedGuest.userName,
+        name: savedGuest.name,
+        isGuest: true
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 usersRouter.post('/login', async(request, response, next) => {
   const { userName, password } = request.body;
   console.log(`LOGIN ATTEMPT: User "${userName}"`)

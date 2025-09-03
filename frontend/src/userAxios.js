@@ -33,12 +33,17 @@ const getUserByUserName = async(userName) => {
     return response.data;
   }
 
+  const loginGuest = async () => {
+  const response = await axios.post(`${userUrl}/guest`)
+  return response.data;
+}
+
 export default {
   createUser,
   getAllUsers,
   getUserByUserName,
   loginUser,
   forgotPassword,
-  resetPassword
-
+  resetPassword,
+  loginGuest,
 }

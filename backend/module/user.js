@@ -3,11 +3,12 @@ const mongoose = require('mongoose')
 const userSchema = new mongoose.Schema({
   userName: { type: String, required: true, unique: true},
   name: {type: String, required: true },
-  email: { type: String, required: false, unique: false },
-  phoneNumber: { type: String, required: true },
-  passwordHash: { type: String, required: true },
+  email: { type: String, required: false, unique: false, sparse: true },
+  phoneNumber: { type: String, required: function() { return !this.isGuest;} },
+  passwordHash: { type: String, required: function() { return !this.isGuest;} },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+  isGuest: { type: Boolean, default: false },
 })
 
 userSchema.set('toJSON', {

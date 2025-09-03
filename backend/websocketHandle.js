@@ -71,7 +71,7 @@ const initializeWebSocket = (server) => {
           .populate('receiver', 'userName _id');
 
         if (message.receiver && users[message.receiver]) {
-          io.to(users[message.receiver]).emit('receiveMessage', populatedMessage);
+           io.to(users[message.receiver]).emit('receiveMessage', populatedMessage);
         } else {
           io.emit('receiveMessage', populatedMessage);
         }
@@ -129,5 +129,6 @@ const initializeWebSocket = (server) => {
     });
   });
 };
+
 
 module.exports = { initializeWebSocket, getIO: () => io };

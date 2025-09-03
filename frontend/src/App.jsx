@@ -61,17 +61,18 @@ if (user) {
       socket = io(socketUrl, {
         auth: {
           userId: userId,
-          token: token,
+         token: token,
         },
         transports: ['websocket'],
            withCredentials: true,
       });
 
-      socket.on('receiveMessage', (data) => {
+      socket.on('receiveMessage', (data) => { 
+       console.log("receiveNessage event trigered:", data)
         const message = data.message || 'New message!';
-        const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
-        if (data.message.receiver === receiverId) {
-          toast.info(message, {
+          const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
+       if (data?.receiver?.id === receiverId) {
+            toast.info(message, {
             position: 'top-right',
           });
           setUnreadMessagesCount(prevCount => prevCount + 1);
