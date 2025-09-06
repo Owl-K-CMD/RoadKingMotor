@@ -60,14 +60,19 @@ const closeCustomCar = () => {
 } 
   return (
     <div className={style.customCarContainer}>
- <div  className={style.customCarHomeHeader}>
+      
+      <div className={style.positionToBeSticky}>
+  <div  className={style.customCarHomeHeader}>
   {onClose && <button className={style.closebutton} 
   onClick={onClose}>&#8592;</button>}
       <h2>Your Custom Cars</h2>
       </div>
+
             {errorMessage &&
             <p className={style.error}>{errorMessage}</p>}
+</div>
 
+<div className={style.positionToScroll}>
       {userCustomCar.length > 0 && isListVisible ? (
         <>
       <button
@@ -143,16 +148,12 @@ const closeCustomCar = () => {
       )
     }
 
-
           {isCustomCarVisible && (
             <div className={style.customCarContainer}>
               <CustomCar onClose={closeCustomCar}/>
             </div>
           )}
-
-
-
-
+</div>
       </div>
   )
 }

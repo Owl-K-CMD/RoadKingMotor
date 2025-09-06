@@ -68,6 +68,9 @@
   cursor: pointer;
   font-size: 2rem;
   transition: background-color 0.3s ease;
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
 }
 
 .guide{
