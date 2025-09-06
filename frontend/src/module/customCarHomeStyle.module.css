@@ -1,0 +1,87 @@
+.error{
+  color: rgb(250, 50, 50);
+}
+
+.customCarButton{
+  position: relative;
+  cursor: pointer;
+  background-color: rgba(100, 100, 255, 0.98);
+  border-radius: 5px;
+  left: 50%;
+  transform: translateX(50%);
+}
+
+.customCarButton2 {
+  position: absolute;
+  cursor: pointer;
+  padding: 0 4px;
+  background-color: rgba(240, 240, 255, 0.98);
+  box-shadow: 1px 1px 1px 1px rgba(190, 190, 200, 0.63),
+  -1px -1px 1px 1px rgba(190, 190, 200, 0.63);
+  border-radius: 5px;
+  left: 50%;
+}
+
+.customCarHomeHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  gap: 20%;
+  padding: 0 10px;
+  background-color: rgba(100, 100, 255, 0.98);
+}
+.customCarHomeHeader h2{
+  text-align: center;
+  background-color: rgba(100, 100, 255, 0.98);
+  color: white;
+  font-size: 1.5rem;
+}
+
+.instruction{
+  font-size: 1rem;
+  color: rgb(85, 85, 85);
+  margin: 15px 10px 0px 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.32);
+    font-family: Arial, sans-serif;
+}
+
+.instructionText {
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.instructionText button{
+  color: blue;
+  padding-right: 1rem;
+}
+.closebutton{
+  left: 10px;
+  height: fit-content;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.32);
+  border-radius: 5px;
+  background: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1.95rem;
+  cursor: pointer;
+}
+
+.customCarDetails {
+  margin: 0 0 5% 20%;
+  font-size: 1rem;
+  color: #555;
+  border-bottom: 0.5px solid #ccc;
+}
+
+.customCarTitle {
+  margin-left: 10%;
+  cursor: pointer;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-decoration: underline;
+
+}

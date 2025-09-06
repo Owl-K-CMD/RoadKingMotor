@@ -21,9 +21,6 @@ const mongoose = require('mongoose')
   otherDescription: {type: String, required: true},
     })
 
-
-    
-
 motorSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()

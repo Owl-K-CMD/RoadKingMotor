@@ -1,0 +1,78 @@
+.customCarHeader{
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+
+.closebutton{
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  box-shadow: 1px 1px 5px rgba(220, 220, 220, 0.732);
+  border-radius: 5px;
+  background: none;
+  color: rgb(55, 55, 255);
+  font-weight: 600;
+  gap: 0px;
+  cursor: pointer;
+}
+
+.closebutton span{
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.formnewcar {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+  background-color: rgba(205, 240, 250, 0.41 );
+}
+
+.inputcustomcar {
+  padding: 3px;
+  border-radius: 5px;
+  font-size: 0.71rem;
+  display: flex;
+  flex-direction: row;
+}
+
+.inputValue{
+  background-color: rgba(205, 200, 250, 0.41 );
+  border-radius: 5px;
+  width: 100%;
+  padding: 2px;
+  border: none;
+  color: rgb(105, 20, 250);
+  font-size: 0.971rem;
+  font-weight: 400;
+}
+
+.radio{
+  display: flex;
+  gap: 10px;
+  padding-left: 1rem;
+  align-items: center;
+}
+
+.formonsubmit{
+  background-color: rgb(76, 175, 80);
+  color: white;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: background-color 0.3s ease;
+}
+
+.guide{
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: rgb(85, 85, 85);
+}

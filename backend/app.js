@@ -12,6 +12,7 @@ const messageRouter = require('./controller/Message');
 const usersRouter = require('./controller/User');
 const cartRouter = require('./controller/cartRoute');
 const commentRouter = require('./controller/Comment');
+const customMotorRouter = require('./controller/CustomMotor');
 const { initializeWebSocket } = require('./websocketHandle');
 
 const app = express();
@@ -59,6 +60,7 @@ app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/comments', commentRouter);
+app.use('/api/customMotor', customMotorRouter);
 
 app.get('/api/ping', pingLimiter, (request, response) => {
   response.status(200).send('pong');

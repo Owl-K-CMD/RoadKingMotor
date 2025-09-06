@@ -110,23 +110,6 @@ if (!files || files.length === 0) {
  })
 
 const savedMotor= await motor.save()
-/*broadcast({
-  type: 'NEW_MOTOR',
-  payload: savedMotor,
-});
-*//*
-try {
-     if (!request.user || !request.user.id) {
-        console.warn("User is not authenticated. Skipping Facebook post.");
-        return;
-      }
-  const userId = request.user.id;
-  console.log("User ID from request:", userId);
-   await postToFacebook(savedMotor, userId);
-} catch (facebookError) {
-  console.error("Error posting to Facebook try again:", facebookError.message);
-}
-  */
  await postToFacebook(savedMotor)
   response.status(201).json(savedMotor)
 

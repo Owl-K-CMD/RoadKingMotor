@@ -398,6 +398,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {socketStatus === 'error' && <p style={{ color: 'red' }}>Failed to connect to chat service. Please try again later.</p>}
       </div>
+      {/*
       {!nameConfirmed && (
         <>
           <div style={{ marginTop: '10px' }}>
@@ -451,7 +452,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
           )}
         </>
       )}
-
+*/}
       {nameConfirmed && (
         <div>
           <div className={style.message} >

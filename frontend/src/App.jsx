@@ -5,6 +5,7 @@ import Message from './message.jsx'
 import Addtocart from './addToCartButton.jsx'
 import Footer from './footer.jsx'
 import AuthForm from './authForm.jsx'
+import CustomCarHome from './customCarHome.jsx'
 import cartAxios from './cartAxios.js'
 import { setLogoutCallback } from './cartAxios.js'
 import AverageRating from './AverageRating.jsx'
@@ -42,6 +43,7 @@ const App = () => {
   const [topCarId, setTopCarId] = useState(null);
   const [conditionFilter, setConditionFilter] = useState('')
   const [notifications, setNotifications] = useState([]);
+  const [isCustomCarHomeVisible, setIsCustomCarHomeVisible] = useState(false);
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
@@ -226,6 +228,10 @@ const closeAddToCartContent = () => {
   setIsAddToCartButtonVisible(false);
 };
 
+const closeCustomHome = () => {
+  setIsCustomCarHomeVisible(false)
+}
+
 const handleToggleCarVisibility = () => {
   setIsAddToCartButtonVisible(prev => !prev)
 }
@@ -310,6 +316,10 @@ const toggleNotificationVisibility = () => {
   setIsNotificationVisible(!isNotificationVisible);
 };
 
+const handleCustomCarHome = () => {
+  setIsCustomCarHomeVisible(true);
+}
+
 const sortedCars = [...filtercar].sort((a, b) => {
   if (topCarId === a.id) {
     return -1;
@@ -331,7 +341,10 @@ const sortedCars = [...filtercar].sort((a, b) => {
       <button onClick={() => setConditionFilter('Used')}>Used Car</button>
       <button>Pending Car</button>
       </div>
- <div className= {style.navbarbutton}>
+      <button
+      className={style.customCarButton}
+      onClick={handleCustomCarHome}>Custom Car</button>
+  <div className= {style.navbarbutton}>
 
       {currentUser ? (
         <>
@@ -405,7 +418,7 @@ onClick={toggleNotificationVisibility}>
   <div className={style.authFormContainer}>
             <button onClick={handleToggleLoginVisibility}
             className={style.closebutton}
-         style={{marginTop: '10px' }}>
+        style={{marginTop: '10px' }}>
           Close
         </button>
                 <AuthForm onLoginSuccess={handleLoginSuccess}
@@ -701,13 +714,18 @@ handleAddToCart(car)}}>Add to cart</button>
     )}
 
     </div>
+
+              {isCustomCarHomeVisible && (
+                <div className={style.customCarContainer}>
+                <CustomCarHome onClose={closeCustomHome} />
+                </div>
+              )}
+              
 {isAddToCartButtonVisible && (
   <div className={style.cartContainer}>
     <Addtocart cartItems={cartItems} onClose={closeAddToCartContent} />
   </div>
 )}
-
-  <div className={style.lineAboveFooter}></div>
   <Footer />
   </div>
   </div>

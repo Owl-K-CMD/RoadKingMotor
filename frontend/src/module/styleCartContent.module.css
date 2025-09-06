@@ -5,15 +5,15 @@
 }
 
 .cartHeader{
-          background-color: aquamarine;
-          display: flex;
-          flex-direction: row;
-          padding-bottom: 5px;
-          border-bottom: 1px solid #eee;
-          margin-bottom: 10px;
-          position: sticky;
-          z-index: 1;
-          top: 0;
+         background-color: aquamarine;
+         display: flex;
+         flex-direction: row;
+         padding-bottom: 5px;
+         border-bottom: 1px solid #eee;
+         margin-bottom: 10px;
+         position: sticky;
+         z-index: 1;
+         top: 0;
 }
 
 .cartHeader h2{
