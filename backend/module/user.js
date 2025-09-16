@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: function() { return !this.isGuest;} },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+  isAdmin: { type: Boolean, default: false },
   isGuest: { type: Boolean, default: false },
 })
 

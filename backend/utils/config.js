@@ -15,6 +15,7 @@ const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
 const FACEBOOK_PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
+const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
 
 const SOCKET_URL = process.env.SOCKET_URL;
 module.exports = { 
@@ -30,5 +31,6 @@ module.exports = {
    FACEBOOK_APP_SECRET,
    FACEBOOK_PAGE_ACCESS_TOKEN,
    FACEBOOK_PAGE_ID,
-   SOCKET_URL
+   SOCKET_URL,
+   ADMIN_USER_ID
    }

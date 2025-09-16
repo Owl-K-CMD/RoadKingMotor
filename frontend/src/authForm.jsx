@@ -1,70 +1,4 @@
-/*
-import React, { useState }from 'react'
-import LoginForm from './loginForm'
-import RegistrationForm from './registrationForm.jsx'
-import ForgotPasswordForm from './forgotPasswordForm'
-import style from './module/authStyle.module.css'
-
-const AuthForm = ({ onLoginSuccess}) => {
-  const [activeTab, setActiveTab] = useState('login');
-
-  const tabButtonStyle = {
-    padding: '10px 15px',
-    border: 'none',
-    background: '#f0f0f0',
-    cursor: 'pointer',
-    marginRight: '5px',
-    borderRadius: '5px 5px 0 0 ',
-    outline: 'none',
-    
-  };
- 
-  const activeTabStyle = {
-    ...tabButtonStyle,
-    background: '#ddd',
-     };
-
-
-
-  return (
-    <div className={style.containerStyle}>
-       <div className={style.tabContainer}>
-        <button
-        style={activeTab === 'login' ? activeTabStyle : tabButtonStyle}
-        onClick={() => setActiveTab('login')}
-        >
-        Login
-        </button>
-<button
-style={activeTab === 'register' ? activeTabStyle : tabButtonStyle}
-onClick={() => setActiveTab('register')}
->
-Register
-</button>
-<button
-style={activeTab === 'forgotPassword' ? activeTabStyle : tabButtonStyle}
-onClick={() => setActiveTab('forgotPassword')}>
-Forgot password
-</button>
-       </div>
-       {activeTab === 'login' && (
-        <LoginForm onLoginSuccess={onLoginSuccess} />
-       )}
-       {activeTab === 'register' && (
-        <RegistrationForm onRegistrationSuccess={onLoginSuccess}/>
-        )}
-        {activeTab === 'forgotPassword' && (
-        <ForgotPasswordForm />
-        )}
-
-    </div>
-  );
-  };
-  
-  export default AuthForm;
-  */
-
-  import React, { useState } from 'react'
+import React, { useState } from 'react'
 import LoginForm from './loginForm'
 import RegistrationForm from './registrationForm.jsx'
 import ForgotPasswordForm from './forgotPasswordForm'
@@ -77,18 +11,20 @@ const AuthForm = ({ onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   const tabButtonStyle = {
-    padding: '10px 15px',
-    border: 'none',
-    background: '#f0f0f0',
+    padding: '5px 5px',
+    //border: 'none',
+    background: 'rgba(240, 240, 240, 1)',
     cursor: 'pointer',
     marginRight: '5px',
     borderRadius: '5px 5px 0 0',
-    outline: 'none',
+    //outline: 'none',
+    fontSize: '0.6rem',
+    fontWeight: 'bold',
   };
 
   const activeTabStyle = {
     ...tabButtonStyle,
-    background: '#ddd',
+    background: 'rgba(201, 201, 201, 1)',
   };
 
   const handleGuestLogin = async () => {

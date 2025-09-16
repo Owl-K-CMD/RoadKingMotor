@@ -55,9 +55,16 @@ useEffect(() => {
 const closeCustomCar = () => {
   setIsCustomCarVisible(false);
   setIsListVisible(true);
+}
 
-
-} 
+const statusColors = {
+  Submitted: "maroon",
+  Received: "blue",
+  Proceeding: "orange",
+  Rejected: "red",
+  Accepted: "green",
+  Done: "purple"
+}
   return (
     <div className={style.customCarContainer}>
       
@@ -91,9 +98,12 @@ const closeCustomCar = () => {
                   </>
                 ) : (
                   `${car.createdAt}`
-                )}
+                )} &#8594;
+              <span className={style.customCarStatus} 
+              style={{color: statusColors[car.tracks] }}>
+                {car.tracks.toUpperCase()}</span>
+
           </h3>
-          
 
               {expandedCarIds.includes(car.id) && (
             <div className={style.customCarDetails}>
@@ -113,7 +123,11 @@ const closeCustomCar = () => {
                 {car.status ? (<p>Status: {car.status}</p>) : null}
                 {car.condition ? (<p>Condition: {car.condition}</p>) : null}
                 {car.createdAt ? (<p>Created At: {car.createdAt}</p>) : null}
+                <p style={{ color: statusColors[car.tracks] }}>
+  {car.tracks.toUpperCase()}
+</p>
                 {car.otherDescription ? (<p>Other Description: {car.otherDescription}</p>) : null}
+                
                 </div>
             )}
 

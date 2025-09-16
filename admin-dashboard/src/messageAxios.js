@@ -1,6 +1,5 @@
 import axios from 'axios'
 
-//const messageUrl = 'api/messages'
 const messageUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/messages`
 
 

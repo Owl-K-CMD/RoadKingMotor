@@ -1,9 +1,10 @@
 const customMotorRouter = require('express').Router();
 const CustomMotor = require('../module/customMotor');
+const { getIO } = require('../websocketHandle')
 
 customMotorRouter.get('/', async (request, response, next ) => {
   try {
-    const customMotor = await customMotor.find({});
+    const customMotor = await CustomMotor.find({});
     response.json(customMotor);
   } catch (error) {
     console.error("Error fetching custom motors:", error);
@@ -47,6 +48,7 @@ try {
       status,
       condition,
       createdAt,
+      tracks,
       otherDescription } = request.body;
   const newCustomMotor = new CustomMotor({
     user,
@@ -66,10 +68,22 @@ try {
     status,
     condition,
     createdAt,
+    tracks,
     otherDescription
     });
 
     const savedCustomMotor = await newCustomMotor.save();
+
+     if (getIO()) {
+      getIO().emit('newCustomCar', {
+        type: 'newCustomCar',
+        message: savedCustomMotor,
+      })
+      console.info('Custom Car socket received:', savedCustomMotor)    
+    } else {
+      console.error("Socket.io is not initialized. Cannot emit new message.");
+    }
+    
     response.status(201).json(savedCustomMotor);
   } catch (error) {
     console.error("Error creating custom motor:", error);
@@ -77,11 +91,34 @@ try {
   }
 })
 
+customMotorRouter.put('/:id/tracks', async (request, response, next) => {
+  try {
+    const { tracks } = request.body
+    const validStatuses = ['Received','Proceeding','Rejected','Accepted','Done']
+    if (!validStatuses.includes(tracks)) {
+      return response.status(400).json({ error: 'Invalid status' })
+    }
+
+    const updatedCar = await CustomMotor.findByIdAndUpdate(
+      request.params.id,
+      { tracks },
+      { new: true }
+    )
+
+        if (getIO()) {
+      getIO().emit('updateCustomCar', updatedCar)
+    }
+    response.json(updatedCar)
+  } catch(error) {
+    response.status(500).json({ error: error.message })
+  }
+})
+
 customMotorRouter.delete('/:id', async (request, response, next) => {
   try {
     await CustomMotor.findByIdAndRemove(request.params.id);
     response.status(204).end();
-  } catch (error) {
+  } catch(error) {
     console.error("Error deleting custom motor:", error);
     next(error);
   }

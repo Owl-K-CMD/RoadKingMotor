@@ -18,7 +18,7 @@ const getUserByUserName = async(userName) => {
   }
 
   const loginUser = async(credentials) => {
-    const response = await axios.post(`${userUrl}/login`, credentials)
+    const response = await axios.post(`${userUrl}/admin`, credentials)
     return response.data;
   }
 

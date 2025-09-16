@@ -5,6 +5,7 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3")
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
 const config = require('../utils/config')
+const adminAuth = require('../utils/adminAuth')
 const { broadcast } = require('../websocketHandle')
 const { postToFacebook } = require('../utils/facebook')
 
@@ -49,7 +50,7 @@ motorsRouter.get('/model/:model', async (request, response, next) => {
 });
 
 
-motorsRouter.post('/',upload.array('images',10), async(request, response, next) => {
+motorsRouter.post('/',upload.array('images',10), adminAuth, async(request, response, next) => {
   const body =  request.body
   const files = request.files
 
@@ -120,7 +121,7 @@ catch(error) {
 }
 })
 
-motorsRouter.delete('/:id', async(request, response, next) => {
+motorsRouter.delete('/:id', adminAuth, async(request, response, next) => {
   try{
     const deletedMotor = await Motor.findByIdAndDelete(request.params.id)
     if (!deletedMotor) {
@@ -138,7 +139,7 @@ motorsRouter.delete('/:id', async(request, response, next) => {
   }
 })
 
-motorsRouter.put('/:id', async (request, response, next) => {
+motorsRouter.put('/:id', adminAuth, async(request, response, next) => {
   const motorToUpdate = { images,
      brand, model,
      price, year,

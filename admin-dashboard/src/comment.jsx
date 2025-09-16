@@ -9,8 +9,6 @@ const Comments = ({ carId }) => {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState('');
 
-  console.log('All car:', carId)
-
   useEffect(() => {
     commentAct.getComments(carId)
     .then(initialComments => {

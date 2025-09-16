@@ -13,6 +13,7 @@ import CommentsList from './commentdisplay.jsx'
 import CarDetailModal from './carDetailsModals.jsx'
 import io from 'socket.io-client';
 import { toast } from 'react-toastify';
+import { initSocket } from './socket.js'
 
 
 const App = () => {
@@ -26,7 +27,7 @@ const App = () => {
   const [cartItems, setCartItems] = useState([])
   const [currentImageIndices, setCurrentImageIndices] = useState({})
   const [isAddToCartButtonVisible, setIsAddToCartButtonVisible] = useState(false)
-  const [isLoginVisible, setIsLoginVisible] = useState(null)
+  const [isLoginVisible, setIsLoginVisible] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [pendingChatAction, setPendingChatAction] = useState(null)
   const [pendingCartAction, setPendingCartAction] = useState(null)
@@ -44,9 +45,18 @@ const App = () => {
   const [conditionFilter, setConditionFilter] = useState('')
   const [notifications, setNotifications] = useState([]);
   const [isCustomCarHomeVisible, setIsCustomCarHomeVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [filterCarByCondition, setFilterCarByCondition] = useState(false);
+  const [isFilterCarBrandVisible, setIsFilterCarBrandVisible] = useState(false)
+  
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
+
+    useEffect(() => {
+      initSocket();
+    }, [])
+  
 
   useEffect(() => {
     try{
@@ -73,7 +83,7 @@ if (user) {
        console.log("receiveNessage event trigered:", data)
         const message = data.message || 'New message!';
           const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
-       if (data?.receiver?.id === receiverId) {
+      if (data?.receiver?.id === receiverId) {
             toast.info(message, {
             position: 'top-right',
           });
@@ -93,8 +103,14 @@ if (user) {
         pauseOnHover: true,
         draggable: true,
       });
-
     });
+
+socket.on('newCustomCar', (data) => {
+  console.log('new custom car received:', data)
+  toast.info('New custom car request received!', {
+    position: 'top-right',
+  });
+})
 
     socket.on('receiveNotification', (data) => {
     console.log('Notification received:', data);
@@ -320,6 +336,18 @@ const handleCustomCarHome = () => {
   setIsCustomCarHomeVisible(true);
 }
 
+const handleUseLoggedIn = () => {
+setIsLoggedIn(prev => !prev)
+}
+
+const handleShowPhoneNav = () => {
+  setFilterCarByCondition(prev => !prev)
+}
+
+const handleBrand = () => {
+  setIsFilterCarBrandVisible(prev => !prev)
+}
+
 const sortedCars = [...filtercar].sort((a, b) => {
   if (topCarId === a.id) {
     return -1;
@@ -330,38 +358,54 @@ const sortedCars = [...filtercar].sort((a, b) => {
   }
 })
 
-  return (
+
+return (
   <div>
   <div className={style.contentToBeFixed}>
     <div className={style.title}>
 
       <h1 className={style.titletext}><strong>ROAD KING MOTOR</strong></h1>
-      <div className={style.conditionbutton}>
-      <button onClick={() => setConditionFilter('New')}>New Car</button>
-      <button onClick={() => setConditionFilter('Used')}>Used Car</button>
-      <button>Pending Car</button>
-      </div>
-      <button
-      className={style.customCarButton}
-      onClick={handleCustomCarHome}>Custom Car</button>
+      <div className={style.searchContainer}>
+          <button className={style.svgsearch}>
+          <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/search_icon.svg" alt='search'/>
+        </button>
+        <input
+        type="text"
+        placeholder='Search by model or brand...'
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={style.searchInput}
+      /></div>
   <div className= {style.navbarbutton}>
-
-      {currentUser ? (
-        <>
+      <button className={style.accountButton}
+      onClick={handleUseLoggedIn}>
+        <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-account-24.png"/>
+      <span>Account</span></button>
+      
+      {isLoggedIn &&
+        <div className={style.authFormContainer}>
+      {currentUser ?(
+        <div className={style.loggedIn}>
+          <button className={style.closebutton}
+          onClick={handleUseLoggedIn}>Close</button>
           <span className={style.welcomeMessage}>{currentUser.userName}!</span>
           <button onClick={handleLogout} className={style.topButton}>Logout</button>
-        </>
-      ) : (
-        <button className= {style.navbuttonmyaccount} onClick={handleToggleLoginVisibility}>
-          <img className={style.topButton} src = "https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-my-account-50.png"
-            alt = "myaccount" />
-        </button>
+        </div>
+      ): (
+        <div className={style.authFormContainer}>
+          <button onClick={handleUseLoggedIn}
+          className={style.closebutton}>Close</button>
+          <AuthForm onLoginSuccess={handleLoginSuccess}
+          onClose={handleToggleLoginVisibility} />
+            </div>
       )}
-
+      </div>
+          }
+{/*
  <button className = {style.navbuttonaddtocart} onClick={handleToggleCarVisibility}>
    <img className = {style.topButton} src ="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-add-to-cart-48.png"
     alt="addtocart"/> </button>
-{/*
+
 <button 
 className={style.navbuttonNotification}
 onClick={toggleNotificationVisibility}>
@@ -377,7 +421,9 @@ onClick={toggleNotificationVisibility}>
 </button>
 */}
     {!isChatVisible ? (
-            <button onClick={() => handleOpenChat(null)}>
+  <button onClick={() => handleOpenChat(null)}
+  className={style.accountButton}>
+    <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-24.png" alt="chat" />
   <span>Chat</span>
     {unreadMessagesCount > 0 && (
     <span className={style.notificationBadge}>
@@ -387,7 +433,8 @@ onClick={toggleNotificationVisibility}>
   </button>
     ) : (
       <button onClick={handleCloseChat}>
-        <img className={style.chat} src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-48.png" alt="chat" />
+    <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-chat-24.png" alt="chat" />
+  <span>Chat</span>
       </button>
     )}
 
@@ -412,59 +459,91 @@ onClick={toggleNotificationVisibility}>
 
 
   </div>
- </div>
+  </div>
 
- {isLoginVisible && !currentUser && (
+  {isLoginVisible && !currentUser && (
   <div className={style.authFormContainer}>
             <button onClick={handleToggleLoginVisibility}
-            className={style.closebutton}
-        style={{marginTop: '10px' }}>
+            className={style.closebutton}>
           Close
         </button>
-                <AuthForm onLoginSuccess={handleLoginSuccess}
-                onClose={handleToggleLoginVisibility}
-                 />
-
+      <AuthForm onLoginSuccess={handleLoginSuccess}
+      onClose={handleToggleLoginVisibility}
+          />
       </div>
-
- )
+  )
   }
-    <div className={style.searchAndFilter}>
-    <div className={style.searchContainer}>
-          <button className={style.svgsearch}>
-          <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/search_icon.svg" alt='search'/>
+  <div className={style.secondTitlePhone}>
+    <button onClick={handleBrand}>Brand</button>
+    {isFilterCarBrandVisible && (
+        <div id="filter-menu" className={style.brandPone}>
+        <button
+        className={style.navbutton}
+        onClick={() => { 
+          setShowAll(''); 
+          setIsFilterMenuOpen(false);
+          handleBrand();
+        }}
+        >
+        <strong>Show All cars</strong>
         </button>
-        <input
-         type="text"
-         placeholder='Search by model or brand...'
-         value={searchQuery}
-         onChange={(e) => setSearchQuery(e.target.value)}
-         className={style.searchInput}
-       /></div>
-     <div className={style.filterContainer}>
-      
-      <button
-        className={style.filterHamburger}
-        onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-        aria-expanded={isFilterMenuOpen}
-        aria-controls="filter-menu"
-      >
-        ☰ Filter Brands
-      </button>
-
-<div className={style.conditionbuttonOnPhone}>
+        {uniqueCarNames.map((brand) => (
+          <button key={brand}
+            className={style.navbuttonphone}
+            onClick={() => {
+              setShowAll(brand);
+              setIsFilterMenuOpen(false);
+              handleBrand();
+            }}>
+            {brand}
+          </button>
+        ))}
+      </div>
+    )}
+<div>
   <select
-    value={conditionFilter}
-    onChange={(e) => setConditionFilter(e.target.value)}
+  className={style.buttonCarCondition}
+  onChange={(e) => setConditionFilter(e.target.value)}
+  defaultValue=''
   >
-    <option value="">Filter Condition</option>
-    <option value="New">New</option>
-    <option value="Used">Used</option>
-  </select>
+    <option value="" disabled>Condition</option>
+      <option value='New'>New Cars</option>
+      <option value='Used'>Used Cars</option>
+      </select>
+      </div>
+      
+      <button className={style.buttonCarCondition}>
+        <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-pending-16.png"/>Pending
+        </button>
+      <button
+      className={style.customCarButton}
+      onClick={handleCustomCarHome}>Customise your Car</button>
 </div>
 
+    <div className={style.filterContainer}>
+      <button className={style.buttonCarCondition}
+      onClick={() => setConditionFilter('New')}> 
+        <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-new-16.png"/>New Cars
+        </button>
+        
+      <button className={style.buttonCarCondition}
+      onClick={() => setConditionFilter('Used')}>
 
+        <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-car-16.png"/>Used Cars
+      </button>
 
+      <button className={style.buttonCarCondition}>
+        <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-pending-16.png"/>Pending Cars
+        </button>
+      <button
+      className={style.customCarButton}
+      onClick={handleCustomCarHome}>Customise your Car</button>
+      </div>
+
+    </div>
+
+    <div className={style.cardAndFilter}>
+      <div className={style.sidePanel}>
       <div id="filter-menu" className={`${style.search} ${isFilterMenuOpen ? style.filterMenuOpen : ''}`}>
         
         <button
@@ -480,17 +559,15 @@ onClick={toggleNotificationVisibility}>
               setShowAll(brand);
               setIsFilterMenuOpen(false);
             }}>
-            <strong> {brand}</strong>
+            {brand}
           </button>
         ))}
       </div>
-    </div>
-    </div>
-    
-     </div>
-     <div className={style.contentToScroll}>
+      </div>
+      
+    <div className={style.contentToScroll}>
     <div className={style.filter}>
-     {sortedCars.length > 0 ? (
+    {sortedCars.length > 0 ? (
   filtercar.map( car => {
     if (selectedCar && selectedCar.id === car.id) {
       return (
@@ -502,14 +579,10 @@ onClick={toggleNotificationVisibility}>
     currentUser={currentUser}
     onCommentPosted={handleCommentPosted}
     refresh={refresh}
-
   />
-
-      )
-    }
+      )}
 
         const currentImageIndex = currentImageIndices[car.id] || 0; 
-      //console.log(`Car: ${car.model}, First image URL: ${car.images ? car.images[0] : 'No images'}`)
         const isExpanded = expandedCarIds.includes(car.id);
 
               let rawFirstImageUrl = null;
@@ -526,7 +599,7 @@ onClick={toggleNotificationVisibility}>
     onClick={() => 
       setSelectedCar(car)}
 
-         style={firstImageUrlForBackground ? {
+        style={firstImageUrlForBackground ? {
         backgroundImage: `url(${firstImageUrlForBackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -660,22 +733,10 @@ id="starBustOval"
         </button>
       )
     })()}
-<button className={style.button}
-onClick={(event) => {
-  event.preventDefault()
-  event.stopPropagation()
-
-}} >Buy now</button>
 <button className={style.button} onClick={(event) =>{
   event.preventDefault()
   event.stopPropagation()
   handleOpenChat(car); }}>Contact seller</button>
-
-<button  className={style.button} onClick={(event) => {
-  event.preventDefault()
-  event.stopPropagation()
-  
-handleAddToCart(car)}}>Add to cart</button>
 </div>
 <div className={`${style.comment} ${commentSectionCarIds.includes(car.id) ? `${style.absolute} ${style.otherStyle}` : style.static}`}>
 <button className={`${style.hideAndShowButton}`}
@@ -726,8 +787,10 @@ handleAddToCart(car)}}>Add to cart</button>
     <Addtocart cartItems={cartItems} onClose={closeAddToCartContent} />
   </div>
 )}
-  <Footer />
+  
   </div>
+  </div>
+  <Footer />
   </div>
   )
 }

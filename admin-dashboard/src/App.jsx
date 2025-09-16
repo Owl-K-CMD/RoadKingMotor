@@ -6,6 +6,8 @@ import style from './module/style.module.css'
 import Message from './message.jsx'
 import AuthForm from './authForm.jsx'
 import Comments from './comment.jsx'
+//import { initSocket } from './socket.js'
+import CustomisedCar from './customisedCar.jsx'
 
 
 const Notification = ({ message, className }) => {
@@ -28,8 +30,13 @@ const App = () => {
   const [chatTargetCar, setChatTargetCar] = useState(null)
   const [showComments, setShowComments] = useState(false);
   const [isLoginVisible, setIsLoginVisible] = useState(false)
+  const [isCustomCarVisible, setIsCustomCarVisible] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [selectedCarId, setSelectedCarId] = useState(null)
+
+  //useEffect(() => {
+    //initSocket();
+  //}, [])
 
 
   useEffect(() => {
@@ -101,8 +108,14 @@ const handleToggleLoginVisibility = () => {
   setIsLoginVisible(prev => !prev);
 }
 
+const handleToggleCustomCarVisibility = () => {
+  setIsCustomCarVisible(prev => !prev);
+}
+
+
 const handleLoginSuccess = (userData) => {
   setCurrentUser(userData);
+  //initSocket(userData.id, localStorage.getItem('authToken'));
   setIsLoginVisible(false);
   }
 
@@ -152,7 +165,7 @@ Message
 <button>Users</button>
 <button>brands</button>
 <button>Models</button>
-<button>Orders</button>
+<button onClick={handleToggleCustomCarVisibility}>Custom Car</button>
 <button>Add To Cart</button>
 <button>Statistics</button>
 
@@ -285,7 +298,8 @@ Message
 
 )}
 
-
+{isCustomCarVisible && <CustomisedCar 
+onClose={handleToggleCustomCarVisibility}/>}
 {showNewCarForm && <Newcar />}
 
     </div>

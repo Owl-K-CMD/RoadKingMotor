@@ -4,6 +4,7 @@ const User = require('../module/user')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config');
 const crypto = require('crypto');
+const adminAuth = require('../utils/adminAuth');
 
 
 
@@ -56,14 +57,14 @@ if(!phoneNumber) {
   const saltRounds = 10
 
   const passwordHash = await bcrypt.hash(password, saltRounds)
-
+  const isAdmin = request.body.isAdmin || false;
   
   const user = new User({
     userName: userName.trim(),
     name,
     email,
     phoneNumber,
-    passwordHash
+    passwordHash,
   })
 
   const savedUser = await user.save()
@@ -81,6 +82,7 @@ if(!phoneNumber) {
   const userForToken = {
     id: savedUser._id,
     userName: savedUser.userName,
+
   };
 
   const token = jwt.sign(userForToken,
@@ -103,7 +105,7 @@ if(!phoneNumber) {
       userName: savedUser.userName,
       name: savedUser.name,
       email: savedUser.email,
-      phoneNumber: savedUser.phoneNumber
+      phoneNumber: savedUser.phoneNumber,
     },
   });
   }
@@ -116,6 +118,39 @@ if(!phoneNumber) {
     next(error)
   }
 })
+
+usersRouter.post('/admin', adminAuth, async (request, response, next) => {
+    const { userName, name, email, phoneNumber, password } = request.body;
+
+    try {
+        // Basic validations (you can add more)
+        if (!userName || !name || !email || !phoneNumber || !password) {
+            return response.status(400).json({ error: 'All fields are required' });
+        }
+
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(password, saltRounds);
+
+        const adminUser = new User({
+            userName: userName.trim(),
+            name,
+            email,
+            phoneNumber,
+            passwordHash,
+            isAdmin: true // <--- IMPORTANT:  Always set to true for this route
+        });
+
+        const savedAdmin = await adminUser.save();
+
+        response.status(201).json({
+            message: 'Admin user created successfully',
+            user: savedAdmin
+        });
+
+    } catch (error) {
+        next(error);
+    }
+});
 
 usersRouter.post('/guest', async (request, response, next) => {
   try {
@@ -190,6 +225,12 @@ usersRouter.post('/login', async(request, response, next) => {
       console.log(`LOGIN FAIL: Password incorrect for user "${normalizedUserName}".`);
       return response.status(401).json({ error: 'Invalid username or password' });
     }
+
+        const isAdminPanelLogin = request.body.isAdminPanel === true;
+
+            if (isAdminPanelLogin && !user.isAdmin) {
+                return response.status(403).json({ error: 'Unauthorized: Admin access required' });
+            }
     
     const userForToken = {
       id: user._id,
@@ -225,12 +266,13 @@ usersRouter.post('/login', async(request, response, next) => {
       message: 'Login successful.',
       token,
       refreshToken,
-           user: {
+        user: {
         id: user._id,
         userName: user.userName,
         name: user.name,
         email: user.email,
-        phoneNumber: user.phoneNumber
+        phoneNumber: user.phoneNumber,
+        isAdmin: user.isAdmin
 
       }
     })

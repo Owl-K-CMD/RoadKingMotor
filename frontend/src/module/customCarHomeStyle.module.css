@@ -20,6 +20,13 @@
   -1px -1px 1px 1px rgba(190, 190, 200, 0.63);
   border-radius: 5px;
   left: 50%;
+  top: 4rem;
+  outline: none;
+}
+
+.customCarButton .customCarButton2:hover {
+  background-color: rgba(20, 200, 255, 0.98);
+  color: white;
 }
 
 .customCarHomeHeader {
@@ -33,6 +40,9 @@
   background-color: rgba(100, 100, 255, 0.98);
 }
 
+.customCarList {
+  margin-top: 4rem;
+}
 .positionToBeSticky{
   position: sticky;
   top: 0;
@@ -76,7 +86,7 @@
 }
 
 .customCarDetails {
-  margin: 0 0 5% 20%;
+  margin: 0% 0 5% 20%;
   font-size: 1rem;
   color: #555;
   border-bottom: 0.5px solid #ccc;
@@ -91,4 +101,13 @@
   font-weight: bold;
   text-decoration: underline;
 
+}
+
+.customCarStatus {
+  outline: none;
+  font-size: 0.65rem;
+  font-weight: italic;
+  margin-left: 10%;
+  margin-bottom: 10px;
+  text-decoration: none;
 }

@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import customCaract from './axios/customCar.js'
 import style from './module/customCarStyle.module.css'
+import { getIO } from './socket.js'
 
 const CustomCar = ({onClose}) => {
   const [errorMessage, setErrorMessage] = useState(null)
 
-  // Form state
+  
   const [newBrand, setNewBrand] = useState('')
   const [newModel, setNewModel] = useState('')
   const [newPrice, setNewPrice] = useState('')
@@ -21,10 +22,22 @@ const CustomCar = ({onClose}) => {
   const [newEngineSize, setNewEngineSize] = useState('')
   const [newStatus, setNewStatus] = useState('')
   const [newCondition, setNewCondition] = useState('')
-
   const [newOtherDescription, setNewOtherDescription] = useState('')
+  const [customCars, setCustomCars] = useState([])
 
-  // Reset form
+
+    useEffect(() => {
+    const socket = getIO();
+
+    socket.on('newCustomCar', (newCustomCar) => {
+      setCustomCars(prevCustomCars => [...prevCustomCars, newCustomCar])
+    })
+
+    return () => {
+      socket.off('newCustomCar')
+    }
+}, [])
+  
   const resetForm = () => {
     setNewBrand('')
     setNewModel('')

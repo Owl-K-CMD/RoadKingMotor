@@ -2,11 +2,13 @@ const { Server } = require('socket.io');
 const logger = require('./utils/logger');
 const config = require('./utils/config.js');
 const Message = require('./module/message');
+const CustomMotor= require('./module/customMotor');
 const jwt = require('jsonwebtoken');
 const Notification = require('./module/notification');
 
 const SECRET = config.SECRET_KEY;
 const REFRESH_SECRET = config.REFRESH_SECRET_KEY;
+
 
 let io;
 
@@ -20,8 +22,8 @@ const initializeWebSocket = (server) => {
         "http://localhost:5174",
         "https://roadkingmotor-pkx5.onrender.com"
       ],
-      methods: ["GET", "POST"],
-          credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
     }
   });
 
@@ -30,9 +32,9 @@ const initializeWebSocket = (server) => {
   io.use((socket, next) => {
     const userId = socket.handshake.auth.userId;
     const token = socket.handshake.auth.token;
-    logger.info(`Authenticating socket with userId: ${userId} and token: ${token}`);
-
-    if (token === 'admin' && userId === '68437f46357ee88b6d9b492d') {
+    const adminUserId = config.ADMIN_USER_ID
+    logger.info(`Authenticating socket with userId: ${userId}, token: ${token}`);
+    if (token === 'admin' && userId === "68437f46357ee88b6d9b492d") {
       socket.userId = userId;
       users[socket.userId] = socket.id;
       return next();
@@ -42,6 +44,8 @@ const initializeWebSocket = (server) => {
         const decoded = jwt.verify(token, SECRETREFRESH);
         socket.userId = decoded.id;
         users[socket.userId] = socket.id;
+        logger.info(`JWT verification successfully, userId: ${socket.userId}`);
+        logger.info(`JWT verification successfully, userId: ${socket.userId}`);
         return next();
       } catch (error) {
         logger.error("JWT verification failed:", error);
@@ -53,9 +57,8 @@ const initializeWebSocket = (server) => {
   });
 
   io.on('connection', (socket) => {
-    logger.info(`Socket connected: ${socket.id}, User: ${socket.userId}`);
+    logger.info(`Socket connected: ${socket.id}, User: ${socket.userId}`); // Correctly log userId
 
-    // ✅ Chat message event
     socket.on('sendMessage', async (message) => {
       logger.info(`Message received from ${socket.id}: ${JSON.stringify(message)}`);
 
@@ -71,7 +74,7 @@ const initializeWebSocket = (server) => {
           .populate('receiver', 'userName _id');
 
         if (message.receiver && users[message.receiver]) {
-           io.to(users[message.receiver]).emit('receiveMessage', populatedMessage);
+          io.to(users[message.receiver]).emit('receiveMessage', populatedMessage);
         } else {
           io.emit('receiveMessage', populatedMessage);
         }
@@ -86,12 +89,48 @@ const initializeWebSocket = (server) => {
       io.emit('newComment', { comment: comment });
     });
 
-    // ✅ NEW: Notification event
+    socket.on('newCustomCar', async (customCar) => {
+      logger.info(`New custom car request from ${socket.id}: ${JSON.stringify(customCar)}`);
+      /*io.emit('newCustomCar', { customCar: customCar });
+      */
+
+      try {
+        const savedCustomCar = await CustomMotor.create({
+          user: customCar.user,
+          brand: customCar.brand,
+          model: customCar.model,
+          price: customCar.price,
+          year: customCar.year,
+          madeIn: customCar.madeIn,
+          mileage: customCar.mileage,
+          fuelType: customCar.fuelType,
+          transmission: customCar.transmission,
+          bodyType: customCar.bodyType,
+          color: customCar.color,
+          seats: customCar.seats,
+          doors: customCar.doors,
+          engineSize: customCar.engineSize,
+          status: customCar.status,
+          condition: customCar.condition,
+          createdAt: customCar.createdAt,
+          tracks: customCar.tracks,
+          otherDescription: customCar.otherDescription
+        });
+
+        const populatedCustomCar = await CustomMotor.findById(savedCustomCar._id) //CustomMotor
+          .populate('user', 'userName _id')
+          io.emit('newCustomCar', populatedCustomCar);
+
+      } catch (error) {
+        logger.error("Error saving custom car request:", error);
+      }
+    });
+    
+    // ✅ Notification event
     socket.on('sendNotification', async (notification) => {
       logger.info(`Notification from ${socket.userId}: ${JSON.stringify(notification)}`);
 
       try {
-         //Optionally save to DB
         const savedNotification = await Notification.create({
           sender: socket.userId,
           receiver: notification.receiver,
@@ -100,8 +139,8 @@ const initializeWebSocket = (server) => {
          });
 
         if (notification.receiver && users[notification.receiver]) {
-          // Send to specific receiver
           io.to(users[notification.receiver]).emit('receiveNotification', {
+        
             type: notification.type,
             message: notification.message,
             sender: socket.userId,
@@ -127,8 +166,7 @@ const initializeWebSocket = (server) => {
         }
       }
     });
+
   });
-};
-
-
+}
 module.exports = { initializeWebSocket, getIO: () => io };

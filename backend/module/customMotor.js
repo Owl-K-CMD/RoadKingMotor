@@ -19,6 +19,18 @@ const customMotorSchema = new mongoose.Schema({
     condition: { type: String },
     createdAt: { type: Date, default: Date.now },
     otherDescription: { type: String },
+    tracks: {
+    type: String,
+    enum: [
+      'Submitted',
+      'Received',
+      'Proceeding',
+      'Rejected',
+      'Accepted',
+      'Done'
+    ],
+    default: 'Submitted'
+  }
   })
 
 customMotorSchema.set('toJSON', {
