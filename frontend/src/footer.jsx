@@ -1,6 +1,13 @@
+import React, { useState } from 'react'
 import style from './module/style.module.css'
+import AboutUs from './footer/AboutUs.jsx'
 
 const Footer = () => {
+  const [isAboutAsVisible, setIsAboutAsVisible] = useState(false)
+
+  const handleAboutUs = () => {
+    setIsAboutAsVisible(prev=> !prev)
+  }
   return (
 
     <footer className={style.footerContainer}> {/* Add a class for the main footer container */}
@@ -8,7 +15,8 @@ const Footer = () => {
         <div className={style.footerAboutUs}>
           <h4>Company</h4>
           <ul>
-            <li><a href="/about">About Us</a></li>
+            <li onClick={handleAboutUs}> About Us</li>
+            {isAboutAsVisible && <AboutUs onClose={() => setIsAboutAsVisible(false)} />}
             <li><a href="/contact">Contact</a></li>
             {/* ... more links ... */}
           </ul>

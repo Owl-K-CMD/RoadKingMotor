@@ -31,7 +31,7 @@
   width: 1.5rem;
 
   @media (max-width: 768px){
- width: 1.5rem;
+  width: 1.5rem;
   }
 }
 .searchInput{
@@ -100,6 +100,7 @@
   box-sizing: border-box;
   overflow-y: auto;
   justify-content: space-between;
+  position: sticky;
 }
 @media (max-width: 768px) {
   .sidePanel{
@@ -182,22 +183,32 @@
 .brandPone{
   display: flex;
   flex-direction: column;
-  background-color: #f0f0f0;
-  align-items: center;
+  background-color: rgb(240, 240, 240);
+  align-items: start;
+  padding-left: 2%;
+  border-radius: 5px;
+  font-weight: 600;
+  
   border: 0.1px solid rgba(0, 0, 0, 0.1);
   position: fixed;
-  top: 20%
+  top: 10%;
+  width:50%;
 }
-/*
-@media (max-width: 768px) {
-  .buttonCarCondition {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+
+.navbuttonphone{
+  width: 100%;
+  align-items: start;
+  cursor: pointer;
+  padding:0.5rem 0 0.5rem 0 ;
 }
-  
+
+.navbuttonphone:hover{
+  outline: none;
+  background-color: rgb(200, 200, 200);
 }
-*/
+.navbuttonphone:nth-child(even){
+  background-color: rgb(250, 250, 240);
+}
 
 .buttonCarCondition img{
   margin-left: 45%;
@@ -489,7 +500,6 @@ padding: 3px;
   justify-content: space-between;
 
   @media (max-width: 768px){
-    
     margin-right: 4px;
   }
   }
@@ -527,16 +537,17 @@ padding: 3px;
 }
 
 
-.carpropartyp{
+.carproperty{
   display: flex;
   flex-direction: row;
 }
 
-.carContext{
-   font-size: 15px;
+.carproperty span{
+  font-weight: 600;
+  font-size: 1.2rem;
+  padding-left: 1rem;
+  color: rgb(71, 20, 50);
 }
-
-
 .footerContainer{
   background-color: black ;
   color: white;
@@ -584,13 +595,12 @@ padding: 2px;
 */
 
 .chatContainer{
-
         position: fixed;
         overflow-y: auto;
         bottom: 2px;
         right: 2px;
         width: 350px;
-        max-height: 600px;
+        max-height: 100%;
         background-color: white;
         border: 1px solid #ccc;
         border-radius: 8px;
@@ -682,13 +692,6 @@ padding: 2px;
   overflow-y: auto;
   flex: 1;
   flex-direction: column;
-}
-
-.carContext{
-  font-size: 15px;
-  color: rgb(0, 0, 0);
-  font-family: 'Courier New', Courier, monospace;
-  font-weight: bold;
 }
 
  .notificationBadge {

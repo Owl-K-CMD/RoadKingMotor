@@ -693,29 +693,29 @@ id="starBustOval"
       </div>
     
  <div className={style.carpropartyOtherProperty}>
-  <div className={style.carProperty}>
+  <div className={style.carproperty}>
 
-  year: {car.year}
+  year: <span>{car.year}</span>
   
   </div>
     <div className={style.otherDescription}>
-      <div className={style.carpropartyp}><h3 className={style.carContext}></h3>{car.otherDescription}</div>
+      <div className={style.carpropartyp}><h3></h3>{car.otherDescription}</div>
       </div>
  </div>
     {isExpanded && (
       <div className={style.carpropartyDetails}>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Brand: </h3>{car.brand} </div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Made in: </h3>{car.madeIn}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Mileage: </h3>{car.mileage}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Fuel Type: </h3>{car.fuelType}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Car body: </h3>{car.bodyType}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Transmission: </h3>{car.transmission}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Color: </h3>{car.color}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Seats: </h3>{car.seats}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Doors: </h3>{car.doors}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Engine Size: </h3>{car.engineSize}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Status: </h3>{car.status}</div>
-    <div className={style.carpropartyp}><h3 className={style.carContext}>Created At: </h3>{car.createdAt}</div>
+    <div className={style.carproperty}>Brand: <span>{car.brand}</span> </div>
+    <div className={style.carproperty}>Made in: <span>{car.madeIn}</span></div>
+    <div className={style.carproperty}>Mileage: <span>{car.mileage}</span>km</div>
+    <div className={style.carproperty}>Fuel Type: <span>{car.fuelType}</span></div>
+    <div className={style.carproperty}>Car body: <span>{car.bodyType}</span></div>
+    <div className={style.carproperty}>Transmission: <span>{car.transmission}</span></div>
+    <div className={style.carproperty}>Color: <span>{car.color}</span></div>
+    <div className={style.carproperty}>Seats: <span>{car.seats}</span></div>
+    <div className={style.carproperty}>Doors: <span>{car.doors}</span></div>
+    <div className={style.carproperty}>Engine Size: <span>{car.engineSize}</span></div>
+    <div className={style.carproperty}>Status: <span>{car.status}</span></div>
+    <div className={style.carproperty}>Created At: <span>{car.createdAt}</span></div>
     
     </div>
     )}
@@ -736,15 +736,16 @@ id="starBustOval"
 <button className={style.button} onClick={(event) =>{
   event.preventDefault()
   event.stopPropagation()
-  handleOpenChat(car); }}>Contact seller</button>
-</div>
-<div className={`${style.comment} ${commentSectionCarIds.includes(car.id) ? `${style.absolute} ${style.otherStyle}` : style.static}`}>
-<button className={`${style.hideAndShowButton}`}
+  handleOpenChat(car); }}>Chat</button>
+
+
+  <button className={`${style.hideAndShowButton}`}
  onClick={(event) => handleToggleComments(event, car.id)}>
-{commentSectionCarIds.includes(car.id) ? 'Hide Comments' : 'Show Comments'}
+{commentSectionCarIds.includes(car.id) ? 'Hide Comments' : 'Comments'}
 </button>
 
- 
+</div>
+<div className={`${style.comment} ${commentSectionCarIds.includes(car.id) ? `${style.absolute} ${style.otherStyle}` : style.static}`}>
  <AverageRating carId={car.id} refresh={refresh} />
  {commentSectionCarIds.includes(car.id) && (
   
