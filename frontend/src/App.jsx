@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
 import motoract from './cars'
 import style from './module/style.module.css'
@@ -46,12 +47,13 @@ const App = () => {
   const [notifications, setNotifications] = useState([]);
   const [isCustomCarHomeVisible, setIsCustomCarHomeVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [filterCarByCondition, setFilterCarByCondition] = useState(false);
   const [isFilterCarBrandVisible, setIsFilterCarBrandVisible] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
   
 
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
+
 
     useEffect(() => {
       initSocket();
@@ -72,15 +74,15 @@ if (user) {
 
       socket = io(socketUrl, {
         auth: {
-          userId: userId,
-         token: token,
+        userId: userId,
+        token: token,
         },
         transports: ['websocket'],
-           withCredentials: true,
+          withCredentials: true,
       });
 
       socket.on('receiveMessage', (data) => { 
-       console.log("receiveNessage event trigered:", data)
+      console.log("receiveNessage event trigered:", data)
         const message = data.message || 'New message!';
           const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
       if (data?.receiver?.id === receiverId) {
@@ -118,7 +120,7 @@ socket.on('newCustomCar', (data) => {
     position: 'top',
 });
 
-    // optional: add to state list if you want to display later
+
     const newNotification = { type: data.type || 'notification', text: data.message, time: new Date() };
     console.log('New notification object:', newNotification);
 
@@ -207,6 +209,9 @@ const toggleDetails = (id) => {
 const handleOpenChat = (car) => {
   if (!currentUser) {
     setIsLoginVisible(true);
+    const params = new URLSearchParams(searchParams);
+    params.set('auth', 'true');
+    setSearchParams(params, { replace: false });
     setPendingChatAction({ open: true, carContext: car});
     return;
   }
@@ -218,15 +223,43 @@ const handleOpenChat = (car) => {
     carContext: car,
   })
   setIsChatVisible(true);
+
+  const params = new URLSearchParams(searchParams);
+  if(car && car.id) params.set('chat', String(car.id));
+  else params.set('chat', 'true');
+  setSearchParams(params, { replace: false });
 };
 
 
 const handleCloseChat = () => {
+  const params = new URLSearchParams(searchParams);
+  params.delete('chat');
+  setSearchParams(params, { replace: false });
   setIsChatVisible(false);
   setChatTargetCar(null)
   setChatConfig(null)
   setUnreadMessagesCount(0);
 }
+
+useEffect(() => {
+  const chatParam = searchParams.get('chat');
+  if (chatParam) {
+    // if chatParam is a car id, try to match car; otherwise open generic chat
+    const car = cars.find(c => String(c.id) === chatParam);
+    if (car) {
+      setChatTargetCar(car);
+      setIsChatVisible(true);
+    } else {
+      // open generic chat
+      setIsChatVisible(true);
+    }
+  } else {
+    setIsChatVisible(false);
+    setChatTargetCar(null);
+  }
+}, [searchParams, cars]);
+
+
     const filterCarsByBrand = cars.filter(car => (car.brand || '').toLowerCase().includes(showAll.toLowerCase()));
     let filtercar = filterCarsByBrand.filter(car =>
     (car.model || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -243,14 +276,6 @@ const handleCloseChat = () => {
 const closeAddToCartContent = () => {
   setIsAddToCartButtonVisible(false);
 };
-
-const closeCustomHome = () => {
-  setIsCustomCarHomeVisible(false)
-}
-
-const handleToggleCarVisibility = () => {
-  setIsAddToCartButtonVisible(prev => !prev)
-}
 
 const handleAddToCart = (car) => {
     const existingItemIndex = cartItems.findIndex(item => item.id === car.id);
@@ -288,13 +313,14 @@ const handleAddToCart = (car) => {
 }
 
 
-const handleToggleLoginVisibility = () => {
-  setIsLoginVisible(prev => !prev);
-}
-
 const handleLoginSuccess = (userData) => {
   setCurrentUser(userData);
   setIsLoginVisible(false);
+  const params = new URLSearchParams(searchParams);
+  params.delete('auth');
+  setSearchParams(params, { replace: false });
+
+
   if (pendingChatAction && pendingChatAction.open) {
     handleOpenChat(pendingChatAction.carContext);
     setPendingChatAction(null);
@@ -313,6 +339,11 @@ const handleLogout = () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
   localStorage.removeItem('refreshToken');
+  
+  const params = new URLSearchParams(searchParams);
+  params.delete('auth');
+  setSearchParams(params, { replace: false });
+  setIsLoginVisible(false);
   setCurrentUser(null);
   setCartItems([])
 }
@@ -320,31 +351,53 @@ const handleLogout = () => {
 const handleToggleComments = (event, carId) => {
   event.preventDefault();
   event.stopPropagation();
+  
+
+  const sCarId = String(carId);
+  setCommentSectionCarIds(prev => {
+    const exists = prev.includes(sCarId);
+    const next = exists ? prev.filter(id => id !== sCarId) : [...prev, sCarId];
+    return next;
+  });
+
+  toggleCsvParam('comments', sCarId, { replace: true });
+
   setTopCarId(carId)
-  setCommentSectionCarIds(prev =>
-    prev.includes(carId)
-      ? prev.filter(id => id !== carId)
-      : [...prev, carId]
-  );
 };
+
 
 const toggleNotificationVisibility = () => {
   setIsNotificationVisible(!isNotificationVisible);
 };
 
+/*
+const handleToggleLoginVisibility = () => {  
+  setIsLoginVisible(prev => !prev);
+}
+*/
+
 const handleCustomCarHome = () => {
-  setIsCustomCarHomeVisible(true);
+  const params = new URLSearchParams(searchParams);
+  params.set('customCar', 'true');
+  setSearchParams(params, { replace: false });
 }
 
 const handleUseLoggedIn = () => {
-setIsLoggedIn(prev => !prev)
-}
-
-const handleShowPhoneNav = () => {
-  setFilterCarByCondition(prev => !prev)
+  const params = new URLSearchParams(searchParams);
+  if (searchParams.get('auth') === 'true') {
+      params.delete('auth');
+      setIsLoginVisible(false);
+  } else {
+      params.set('auth', 'true');
+  }
+  
+  setSearchParams(params, { replace: false });
 }
 
 const handleBrand = () => {
+  const params = new URLSearchParams(searchParams);
+  params.set('brand', 'true');
+  setSearchParams(params, { replace: false });
   setIsFilterCarBrandVisible(prev => !prev)
 }
 
@@ -357,6 +410,61 @@ const sortedCars = [...filtercar].sort((a, b) => {
     return 0;
   }
 })
+
+
+
+
+
+
+const parseCsvParam = (key) => {
+  const val = searchParams.get(key);
+  if (!val) return [];
+  return val.split(',').filter(Boolean); // returns array of strings
+};
+
+const setCsvParam = (key, arr, { replace = true } = {}) => {
+  const params = new URLSearchParams(searchParams);
+  if (arr && arr.length) params.set(key, arr.join(','));
+  else params.delete(key);
+  setSearchParams(params, { replace });
+};
+
+const toggleCsvParam = (key, id, { replace = true } = {}) => {
+  const arr = parseCsvParam(key);
+  const sId = String(id);
+  const exists = arr.includes(sId);
+  const newArr = exists ? arr.filter(x => x !== sId) : [...arr, sId];
+  setCsvParam(key, newArr, { replace });
+  return !exists;
+}
+useEffect(() => {
+  const customCarParam = searchParams.get('customCar');
+  setIsCustomCarHomeVisible(customCarParam === 'true');
+}, [searchParams]);
+
+const closeCustomHome = () => {
+  const params = new URLSearchParams(searchParams);
+  params.delete('customCar');
+  setSearchParams(params, { replace: false });
+};
+
+useEffect(() => {
+  const loginParam = searchParams.get('auth');
+ //setIsLoginVisible(loginParam === 'true');
+  setIsLoggedIn(loginParam === 'true');
+}, [searchParams]);
+
+
+useEffect(() => {
+  const customCarParam = searchParams.get('customCar');
+  setIsCustomCarHomeVisible(customCarParam === 'true');
+}, [searchParams]);
+
+  useEffect(() => {
+  const ids = parseCsvParam('comments');
+  setCommentSectionCarIds(ids);
+}, [searchParams]);
+
 
 
 return (
@@ -396,7 +504,7 @@ return (
           <button onClick={handleUseLoggedIn}
           className={style.closebutton}>Close</button>
           <AuthForm onLoginSuccess={handleLoginSuccess}
-          onClose={handleToggleLoginVisibility} />
+          onClose={handleUseLoggedIn} />
             </div>
       )}
       </div>
@@ -463,12 +571,12 @@ onClick={toggleNotificationVisibility}>
 
   {isLoginVisible && !currentUser && (
   <div className={style.authFormContainer}>
-            <button onClick={handleToggleLoginVisibility}
+            <button onClick={handleUseLoggedIn}
             className={style.closebutton}>
           Close
         </button>
       <AuthForm onLoginSuccess={handleLoginSuccess}
-      onClose={handleToggleLoginVisibility}
+      onClose={handleUseLoggedIn}
           />
       </div>
   )
@@ -747,7 +855,7 @@ id="starBustOval"
 </div>
 <div className={`${style.comment} ${commentSectionCarIds.includes(car.id) ? `${style.absolute} ${style.otherStyle}` : style.static}`}>
  <AverageRating carId={car.id} refresh={refresh} />
- {commentSectionCarIds.includes(car.id) && (
+ {commentSectionCarIds.includes(String (car.id)) && (
   
     <CommentsList carId={car.id} refresh={refresh} onCommentPosted={handleCommentPosted}/>
 
@@ -820,5 +928,7 @@ function generateStarPointsOval(numPoints, cx, cy, outerRadiusX, outerRadiusY, i
     points.push(`${x},${y}`);
   }
   return points;
+
 }
+
 export default App;

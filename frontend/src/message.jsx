@@ -8,15 +8,9 @@ import io from 'socket.io-client';
 const Message = ({ targetName, onClose, onNewMessage}) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [userName, setUserName] = useState('');
   const [error, setError] = useState(null);
   const [nameConfirmed, setNameConfirmed] = useState(false);
   const [user, setUser] = useState(null);
-  const [newUserName, setNewUserName] = useState('');
-  const [newName, setNewName] = useState('');
-  const [newPhoneNumber, setNewPhoneNumber] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [supportUser, setSupportUser] = useState(null)
   const [tokenReady, setTokenReady] = useState(false);
   const [socketStatus, setSocketStatus] = useState('connecting');
@@ -225,98 +219,6 @@ useEffect(() => {
 }, [messages])
 
 
-  const handleUserLookupAndProceed = async () => {
-    if (!userName.trim()) {
-      setError('Please enter your username.');
-      return;
-    }
-
-    try { 
-
-const rawExistingUser = await userAct.getUserByUserName(userName);
-      const existingUser = processUserResponse(rawExistingUser);
-
-      if (existingUser && existingUser._id) {
-        setUser(existingUser);
-        setNameConfirmed(true)
-        setShowRegistrationForm(false)
-        setError(null)
-      } 
-
-      else {
-        console.error('User lookup returned incomplete data or null:', existingUser)
-        setError('User is incomplete or user not found. Please register to chat.')
-        setShowRegistrationForm(true)
-      }
-    } catch (error) {
-      if (error.response?.status === 404) {
-        setNewUserName(userName);
-        setShowRegistrationForm(true);
-        setError('User not found. Please register to chat.')
-      } else {
-        console.error('Lookup error:', error);
-        setError('Server error. Please try again.');
-        console.error('User lookup error:', error)
-        let displayMessage = 'An unexpected error occurred during user lookup. Please try again.';
-        if (error.response) {
-          console.error('Server response data:', error.response.data)
-          displayMessage = error.response.data?.error || error.response.data?.message  || `Error:${error.message}`;
-
-        } else if (error.request) {
-        displayMessage= 'No response from server. Please check your network'
-        }
-        setError(displayMessage);
-      }
-    }
-  };
-
-
-  const createUser = async (e) => {
-    e.preventDefault();
-
-    if (!newUserName || !newName || !newPhoneNumber || !newPassword) {
-      setError('All fields are required.');
-      return;
-    }
-
-    const newUser = {
-      userName: newUserName,
-      name: newName,
-      phoneNumber: newPhoneNumber,
-      password: newPassword,
-    };
-
-    try {
-
-      const rawRegistered = await userAct.createUser(newUser);
-      const registered = processUserResponse(rawRegistered);
-
-            if (registered && registered._id) {
-        setUser(registered);
-        setUserName(registered.userName);
-        setNameConfirmed(true);
-        setShowRegistrationForm(false);
-        setNewUserName('');
-        setNewName('');
-        setNewPhoneNumber('');
-        setNewPassword('');
-        setError(null);
-      } else {
-        console.error('Registration returned incomplete data or null:', registered);
-        setError('Registration completed, but user data is incomplete. Please try logging in or contact support.');
-      }
-    } catch (error) {
-      setError('Registration failed. Try again.', error);
-      console.error('Registration error:', error)
-      let displayMessage = 'Failed to send message. Please try again'
-      if (error.response?.data?.error) {
-        displayMessage = error.response.data.message
-      } else if (error.response?.data?.message) {
-      displayMessage = error.response.data.message
-      }
-      setError(displayMessage)
-    }
-  };
 
   const sendMessage = async () => {
 
@@ -360,18 +262,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
         const receiverId = msg.receiver && msg.receiver._id ? msg.receiver._id.toString() : null;
         const currentUserId = user && user._id ? user._id.toString() : null;
         const supportUserId = supportUser && supportUser._id ? supportUser._id.toString() : null;
-/*
-        if (!senderId || !receiverId || !currentUserId || !supportUserId ) {
-          
-          console.log("msg.sender", msg.sender)
-          console.log("msg.receiver", msg.receiver)
-          console.log("Filtering skipped due to missing info:", {
-          senderId, receiverId, currentUserId, supportUserId, msg
-        });
 
-          return false;
-      }
-*/
             const isFromCurrentUserToSupport = (senderId === currentUserId && receiverId === supportUserId);
       const isFromSupportToCurrentUser = (senderId === supportUserId && receiverId === currentUserId);
 
@@ -398,61 +289,7 @@ const rawExistingUser = await userAct.getUserByUserName(userName);
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {socketStatus === 'error' && <p style={{ color: 'red' }}>Failed to connect to chat service. Please try again later.</p>}
       </div>
-      {/*
-      {!nameConfirmed && (
-        <>
-          <div style={{ marginTop: '10px' }}>
-            <input
-              type="text"
-              placeholder="Enter your username"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              onKeyPress = {(e) => {
-                if (e.key === 'Enter') {
-                  handleUserLookupAndProceed();
-                }
-              }}
-            />
-            <button onClick={handleUserLookupAndProceed} disabled={!userName.trim()}>Start Chat</button>
-          </div>
 
-          {showRegistrationForm && (
-            <form onSubmit={createUser} style={{ marginTop: '10px' }}>
-              <p>User not found. Please register to chat.</p>
-              <input
-                type="text"
-                placeholder="Username"
-                value={newUserName}
-                onChange={(e) => setNewUserName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                value={newPhoneNumber}
-                onChange={(e) => setNewPhoneNumber(e.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-              <button type="submit">Register & Chat</button>
-              <button type="button" onClick={() => setShowRegistrationForm(false)}>Cancel</button>
-            </form>
-          )}
-        </>
-      )}
-*/}
       {nameConfirmed && (
         <div>
           <div className={style.message} >
