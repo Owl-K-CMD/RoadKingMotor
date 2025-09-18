@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
 import motoract from './cars'
 import style from './module/style.module.css'
@@ -19,6 +19,7 @@ import { initSocket } from './socket.js'
 
 const App = () => {
 
+  const navigate = useNavigate();
   const [cars, setCars] = useState([])
   const [showAll, setShowAll] = useState('')
   const [expandedCarIds, setExpandedCarIds] = useState([])
@@ -51,6 +52,26 @@ const App = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   
 
+    useEffect(() => {
+    if (!searchParams.get('car') && !searchParams.get('model')) {
+      setSelectedCar(null);
+    }
+  }, [searchParams]);
+
+      useEffect(() => {
+    const carId = searchParams.get('car');
+
+    if (carId) {
+      motoract.getById(carId)
+        .then(car => {
+          setSelectedCar(car);
+        })
+        .catch(error => {
+          console.error("Error fetching car details:", error);
+        });
+    }
+  }, [searchParams]);
+  
   const handleCommentPosted = React.useCallback(() => setRefresh(prev => prev + 1), []);
   const ADMIN_USERNAME = 'Road King Motor Support'
 
@@ -698,8 +719,24 @@ onClick={toggleNotificationVisibility}>
 
         return (
     <div key={car.id} className={style.carproparty}
-    onClick={() => 
+    /*
+      onClick={() => 
       setSelectedCar(car)}
+      
+      
+        onClick={() => {
+      navigate(`?car=${car.id}&model=${car.model}`)
+    }}
+*/
+      onClick={() => {
+      setSelectedCar(car);
+      //navigate(`?car=${car.id}&model=${car.model}`)
+      const params = new URLSearchParams(searchParams);
+      params.set('car', car.id);
+      params.set('model', car.model);
+      setSearchParams(params, { replace: false });
+    }}
+    
 
         style={firstImageUrlForBackground ? {
         backgroundImage: `url(${firstImageUrlForBackground})`,

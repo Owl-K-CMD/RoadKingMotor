@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import style from './module/style.module.css';
 import styleCarDetails from './module/styleCarDetails.module.css';
 import styleCartContent from './module/styleCartContent.module.css';
@@ -6,9 +7,22 @@ import AverageRating from './AverageRating.jsx';
 import CommentsList from './commentdisplay.jsx';
 import CommentForm from './commentForm.jsx';
 
-const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, onCommentPosted, refresh }) => {
+const CarDetailModal = ({ car:propCar, onClose, onAddToCart, onOpenChat, currentUser, onCommentPosted, refresh }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [car, setCar] = useState(propCar);
 
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+
+useEffect(() => {
+  const carId = searchParams.get('car');
+
+  if (carId && !car) {
+    fetchCarDetails(carId).then(data => setCar(data));
+  }
+}, [searchParams, car, setCar]);
+  
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [car]);
@@ -47,19 +61,23 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
   return (
     <div className={style.modalOverlay} onClick={onClose}>
       <div
-       className={style.carProparty}
-       onClick={(e) => e.stopPropagation()}>
+             //style={{width: '800px', height: '1000px'}}
+      className={style.carProparty}
 
-     <div
+      onClick={(e) => e.stopPropagation()}>
+ 
+    <div
       className={`${style.carproparty} ${styleCartContent.expandedDetailView}`}
       onClick={(e) => e.stopPropagation()}
       style={firstImageUrlForBackground ? {
         backgroundImage: `url(${firstImageUrlForBackground})`,
       } : {}}
+
     >
 
-        <button onClick={onClose} className={style.modalCloseButton}>&times;</button>
-     
+        <button onClick={() => navigate("?")}
+        className={style.modalCloseButton}>&times;</button>
+    
         <h1 className={styleCarDetails.carDetailTitle}>{car.brand} - {car.model}</h1>
         
         
@@ -72,10 +90,10 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
             {canNavigateImages && (
               <div className={style.imageNavigation}>
                 <button onClick={() => handleImageNavigation('prev')}
-                 className={style.imageNavButton}>&lt; Prev</button>
+                className={style.imageNavButton}>&lt; Prev</button>
                 <span>{currentImageIndex + 1} / {car.images.length}</span>
                 <button onClick={() => handleImageNavigation('next')}
-                 className={style.imageNavButton}>Next &gt;</button>
+                className={style.imageNavButton}>Next &gt;</button>
               </div>
             )}
           </div>
@@ -110,7 +128,7 @@ const CarDetailModal = ({ car, onClose, onAddToCart, onOpenChat, currentUser, on
           <CommentsList carId={car.id} refresh={refresh} onCommentPosted={onCommentPosted}/>
           {currentUser ? <CommentForm carId={car.id} onCommentPosted={onCommentPosted} /> : <p>You must be logged in to post a comment.</p>}
         </div>
-     </div>
+      </div>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ motorsRouter.get('/', async (request, response) => {
 
 motorsRouter.get('/:id', async (request, response, next) => {
   try{
-  const motor= await Motor.findById(request.params.id)
+  const motor = await Motor.findById(request.params.id)
       response.json(motor)
     } catch(error) {
       response.status(404).end()

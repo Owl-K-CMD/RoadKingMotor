@@ -80,11 +80,14 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-size: 0.6rem;
+  font-size: 1rem;
+  padding-bottom: 0.6rem;
   justify-content: space-between;
   margin-bottom: 1rem;
   border: 0.1px solid rgba(0, 0, 0, 0.1);
+  background-color: red
 }
+
 }
 
 
