@@ -569,30 +569,24 @@ onClick={toggleNotificationVisibility}>
   </div>
   </div>
 
-  {isLoginVisible && !currentUser && (
-  <div className={style.authFormContainer}>
-            <button onClick={handleUseLoggedIn}
-            className={style.closebutton}>
-          Close
-        </button>
-      <AuthForm onLoginSuccess={handleLoginSuccess}
-      onClose={handleUseLoggedIn}
-          />
-      </div>
+  {/*isLoginVisible && !currentUser && (
+    <div className={style.authFormContainer}>
+      <button onClick={handleUseLoggedIn} className={style.closebutton}>
+        Close
+      </button>
+      <AuthForm onLoginSuccess={handleLoginSuccess} onClose={handleUseLoggedIn} />
+    </div>
   )
-  }
+  */}
   <div className={style.secondTitlePhone}>
     <button onClick={handleBrand}>Brand</button>
     {isFilterCarBrandVisible && (
         <div id="filter-menu" className={style.brandPone}>
-        <button
-        className={style.navbutton}
-        onClick={() => { 
-          setShowAll(''); 
+        <button className={style.navbutton} onClick={() => { 
+          setShowAll('');
           setIsFilterMenuOpen(false);
           handleBrand();
-        }}
-        >
+        }}>
         <strong>Show All cars</strong>
         </button>
         {uniqueCarNames.map((brand) => (
