@@ -80,12 +80,14 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   padding-bottom: 0.6rem;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+  border-radius: 5px;
   border: 0.1px solid rgba(0, 0, 0, 0.1);
-  background-color: red
+
 }
 
 }
@@ -141,15 +143,15 @@
   align-items: start;
   justify-content: start;
 
-}
+}/*
 @media (max-width: 768px) {
   .buttonCarCondition {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    
   }
 
-}
+}*/
 .conditionbutton{
   color: rgb(20, 20, 255);
   display: flex;
@@ -214,7 +216,7 @@
 }
 
 .buttonCarCondition img{
-  margin-left: 45%;
+  
   justify-content: center;
 
 }

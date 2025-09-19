@@ -603,7 +603,7 @@ onClick={toggleNotificationVisibility}>
     <button onClick={handleBrand}>Brand</button>
     {isFilterCarBrandVisible && (
         <div id="filter-menu" className={style.brandPone}>
-        <button className={style.navbutton} onClick={() => { 
+        <button className={style.navbuttonphone} onClick={() => { 
           setShowAll('');
           setIsFilterMenuOpen(false);
           handleBrand();
@@ -636,7 +636,7 @@ onClick={toggleNotificationVisibility}>
       </div>
       
       <button className={style.buttonCarCondition}>
-        <img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-pending-16.png"/>Pending
+        {/*<img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-pending-16.png"/>*/}Pending
         </button>
       <button
       className={style.customCarButton}
@@ -739,7 +739,7 @@ onClick={toggleNotificationVisibility}>
     
 
         style={firstImageUrlForBackground ? {
-        backgroundImage: `url(${firstImageUrlForBackground})`,
+        //backgroundImage: `url(${firstImageUrlForBackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
