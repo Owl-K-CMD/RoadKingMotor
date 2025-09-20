@@ -29,15 +29,26 @@ motorsRouter.get('/', async (request, response) => {
 }
 })
 
-motorsRouter.get('/:id', async (request, response, next) => {
-  try{
-  const motor = await Motor.findById(request.params.id)
-      response.json(motor)
-    } catch(error) {
-      response.status(404).end()
-      next(error)
-    }
-  })
+motorsRouter.get('/facebookFeed', async (request, response, next) => {
+  try {
+    const motors = await Motor.find({})
+
+    const feed = motors.map(car => ({
+      images: car.images?.[0] || null,
+      price: car.price,
+      model: car.model,
+      description: `${car.engineSize} ${car.fuelType} ${car.transmission} ${car.year}`,
+      mileage: car.mileage,
+      status: car.status,
+      condition: car.condition,
+    }))
+
+    return response.json({ feed })  // return avoids double response
+  } catch (error) {
+    console.error("Error fetching motors for facebook feed:", error.message)
+    next(error)
+  }
+})
 
 motorsRouter.get('/model/:model', async (request, response, next) => {
   const model = request.params.model;
@@ -50,7 +61,19 @@ motorsRouter.get('/model/:model', async (request, response, next) => {
 });
 
 
+motorsRouter.get('/:id', async (request, response, next) => {
+  try{
+  const motor = await Motor.findById(request.params.id)
+      response.json(motor)
+    } catch(error) {
+      response.status(404).end()
+      next(error)
+    }
+  })
+
+
 motorsRouter.post('/',upload.array('images',10), adminAuth, async(request, response, next) => {
+
   const body =  request.body
   const files = request.files
 
