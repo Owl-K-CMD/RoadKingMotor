@@ -667,6 +667,21 @@ padding: 2px;
   background-color: aqua;
 }
 
+.customCarButtonIcon{
+  background-color: red;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  position: relative
+}
+
+.customCarButton{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
 .authFormContainer{
         position: fixed;
         top: 50%;

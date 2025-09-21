@@ -4,10 +4,8 @@ import CustomCar from './customCar.jsx'
 import style from './module/customCarHomeStyle.module.css'
 
 
-
-const CustomCarHome = ({ onClose }) => {
+const CustomCarHome = ({ onClose, customCars, setCustomCars, setCustomCarBuble }) => {
   const [errorMessage, setErrorMessage] = useState(null)
-  const [userCustomCar, setUserCustomCar] = useState([])
   const [expandedCarIds, setExpandedCarIds] = useState([]);
   const [isListVisible, setIsListVisible] = useState(true);
   const [isCustomCarVisible, setIsCustomCarVisible] = useState(false);
@@ -24,10 +22,10 @@ useEffect(() => {
 
       const user = JSON.parse(storedUser)
       const userId = user.id;
-      
       try {
-        const customCars = await customCaract.getCustomCarByUserId(userId);
-        setUserCustomCar(customCars);
+        const customCarsData = await customCaract.getCustomCarByUserId(userId);
+        setCustomCars(customCarsData);
+        setCustomCarBuble(true)
       } catch (error) {
         console.error('Error fetching user custom cars:', error);
         setErrorMessage('Failed to fetch your custom cars. Please try again later.');
@@ -38,18 +36,15 @@ useEffect(() => {
 }, []);
 
 
-
- const toggleDetails = (id) => {
+  const toggleDetails = (id) => {
     setExpandedCarIds(prev =>
       prev.includes(id) ? prev.filter(carId => carId !== id) : [...prev, id]
     );
   };
 
-
- const handleCustomCar = () => {
+const handleCustomCar = () => {
   setIsListVisible(false);
   setIsCustomCarVisible(true);
-
 }
 
 const closeCustomCar = () => {
@@ -80,14 +75,14 @@ const statusColors = {
 </div>
 
 <div className={style.positionToScroll}>
-      {userCustomCar.length > 0 && isListVisible ? (
+    {customCars.length > 0 && isListVisible ? (
         <>
       <button
       className={style.customCarButton2}
       onClick={handleCustomCar}>Customize Your Car</button>
 
         <div className={style.customCarList}>
-          {userCustomCar.map(car => (
+          {customCars.map(car => (
           <div key={car.id} className={style.customCarItem}>
             
               <h3 onClick={() => toggleDetails(car.id)} 

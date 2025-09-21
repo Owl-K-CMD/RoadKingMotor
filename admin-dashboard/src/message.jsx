@@ -1,20 +1,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 import messageAct from './messageAxios.js';
-import userAct from './userAxios.js'
-import io from 'socket.io-client';
+import userAct from './userAxios.js';
 import style from './module/messageStyle.module.css'
 
-const Message = ({ onClose }) => {
-  const [messages, setMessages] = useState([]);
+const Message = ({ onClose, messages, setMessages }) => {
   const [error, setError] = useState(null);
   const [input, setInput] = useState('');
   const [adminUser, setAdminUser] = useState(null)
-  const userId = adminUser?.id;
   const [selectedUserToReply, setSelectedUserToReply] = useState(null);
   const ADMIN_USERNAME = 'Road King Motor Support'
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
-  const [socketStatus, setSocketStatus] = useState('disconnected');
   const socket = useRef(null)
 
 const processUserObject = (userObj) => {
@@ -76,81 +71,7 @@ useEffect(() => {
   return () => {
     isMountedAdminFetch = false;
   };
-}, []);
-
-const token ='admin';
-const userName='Road King Motor Support';
-
-useEffect(() => {
-  console.log('Admin user ID when initializing socket:', adminUser?._id);
-  console.log('Admin userName when initializing socket:', userName);
-  console.log('useEffect started', Date.now())
-  //const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-  const socketUrl = 'https://roadkingmotor.onrender.com'
-
-  const newSocket = io(socketUrl, {
-    auth: {
-      token: token,
-      userId: adminUser?._id,
-      userName: userName,
-    },
-    withCredentials: true,
-    transports: ['websocket'],
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000
-  });
-  socket.current = newSocket;
-
-newSocket.on('connect', () => {
-  console.log('Socket connected', userId);
-  setIsSocketConnected(true);
-});
-
-newSocket.on('connect_error', (error) => {
-  console.error('Socket connction error:', error);
-  setIsSocketConnected(false);
-});
-
-newSocket.on('disconnect', () => {
-  console.log('Socket disconnected', socket.id);
-  setIsSocketConnected(false);
-});
-
-newSocket.on('reconnect_attempt', (attempt) => {
-  console.error('Attemptin to reconnect....', attempt);
-  setSocketStatus('error');
-})
-
-newSocket.on('reconnect_failed', () => {
-  console.error('Failed to reconnect to webSocket server after multiple attempts.');
-  setSocketStatus('disconneted')
-})
-
-newSocket.on('receiveMessage', (message) => {
-  console.log('Message received:', message, 'Timestamp:', Date.now());
-  setMessages(prevMessages => {
-    const processedMessage = {
-    ...message,
-    sender: processUserObject(message.sender),
-    receiver: processUserObject(message.receiver),
-  };
-    return [...prevMessages, processedMessage]
-  
-  });
-});
-
-return () => {
-  newSocket.off('connect');
-  newSocket.off('receiveMessage');
-  newSocket.off('connect_error');
-  newSocket.off('disconnect');
-  newSocket.off('reconnect_attempt');
-  newSocket.off('reconnect_failed');
-  newSocket.close();
-  console.log('UseEffect cleanup', Date.now());
-};
-}, [adminUser?._id, userId])
+}, [setMessages]);
 
   const sendMessage = async () => {
     if (!input.trim()) {
@@ -186,7 +107,6 @@ return () => {
 
 return (
   <div className="message-container">
-
     <div className={style.chatTitle}>
       <h5 style={{ margin: 0, fontWeight: 'bold' }}>
         {adminUser ? `${adminUser.userName} - Admin Chat` : 'Admin Chat Loading...'}
@@ -219,15 +139,12 @@ return (
         {error}
       </p>
     )}
-    {socketStatus === 'error' && <p className={style.error}>Failed to conect to chat servive.</p>}
-
 
     <div className={style.messageList} >
       {messages.length === 0 && !error && (
         <p className={style.noMessage}>No messages yet.</p>
       )}
       {messages.map((msg, index) => {
-
 const isSentByAdmin =
   adminUser &&
   msg.sender &&
@@ -244,11 +161,10 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
           <div
           key={msg._id || `msg-${index}-${msg.sender?._id}-${msg.createdAt}`}
             className={style.messageSender}
-             style={{alignItems: isSentByAdmin ? 'flex-end' : 'flex-start',}}>
+              style={{alignItems: isSentByAdmin ? 'flex-end' : 'flex-start',}}>
             <div className={style.message} style={{
               backgroundColor: isSentByAdmin ? '#dcf8c6' : '#e9e9eb',
             }}>
-
                 {!isSentByAdmin && canReplyTo ? (
                     <strong className={style.userName}
                   onClick={() =>
@@ -270,9 +186,8 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
                     color: '#6c757d',
                     fontSize: '0.9em',
                   }}
-                 
-                 title={typeof msg.sender === 'string' ? `User ID: ${msg.sender}` : senderDisplayName}
-                 >
+                title={typeof msg.sender === 'string' ? `User ID: ${msg.sender}` : senderDisplayName}
+                >
                 </strong>
               )
             }
@@ -334,5 +249,4 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
   </div>
 )
 }
-
 export default Message

@@ -145,7 +145,6 @@ background-color: rgba(0, 0, 0, 0.4);
   box-shadow: 4px 3px 3px 4px rgba(0, 0, 0, 0.4);
   padding: 5px 10px;
   transition: background-color 0.3s ease;
-  
 }
 
 .buttonModify:hover {
@@ -156,4 +155,13 @@ background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.notificationBadge{
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 0.2rem;
+  position: absolute;
+
 }

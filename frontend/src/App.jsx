@@ -50,7 +50,9 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isFilterCarBrandVisible, setIsFilterCarBrandVisible] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  
+  const [customCars, setCustomCars] = useState([])
+  const [customCarBuble, setCustomCarBuble] = useState(false)
+
 
     useEffect(() => {
     if (!searchParams.get('car') && !searchParams.get('model')) {
@@ -102,7 +104,7 @@ if (user) {
           withCredentials: true,
       });
 
-      socket.on('receiveMessage', (data) => { 
+  socket.on('receiveMessage', (data) => { 
       console.log("receiveNessage event trigered:", data)
         const message = data.message || 'New message!';
           const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
@@ -134,6 +136,23 @@ socket.on('newCustomCar', (data) => {
     position: 'top-right',
   });
 })
+
+socket.on('updateCustomCar', (updatedCustomCar) => {
+  setCustomCarBuble(true);
+  setCustomCars(prevCars => {
+    return prevCars.map(customCar => {
+      if (customCar.id === updatedCustomCar.id) {
+        return { ...customCar, tracks: updatedCustomCar.tracks };
+      }
+      return customCar;
+    })
+  })
+  toast.info(`Custom car with ID ${updatedCustomCar.id} has been updated!`, {
+    position: 'top-right',
+  });
+  
+})
+
 
     socket.on('receiveNotification', (data) => {
     console.log('Notification received:', data);
@@ -333,7 +352,6 @@ const handleAddToCart = (car) => {
   setIsAddToCartButtonVisible(false)
 }
 
-
 const handleLoginSuccess = (userData) => {
   setCurrentUser(userData);
   setIsLoginVisible(false);
@@ -354,7 +372,6 @@ const handleLoginSuccess = (userData) => {
   }
 }
 
-
 const handleLogout = () => {
   console.log("Executing handleLogout: Clearing session.");
   localStorage.removeItem('authToken');
@@ -372,8 +389,6 @@ const handleLogout = () => {
 const handleToggleComments = (event, carId) => {
   event.preventDefault();
   event.stopPropagation();
-  
-
   const sCarId = String(carId);
   setCommentSectionCarIds(prev => {
     const exists = prev.includes(sCarId);
@@ -382,7 +397,6 @@ const handleToggleComments = (event, carId) => {
   });
 
   toggleCsvParam('comments', sCarId, { replace: true });
-
   setTopCarId(carId)
 };
 
@@ -391,16 +405,11 @@ const toggleNotificationVisibility = () => {
   setIsNotificationVisible(!isNotificationVisible);
 };
 
-/*
-const handleToggleLoginVisibility = () => {  
-  setIsLoginVisible(prev => !prev);
-}
-*/
-
 const handleCustomCarHome = () => {
   const params = new URLSearchParams(searchParams);
   params.set('customCar', 'true');
   setSearchParams(params, { replace: false });
+  setCustomCarBuble(false);
 }
 
 const handleUseLoggedIn = () => {
@@ -409,9 +418,8 @@ const handleUseLoggedIn = () => {
       params.delete('auth');
       setIsLoginVisible(false);
   } else {
-      params.set('auth', 'true');
+    params.set('auth', 'true');
   }
-  
   setSearchParams(params, { replace: false });
 }
 
@@ -431,10 +439,6 @@ const sortedCars = [...filtercar].sort((a, b) => {
     return 0;
   }
 })
-
-
-
-
 
 
 const parseCsvParam = (key) => {
@@ -467,6 +471,7 @@ const closeCustomHome = () => {
   const params = new URLSearchParams(searchParams);
   params.delete('customCar');
   setSearchParams(params, { replace: false });
+  setCustomCarBuble(false);
 };
 
 useEffect(() => {
@@ -479,6 +484,7 @@ useEffect(() => {
 useEffect(() => {
   const customCarParam = searchParams.get('customCar');
   setIsCustomCarHomeVisible(customCarParam === 'true');
+  setCustomCarBuble(false);
 }, [searchParams]);
 
   useEffect(() => {
@@ -636,11 +642,14 @@ onClick={toggleNotificationVisibility}>
       </div>
       
       <button className={style.buttonCarCondition}>
-        {/*<img src="https://roadkingmoor.s3.eu-north-1.amazonaws.com/icons8-pending-16.png"/>*/}Pending
+    Pending
         </button>
       <button
       className={style.customCarButton}
-      onClick={handleCustomCarHome}>Customise your Car</button>
+      onClick={handleCustomCarHome}>
+      {customCarBuble && (
+        <span className={style.customCarButtonIcon}></span>)}Customise your Car
+        </button>
 </div>
 
     <div className={style.filterContainer}>
@@ -660,9 +669,11 @@ onClick={toggleNotificationVisibility}>
         </button>
       <button
       className={style.customCarButton}
-      onClick={handleCustomCarHome}>Customise your Car</button>
+      onClick={handleCustomCarHome}>
+        {customCarBuble && (
+        <span className={style.customCarButtonIcon}></span>)}Customise your Car
+      </button>
       </div>
-
     </div>
 
     <div className={style.cardAndFilter}>
@@ -719,15 +730,6 @@ onClick={toggleNotificationVisibility}>
 
         return (
     <div key={car.id} className={style.carproparty}
-    /*
-      onClick={() => 
-      setSelectedCar(car)}
-      
-      
-        onClick={() => {
-      navigate(`?car=${car.id}&model=${car.model}`)
-    }}
-*/
       onClick={() => {
       setSelectedCar(car);
       //navigate(`?car=${car.id}&model=${car.model}`)
@@ -918,7 +920,10 @@ id="starBustOval"
 
               {isCustomCarHomeVisible && (
                 <div className={style.customCarContainer}>
-                <CustomCarHome onClose={closeCustomHome} />
+                <CustomCarHome onClose={closeCustomHome}
+                customCars={customCars}
+                setCustomCars={setCustomCars}
+                setCustomCarBuble={setCustomCarBuble} />
                 </div>
               )}
               

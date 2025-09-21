@@ -303,7 +303,7 @@ useEffect(() => {
                 
                 return (<div 
                 key={msg.id || `msg-${index}-${msg.sender?._id}-${msg.createdAt}`}
-                 style={{
+                style={{
                   display: 'flex',
                   justifyContent: isSenderSelf ? 'flex-end' : 'flex-start',
                   margin: '8px 0',

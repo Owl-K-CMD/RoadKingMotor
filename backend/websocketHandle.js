@@ -91,8 +91,6 @@ const initializeWebSocket = (server) => {
 
     socket.on('newCustomCar', async (customCar) => {
       logger.info(`New custom car request from ${socket.id}: ${JSON.stringify(customCar)}`);
-      /*io.emit('newCustomCar', { customCar: customCar });
-      */
 
       try {
         const savedCustomCar = await CustomMotor.create({
@@ -125,6 +123,21 @@ const initializeWebSocket = (server) => {
         logger.error("Error saving custom car request:", error);
       }
     });
+
+    socket.on('updateCustomCar', async (updatedCustomCar) => {
+      logger.info(`Updated custom car request from ${socket.id}: ${JSON.stringify(updatedCustomCar)}`);
+
+      try {
+        const customCar = await CustomMotor.findById(updatedCustomCar._id);
+        if (customCar) {
+          customCar.tracks = updatedCustomCar.tracks;
+          await customCar.save();
+          io.emit('updateCustomCar', {id: customCar.id, tracks: customCar.tracks});
+        }
+      } catch (error) {
+        logger.error("Error updating custom car request:", error);
+      }
+    })
     
     // ✅ Notification event
     socket.on('sendNotification', async (notification) => {
