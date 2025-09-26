@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const messageUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/messages`
 
+
 const getAllMessages = async() => {
   try{
   const response = await axios.get(messageUrl, { params: {_timestamp: new Date().getTime()}})
@@ -12,8 +13,8 @@ const getAllMessages = async() => {
   }
 };
 
-const getMessageByUserName = async(userName) => {
-  const response = await axios.get(`${messageUrl}`,{params: {userName: userName}})
+const getMessageByUserName = async(name) => {
+  const response = await axios.get(`${messageUrl}`,{params: {name: name}})
   return response.data;
 }
 

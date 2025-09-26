@@ -5,17 +5,15 @@ import style from './module/styleMessage.module.css';
 import io from 'socket.io-client';
 
 
-const Message = ({ targetName, onClose, onNewMessage}) => {
-  const [messages, setMessages] = useState([]);
+const Message = ({ targetName, onClose, onNewMessage, messages, setMessages, socket }) => {
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
   const [nameConfirmed, setNameConfirmed] = useState(false);
   const [user, setUser] = useState(null);
   const [supportUser, setSupportUser] = useState(null)
-  const [tokenReady, setTokenReady] = useState(false);
   const [socketStatus, setSocketStatus] = useState('connecting');
   
-  const socket = useRef(null);
+  //const socket = useRef(null);
   const messagesEndRef = useRef(null);
 
   const processUserObject = (userObj) => {
@@ -32,13 +30,6 @@ const Message = ({ targetName, onClose, onNewMessage}) => {
     }
     return userData;
   }
-
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      setTokenReady(true);
-    }
-  }, []);
 
 useEffect(() => {
   const token = localStorage.getItem('authToken');
@@ -68,146 +59,36 @@ const processUserResponse = (userData) => {
 }
 
 useEffect(() => {
-  if (targetName && nameConfirmed && user && user._id && tokenReady) {
-    let isMounted = true;
-
-    const fetchSupportUserDetails = async () => {
-      try {
-        const rawSupport = await userAct.getUserByUserName(targetName);
-        const processedSupport = processUserResponse(rawSupport);
-
-        if (isMounted && processedSupport && processedSupport._id) {
-          setSupportUser(processedSupport);
-          setError(null);
-          console.log("Support user details:", processedSupport);
-
-          try {
-            const rawMessages = await messageAct.getAllMessages();
-            if (isMounted) {
-              if (Array.isArray(rawMessages)) {
-                const processedMessages = rawMessages.map((msg) => ({
-                  ...msg,
-                  sender: processUserResponse(msg.sender),
-                  receiver: processUserResponse(msg.receiver),
-                }));
-                setMessages(processedMessages);
-              } else {
-                console.error("Expected array from backend for messages, got:", rawMessages);
-                setMessages([]);
-                setError("Failed to load messages history. Please try again.");
-              }
-            }
-          } catch (error) {
-            console.error("Error fetching messages:", error);
-            if (isMounted) setError("Failed to fetch messages history.");
-          }
-        } else {
-          console.error(`Support user "${targetName}" not found.`);
-          setSupportUser(null);
-          setError(`Support user "${targetName}" not found.`);
+  let isMounted = true;
+  const fetchSupportAndMessages = async () => {
+    try {
+      const rawSupport = await userAct.getUserByUserName(targetName);
+      const processedSupport = processUserResponse(rawSupport);
+      if (isMounted && processedSupport?._id) {
+        setSupportUser(processedSupport);
+        console.log("Support user details:", processedSupport);
+        const rawMessages = await messageAct.getAllMessages();
+        if (isMounted && Array.isArray(rawMessages)) {
+          const processedMessages = rawMessages.map((msg) => ({
+            ...msg,
+            sender: processUserResponse(msg.sender),
+            receiver: processUserResponse(msg.receiver),
+          }));
+          setMessages(processedMessages);
         }
-      } catch (error) {
-        if (error.response.status === 404) {
-          console.error(`Support user "${targetName}" not found`);
-          setError(`Support user not found`);
-          setSupportUser(null);
-        } else {
-        console.error(`Error fetching support user ${targetName}:`, error);
-        if (isMounted) setError(`Could not retrieve details for ${targetName}.`);
-        setSupportUser(null);
+      } else if (isMounted) {
+        setError(`Support user "${targetName}" not found.`);
       }
+    } catch (error) {
+      console.error("Error fetching support/messages:", error);
+      if (isMounted) setError("Failed to load chat details.");
     }
-    };
-
-    fetchSupportUserDetails();
-
-      const token = localStorage.getItem('authToken');
-
-    const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-    
-    const newSocket = io(socketUrl, {
-      auth: {
-        userId: user._id,
-        token: token,
-      },
-      transports: ['websocket'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-    })
-
-    socket.current = newSocket;
-
-    newSocket.on('connect', () => {
-      console.log('Connected to WebSocket server', socketUrl);
-      setSocketStatus('connected');
-    });
-
-    newSocket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
-      setSocketStatus('error');
-    });
-
-
-    newSocket.on('reconnect_attempt', (attempt) => {
-      console.log("Attempting to reconnect....", attempt);
-      setSocketStatus('connecting');
-    })
-
-    newSocket.on('reconnect_failed', () => {
-      console.log('Failed to reconnect to webSocket server after multiple attemps');
-      setSocketStatus('disconnected');
-      setError('Chat is temporarily unavailable. Please try again later')
-    })
-
-    newSocket.on('receiveMessage', (message) => {
-      console.log('Received message via Socket.IO:', message);
-
-      const receivedMessage = message.type === 'newMessage' ? message.message : message;
-
-
-      const processedMessage = {
-      ...receivedMessage,
-      sender: processUserObject(message.sender),
-      receiver: processUserObject(message.receiver),
-    };
-  
-      // Log the processed message to check its structure
-      console.log('Processed message:', processedMessage);
-
-      // Log the targetName and sender's userName for debugging
-      console.log('targetName:', targetName, 'Sender userName:', processedMessage.sender.userName);
-
-      setMessages(prevMessages => [...prevMessages, processedMessage]);
-      if(processedMessage.sender && processedMessage.sender.userName === targetName) {
-        console.log('New message from support user, triggering onNewMessage',{ 
-        processedMessageSender : processedMessage.sender ? processedMessage.sender.userName: 'Unknown Sender',
-        supportUserName : targetName
-      })
-        onNewMessage()
-      } else {
-        console.log('New message, but not from support user', { processedMessage })
-      }
-    })
-
-    newSocket.on('disconnect', (reason) => {
-      console.log('Disconnected from WebSocket server', reason);
-    });
-
-    return () => {
-      isMounted = false;
-      newSocket.off('connect');
-      newSocket.off('receiveMessage');
-      newSocket.off('disconnect');
-      newSocket.off('reconnect_attempt');
-      newSocket.off('reconnect_failed');
-      newSocket.close();
-    };
-  } else {
-    setMessages([]);
-    setSupportUser(null);
+  };
+  if (targetName && nameConfirmed && user?._id) {
+    fetchSupportAndMessages();
   }
-}, [targetName, nameConfirmed, user, user?._id, tokenReady, onNewMessage]);
+  return () => { isMounted = false; };
+}, [targetName, nameConfirmed, user?._id, setMessages]);
 
 
 const scrollToBottom = () => {
@@ -235,18 +116,19 @@ useEffect(() => {
         return;
       }
 
-    const messagePayload = {
-      sender: user._id,
-      receiver: supportUser._id,
-      content: input,
-    };
-
+const messagePayload = {
+  sender: user._id,
+  senderModel: 'User',
+  receiver: supportUser._id,
+  receiverModel: 'AdminUser',
+  content: input,
+};
     try {
       setError(null);
 
-      await messageAct.createMessage(messagePayload)
+      //await messageAct.createMessage(messagePayload)
       
-      socket.current.emit('sendMessage', messagePayload);
+      socket.emit('sendMessage', messagePayload);
       
       setInput('');
     } catch (error) {
@@ -283,7 +165,7 @@ useEffect(() => {
       <div className={style.chatHeader}>
               {onClose && <button className={style.closebutton} onClick={onClose}>Close</button>}
       <h3 className={style.chatTitle}><strong>Chat Support</strong></h3>
-      <h4 className={style.chatTitlesmall}><strong>{supportUser ? `Chat with ${supportUser.userName}` : (targetName ? `Connecting to ${targetName}...` : 'Chat support')}</strong></h4>
+      <h4 className={style.chatTitlesmall}><strong>{supportUser ? `Chat with ${supportUser.name}` : (targetName ? `Connecting to ${targetName}...` : 'Chat support')}</strong></h4>
 
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -299,7 +181,7 @@ useEffect(() => {
               filteredMessages.map((msg, index) => {
 
                 const isSenderSelf = msg.sender && msg.sender._id === user._id;
-                const senderName = msg.sender && msg.sender.userName ? msg.sender.userName : 'Unknown user'
+
                 
                 return (<div 
                 key={msg.id || `msg-${index}-${msg.sender?._id}-${msg.createdAt}`}
@@ -316,7 +198,7 @@ useEffect(() => {
                     }}>
               
                   <strong style={{ display: 'block', marginBottom: '4px', color: isSenderSelf ? '#007bff' : '#333', fontSize: '0.9em' }}>
-                    {isSenderSelf ? 'You' : senderName}
+                    {isSenderSelf ? 'You' : targetName}
                     </strong>
                   <div>{msg.content}</div>
                   <small style={{ display: 'block', marginTop: '5px', fontSize: '0.75em', color: '#666', textAlign: 'right' }}>

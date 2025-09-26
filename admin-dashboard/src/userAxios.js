@@ -1,43 +1,19 @@
-import axios from 'axios'
+import apiClient from './apiClient'
 
-const userUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/user`
+const adminUrl = `/api/admin`
 
-const createUser = async (user) => {
-  const response = await axios.post(userUrl, user)
-  return response.data
-}
-
-const getAllUsers = async() => {
-  const response = await axios.get(userUrl)
-  return response.data;
-}
-
-const getUserByUserName = async(userName) => {
-    const response = await axios.get(`${userUrl}`,{ params: {userName: userName}})
+const getUserByUserName = async(name) => {
+    const response = await apiClient.get(`${adminUrl}`,{ params: {name: name}})
     return response.data;
   }
+
 
   const loginUser = async(credentials) => {
-    const response = await axios.post(`${userUrl}/admin`, credentials)
-    return response.data;
-  }
-
-  const forgotPassword = async (emailOrUsername) => {
-    const response = await axios.post(`${userUrl}/forgotPassword`, { identifier: emailOrUsername })
-    return response.data;
-  }
-
-  const resetPassword = async (token, newPassword) => {
-    const response = await axios.post(`${userUrl}/resetPassword/${token}`, { password: newPassword })
+    const response = await apiClient.post(`${adminUrl}/login`, credentials)
     return response.data;
   }
 
 export default {
-  createUser,
-  getAllUsers,
-  getUserByUserName,
   loginUser,
-  forgotPassword,
-  resetPassword
-
+  getUserByUserName
 }

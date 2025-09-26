@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const config = require('./utils/config');
 const logger = require('./utils/logger');
 const middleware = require('./utils/middleware');
+const adminUserRouter = require('./controller/AdminUser');
 const motorsRouter = require('./controller/Motor');
 const messageRouter = require('./controller/Message');
 const usersRouter = require('./controller/User');
@@ -55,7 +56,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(middleware.requestLogger);
 
-
+app.use('/api/admin', adminUserRouter);
 app.use('/api/motors', motorsRouter);
 app.use('/api/messages', messageRouter);
 app.use('/api/user', usersRouter);

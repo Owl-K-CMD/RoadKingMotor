@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../utils/config');
-const User = require('../module/user');
+const Admin = require('../module/adminUser');
 
 const adminAuth = async (request, response, next) => {
   const token = request.headers.authorization?.split(' ')[1];
@@ -11,17 +11,17 @@ const adminAuth = async (request, response, next) => {
 
   try {
     const decoded = jwt.verify(token, config.SECRET_KEY);
-    const user = await User.findById(decoded.id);
+    const adminUser = await Admin.findById(decoded.id);
 
-    if (!user) {
+    if (!adminUser) {
       return response.status(404).json({ message: 'User not found' });
     }
 
-    if (!user.isAdmin) {
+    if (!adminuser.isAdmin) {
       return response.status(403).json({ message: 'Unauthorized: Admin access required' });
     }
 
-    request.user = user;
+    request.adminUser = adminUser;
     next();
   } catch (error) {
     console.error('Admin Auth Middleware Error:', error);

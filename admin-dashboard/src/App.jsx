@@ -4,7 +4,8 @@ import userAct from './userAxios.js'
 import Newcar from './newcar.jsx'
 import style from './module/style.module.css'
 import Message from './message.jsx'
-import AuthForm from './authForm.jsx'
+//import AuthForm from './authForm.jsx'
+import LoginForm from './loginForm'
 import Comments from './comment.jsx'
 import io from 'socket.io-client';
 import CustomisedCar from './customisedCar.jsx'
@@ -48,32 +49,17 @@ const App = () => {
     }
     return userObj;
   }
-  
-  useEffect(() => {
-    let isMountedAdminFetch = true;
-  
-    const fetchAdminDetails = async () => {
-      try {
-        const rawAdmin = await userAct.getUserByUserName(ADMIN_USERNAME)
-        const admin = processUserObject(rawAdmin);
-        console.log('Message Admin:', admin)
-        if (isMountedAdminFetch) {
-          if (admin && admin._id) {
-            setAdminUser(admin);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching admin user details:", err);
-    };
-  }
 
-  fetchAdminDetails();
-  
-  return () => {
-    isMountedAdminFetch = false;
-  };
+  useEffect(() => {
+    const userString = localStorage.getItem('currentUser');
+    const token = localStorage.getItem('authToken');
+    console.log('curent user:', currentUser)
+    if (userString && token) {
+      const user = JSON.parse(userString);
+      setCurrentUser(processUserObject(user));
+      
+    }
   }, []);
-  
 
   useEffect(() => {
     motoractadmin.getAll()
@@ -92,72 +78,65 @@ const App = () => {
       })
     }, []);
 
-    useEffect(() => {
-      const token = 'admin'
-      const userName = 'Road King Motor Support';
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const userString = localStorage.getItem('currentUser');
 
-      const socketUrl= import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+    // Disconnect any existing socket connection before creating a new one
+    if (socket.current) {
+      socket.current.disconnect();
+    }
+
+    if (token && userString) {
+      const parsedUser = JSON.parse(userString);
+      const currentUserId = parsedUser?.id;
+
+      if (!currentUserId) return;
+
+      const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
       socket.current = io(socketUrl, {
         auth: {
-        userName: userName,
-        token: token,
-        userId: adminUser?._id
+          userName: parsedUser?.name,
+          token: token,
+          userId: currentUserId,
         },
         transports: ['websocket'],
-          withCredentials: true,
+        withCredentials: true,
       });
 
       socket.current.on('connect', () => {
-        console.log('Socket connected in App.jsx', userId)
-      })
+        console.log('Socket connected in App.jsx with user ID:', currentUserId);
+      });
 
-      socket.current.on('receiveMessage', (data) => { 
-        console.log("receiveNessage event trigered:", data)
-        setMessages(prevMessages => {
-          const processedMessage = {
-          ...data,
-          sender: processUserObject(data.sender),
-          receiver: processUserObject(data.receiver),
-        };
-          return [...prevMessages, processedMessage]
-        });
+      socket.current.on('receiveMessage', (data) => {
+        console.log("receiveMessage event triggered:", data);
+        setMessages(prevMessages => [...prevMessages, processUserObject(data)]);
         setUnReadMessageCount(prevCount => prevCount + 1);
       });
 
-  socket.current.on('newCustomCar', newCustomCar => {
-    setCustomCars(prevNewCustomCar => {
-    let processedNewCustomCar = newCustomCar;
-    if (newCustomCar && newCustomCar.user){
-    processedNewCustomCar = {
-    ...newCustomCar,
-    user: processUserObject(newCustomCar.user),
-    };
+      socket.current.on('newCustomCar', newCustomCar => {
+        setCustomCars(prev => [...prev, processUserObject(newCustomCar)]);
+        setUnReadCustomCarCount(prevCount => prevCount + 1);
+      });
+
+      socket.current.on('disconnect', () => {
+        console.log('Socket disconnected in App.jsx');
+      });
     }
-    return [...prevNewCustomCar, processedNewCustomCar]
-    });
-    setUnReadCustomCarCount(prevCount => prevCount + 1);
-    });
 
-  //socket.current.on('updateCustomCar', async (updatedCustomCar) => {
-    //logger.info(`Received updateCustomCar event: ${JSON.stringify(updatedCustomCar)}`)
-
-  //}
-    //)
-
-  socket.current.on('disconnect', () => {
-        console.log('Socket disconnected in App.jsx')
-      })
-      return () => {
-        if (socket.current) {
-          socket.current.off('connect')
-          socket.current.off('receiveMessage');
-          socket.current.off('disconnect');
-          socket.current.disconnect();
-        }
+    // Cleanup function to run when the component unmounts or currentUser changes
+    return () => {
+      if (socket.current) {
+        console.log('Cleaning up socket connection.');
+        socket.current.off('connect');
+        socket.current.off('receiveMessage');
+        socket.current.off('newCustomCar');
+        socket.current.off('disconnect');
+        socket.current.disconnect();
       }
-      
-    }, [currentUser, adminUser?._id, userId])
+    };
+  }, [currentUser]); // Re-run this effect when the user logs in or out
 
   const toggleNewCarForm = () => {
   setShowNewCarForm(!showNewCarForm);
@@ -194,7 +173,6 @@ const handleDelete = (id) => {
   const handleOpenChat = (car) => {
   setChatTargetCar(car);
   setIsChatVisible(true);
-
 };
 
 const handleCloseChat = () => {
@@ -219,18 +197,24 @@ const handleLoginSuccess = (userData) => {
   setIsLoginVisible(false);
   }
 
-
-
 const handleLogout = () => {
   console.log("Executing handleLogout: Clearing session.");
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
   localStorage.removeItem('refreshToken');
+  setCurrentUser(null); // Update state to re-render the component
+  if (socket.current) {
+    socket.current.disconnect(); // Disconnect socket on logout
+  }
 }
 return (
     <div>
-<h1 className={style.title}>Road king motor admin dashboard </h1>
-
+      {!currentUser ? (
+        <LoginForm onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <>
+      <h1 className={style.title}>Road king motor admin dashboard </h1>
+<h2>{currentUser.name} {/*<button onClick={handleLogout}>logout</button>*/}</h2>
 <div className={style.navbar}>
 <button className={style.chatbutton} onClick={() => handleOpenChat(cars)}>
 Message
@@ -240,30 +224,6 @@ Message
   </span>
 )}
   </button>
-
-{currentUser ? (
-        <>
-          <span className={style.welcomeMessage}>{currentUser.userName}!</span>
-          <button onClick={handleLogout} className={style.navbuttonmyaccount}>Logout</button>
-        </>
-      ) : (
-        <button className= {style.navbuttonmyaccount} onClick={handleToggleLoginVisibility}>
-          My Account
-        </button>
-      )}
-      {isLoginVisible && !currentUser && (
-        <div className={style.authFormContainer}>
-                  <button onClick={handleToggleLoginVisibility}
-                  className={style.closebutton}
-              style={{ marginTop: '10px' }}>
-                Close
-              </button>
-                      <AuthForm onLoginSuccess={handleLoginSuccess}
-                      onClose={handleToggleLoginVisibility}
-                      />
-            </div>
-      )
-        }
 <button>Users</button>
 <button>brands</button>
 <button>Models</button>
@@ -279,14 +239,10 @@ Message
 
 </div>
 {isChatVisible && chatTargetCar && (
-      <div className={style.message}
-      onClick={() => {
-      console.log('clearing message count')
-      setUnReadMessageCount(0)
-      }}>
+      <div className={style.message}>
         < Message targetName={`Seller for  ${chatTargetCar.model}`} 
-        onClose={handleCloseChat} messages = {messages} setMessages = {setMessages}
-        unReadMessageCount={unReadMessageCount} setUnReadMessageCount={setUnReadMessageCount}
+        onClose={handleCloseChat} messages = {messages} setMessages = {setMessages} currentUser={currentUser}
+        unReadMessageCount={unReadMessageCount} setUnReadMessageCount={setUnReadMessageCount} socket={socket.current}
         />
       </div>
     )}
@@ -413,6 +369,7 @@ onClose={handleToggleCustomCarVisibility}
   unReadCustomCarCount={unReadCustomCarCount} 
   setUnReadCustomCarCount={setUnReadCustomCarCount}/>}
 {showNewCarForm && <Newcar />}
+      </>)}
   </div>
   )
 }

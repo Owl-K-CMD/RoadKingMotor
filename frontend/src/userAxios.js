@@ -1,7 +1,8 @@
 import axios from 'axios'
 
-//const userUrl = 'api/user'
 const userUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/user`
+const AdminUserUrl =  `${import.meta.env.VITE_API_BASE_URL || ''}/api/admin`
+
 
 const createUser = async (user) => {
   const response = await axios.post(userUrl, user)
@@ -13,8 +14,8 @@ const getAllUsers = async() => {
   return response.data;
 }
 
-const getUserByUserName = async(userName) => {
-    const response = await axios.get(`${userUrl}`,{ params: {userName: userName}})
+const getUserByUserName = async(name) => {
+    const response = await axios.get(`${AdminUserUrl}`,{ params: {name: name}})
     return response.data;
   }
 

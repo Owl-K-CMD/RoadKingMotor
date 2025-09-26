@@ -3,9 +3,8 @@ import userAxios from './userAxios';
 import style from './module/authStyle.module.css'
 
 
-
     const LoginForm = ({ onLoginSuccess }) => {
-      const [userName, setUserName] = useState('')
+      const [name, setName] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState('')
       const [loading, setLoading] = useState(false)
@@ -16,11 +15,12 @@ import style from './module/authStyle.module.css'
     setError('');
     setLoading(true);
 
-   if (!userName) {
+    if (!name) {
       setError('Username is required.')
       setLoading(false)
       return;
     }
+
 
     if (!password) {
       setError('Password is required.')
@@ -30,14 +30,14 @@ import style from './module/authStyle.module.css'
 
 
     try {
-      const loginData = { userName, password };
+      const loginData = { name, password, isAdminPanel: true };
       const response = await userAxios.loginUser(loginData);
       console.log('Login successful:', response);
       localStorage.setItem('authToken', response.token);
       localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('currentUser', JSON.stringify(response.user));
 
-     if (onLoginSuccess) {
+    if (onLoginSuccess) {
       onLoginSuccess(response.user);
     }
     
@@ -60,11 +60,11 @@ import style from './module/authStyle.module.css'
       <div>
         <label htmlFor="login-username">Username:</label>
         <input
-        placeholder=" Enter your Username"
+        placeholder=" Enter admin name"
           type="text"
           id="login-username"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           disabled={loading}
         />
       </div>
@@ -85,6 +85,4 @@ import style from './module/authStyle.module.css'
     </form>
   );
 };
-
 export default LoginForm;
-

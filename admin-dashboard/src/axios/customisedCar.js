@@ -1,19 +1,19 @@
-import axios from 'axios'
+import apiClient from '../apiClient'
 
-const customCarUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/customMotor`
+const customCarUrl = `/api/customMotor`
 
 
 const getCustomCar = async() => {
- const response =  await axios.get(customCarUrl)
+ const response =  await apiClient.get(customCarUrl)
  return response.data
 }
 const createCustomCar = async (customCar) => {
-  const response = await axios.post(customCarUrl, customCar)
+  const response = await apiClient.post(customCarUrl, customCar)
   return response.data
 }
 
 const updateCustomCar = async (id, tracks) => {
-  const response = await axios.put(`${customCarUrl}/${id}/tracks`, { tracks })
+  const response = await apiClient.put(`${customCarUrl}/${id}/tracks`, { tracks })
   console.log('update axios is', response.data)
   return response.data
 }

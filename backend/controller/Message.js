@@ -5,11 +5,6 @@ const User = require('../module/user');
 const { getIO } = require('../websocketHandle');
 
 
-messagesRouter.get('/:chatId', async(request, response) => {
-  const messages = await Message.find({ chatId: request.params.chatId }).sort({ createdAt: 1 });
-  response.json(messages);
-})
-
 messagesRouter.get('/', async(request, response, next) => {
 
   try {
@@ -24,79 +19,58 @@ messagesRouter.get('/', async(request, response, next) => {
   }
 })
 
-messagesRouter.post('/', async(request, response, next) => {
-const {sender, receiver, content, createdAt } = request.body;
 
-try {
-  
- if (!sender) {
-    return response.status(400).json({error: 'Sender objectId is required'})
+messagesRouter.post('/', async (req, res, next) => {
+  const { sender, senderModel, receiver, receiverModel, content } = req.body;
+
+  try {
+    if (!sender || !receiver || !content) {
+      return res.status(400).json({ error: 'Sender, receiver and content are required' });
+    }
+
+    if (!['User', 'AdminUser'].includes(senderModel) || !['User', 'AdminUser'].includes(receiverModel)) {
+      return res.status(400).json({ error: 'Invalid senderModel or receiverModel' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(sender) || !mongoose.Types.ObjectId.isValid(receiver)) {
+      return res.status(400).json({ error: 'Invalid ObjectId format' });
+    }
+
+    // dynamically pick model
+    const SenderModel = senderModel === 'AdminUser' ? require('../module/adminUser') : User;
+    const ReceiverModel = receiverModel === 'AdminUser' ? require('../module/adminUser') : User;
+
+    const senderUser = await SenderModel.findById(sender);
+    const receiverUser = await ReceiverModel.findById(receiver);
+
+    if (!senderUser || !receiverUser) {
+      return res.status(404).json({ error: 'Sender or receiver not found' });
+    }
+
+    let message = new Message({
+      sender,
+      senderModel,
+      receiver,
+      receiverModel,
+      content,
+    });
+
+    message = await message.save();
+    message = await Message.findById(message._id)
+      .populate('sender', 'userName _id')
+      .populate('receiver', 'userName _id');
+
+    
+    if (getIO()) {
+      getIO().emit('receiveMessage', { type: 'newMessage', message });
+    }
+    
+
+    res.status(201).json(message);
+  } catch (error) {
+    console.error('Error creating message:', error);
+    next(error);
   }
-  if (!content) {
-    return response.status(400).json({error: 'Content is required'})
-  }
-  if (!receiver) {
-    return response.status(400).json({error: 'Receiver objectId is required'})
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(sender)) {
-    return response.status(400).json({ error: 'Invalid Sender ObjectId format' });
-  }
-
-
-    if (!mongoose.Types.ObjectId.isValid(receiver)) {
-    return response.status(400).json({ error: 'Invalid Receiver ObjectId format' });
-  }
-
-const normalizedsender = sender.trim().replace(/\s\s+/g, ' ');
-  const normalizedreceiver = receiver.trim().replace(/\s\s+/g, ' ');
-
-const senderUser = await User.findById(normalizedsender);
-const receiverUser = await User.findById(normalizedreceiver);
-
-
-  if (!senderUser) {
-    return response.status(404).json({ error: `Sender with username '${sender}' not found.` });
-  }
-
-  if (!receiverUser) {
-    return response.status(404).json({ error: `Receiver with username '${receiver}' not found.` });
-  }
-
- const message = new Message({
- sender: senderUser._id,
- receiver: receiverUser._id,
- content,
- createdAt
-  });
-
-let savedMessage = await message.save();
-
-savedMessage = await Message.findById(savedMessage._id)
-  .populate('sender', 'userName _id')
-  .populate('receiver', 'userName _id');
-
- if (getIO()) {
-  getIO().emit('receiveMessage', {
-    type: 'newMessage',
-    message: savedMessage,
-  })
-
-} else {
-  console.error("Socket.io is not initialized. Cannot emit new message.");
-}
-
-response.status(201).json(savedMessage);
-}
-catch (error) {
-  next(error);
-  if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message });
-}
-console.error('Error creating message:', error)
-next(error);
-return;
-}
-})
+});
 
 module.exports = messagesRouter;

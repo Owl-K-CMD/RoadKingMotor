@@ -3,6 +3,9 @@ require('dotenv').config()
 const PORT = process.env.PORT;
 const MONGODB_URI = process.env.MONGODB_URI;
 
+const ADMIN_LOGIN_PASSWORD=process.env.ADMIN_LOGIN_PASSWORD;
+const ADMIN_LOGIN_NAME=process.env.ADMIN_LOGIN_NAME;
+
 const SECRET_KEY =process.env.SECRET_KEY;
 const REFRESH_TOKEN_SECRET =process.env.REFRESH_TOKEN_SECRET;
 
@@ -21,6 +24,8 @@ const SOCKET_URL = process.env.SOCKET_URL;
 module.exports = { 
    PORT, 
    MONGODB_URI,
+   ADMIN_LOGIN_PASSWORD,
+   ADMIN_LOGIN_NAME,
    SECRET_KEY,
    REFRESH_TOKEN_SECRET,
    AWS_BUCKET_NAME,

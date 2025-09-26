@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import motoract from './cars'
 import style from './module/style.module.css'
 import Message from './message.jsx'
@@ -51,7 +51,9 @@ const App = () => {
   const [isFilterCarBrandVisible, setIsFilterCarBrandVisible] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const [customCars, setCustomCars] = useState([])
+  const [messages, setMessages] = useState([]);
   const [customCarBuble, setCustomCarBuble] = useState(false)
+  const socketRef = useRef(null);
 
 
     useEffect(() => {
@@ -87,15 +89,15 @@ const App = () => {
     try{
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('currentUser');
-    let socket;
+
     if (token && user) {
       setCurrentUser(JSON.parse(user));
 }
 if (user) {
       const userId = JSON.parse(user)?.id;
       const socketUrl= import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
-
-      socket = io(socketUrl, {
+      
+      socketRef.current = io(socketUrl, {
         auth: {
         userId: userId,
         token: token,
@@ -104,7 +106,7 @@ if (user) {
           withCredentials: true,
       });
 
-  socket.on('receiveMessage', (data) => { 
+  socketRef.current.on('receiveMessage', (data) => { 
       console.log("receiveNessage event trigered:", data)
         const message = data.message || 'New message!';
           const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
@@ -114,10 +116,11 @@ if (user) {
           });
           setUnreadMessagesCount(prevCount => prevCount + 1);
         }
+          setMessages(prev => [...prev, data]);
           setLastMessageTime(new Date());
       });
 
-    socket.on('newComment', (data) => {
+    socketRef.current.on('newComment', (data) => {
       console.log('New comment received:',data);
       setNewCommentsCount((prevCount) => prevCount + 1);
       toast.info('New comment posted!', {
@@ -130,14 +133,14 @@ if (user) {
       });
     });
 
-socket.on('newCustomCar', (data) => {
+socketRef.current.on('newCustomCar', (data) => {
   console.log('new custom car received:', data)
   toast.info('New custom car request received!', {
     position: 'top-right',
   });
 })
 
-socket.on('updateCustomCar', (updatedCustomCar) => {
+socketRef.current.on('updateCustomCar', (updatedCustomCar) => {
   setCustomCarBuble(true);
   setCustomCars(prevCars => {
     return prevCars.map(customCar => {
@@ -154,7 +157,7 @@ socket.on('updateCustomCar', (updatedCustomCar) => {
 })
 
 
-    socket.on('receiveNotification', (data) => {
+    socketRef.current.on('receiveNotification', (data) => {
     console.log('Notification received:', data);
     toast.info(data.message, {
     position: 'top',
@@ -182,6 +185,13 @@ socket.on('updateCustomCar', (updatedCustomCar) => {
       localStorage.removeItem('refreshToken');
       setCurrentUser(null);
       setCartItems([]);
+    }
+
+    return () => {
+      if (socketRef.current) {
+        console.log('Disconnecting socket on cleanup');
+        socketRef.current.disconnect();
+      }
     }
  }, [])
 
@@ -491,6 +501,11 @@ useEffect(() => {
   const ids = parseCsvParam('comments');
   setCommentSectionCarIds(ids);
 }, [searchParams]);
+
+const handleNewMessage = useCallback(() => {
+  console.log('onNewMessage callback triggered!');
+  setUnreadMessagesCount(prev => prev + 1);
+}, []); // Empty dependency array ensures this function is created only once.
 
 
 
@@ -905,10 +920,12 @@ id="starBustOval"
       <div className={style.chatContainer}>
         <Message 
         targetName={chatConfig.targetName}
-        onClose={handleCloseChat}
-        onNewMessage={() => {
-        console.log('onNewMessage callback triggered!')
-        setUnreadMessagesCount(prev => prev + 1)}}
+        onClose={handleCloseChat} 
+        onNewMessage={handleNewMessage}
+        messages={messages}
+        setMessages={setMessages}
+        socket={socketRef.current}
+
 
         unreadMessagesCount={unreadMessagesCount}
         setUnreadMessagesCount={setUnreadMessagesCount}

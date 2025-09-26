@@ -1,14 +1,14 @@
-import axios from 'axios'
+import apiClient from './apiClient'
 
-const messageUrl = `${import.meta.env.VITE_API_BASE_URL || ''}/api/messages`
+const messageUrl = `/api/messages`
 
 
 const getMessage = async() => {
- const response =  await axios.get(messageUrl)
+ const response =  await apiClient.get(messageUrl)
  return response.data
 }
 const createMessage = async (message) => {
-  const response = await axios.post(messageUrl, message)
+  const response = await apiClient.post(messageUrl, message)
   return response.data
 }
 

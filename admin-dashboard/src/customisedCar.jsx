@@ -7,8 +7,6 @@ const CustomisedCar = ({ onClose, customCars, setCustomCars }) => {
   const [error, setError] = useState(null)
   const [selectedCar, setSelectedCar] = useState(null)
 
-  const token = 'admin'
-
   const processUserObject = (userObj) => {
     if (userObj && typeof userObj === 'object' && typeof userObj.id !=='undefined' && typeof userObj._id === 'undefined') {
       return {...userObj, _id: userObj.id }
@@ -39,7 +37,7 @@ const CustomisedCar = ({ onClose, customCars, setCustomCars }) => {
 
   const updateCarTracks = async (id, tracks) => {
     try {
-      const updatedCar = await customCarAct.updateCustomCar(id, tracks, token)
+      const updatedCar = await customCarAct.updateCustomCar(id, tracks)
       setCustomCars(prevCars => {
         return prevCars.map(car => (car.id === id ? { ...car, tracks: tracks } : car));
       });

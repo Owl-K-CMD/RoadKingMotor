@@ -4,6 +4,8 @@ const config = require('./utils/config.js');
 const Message = require('./module/message');
 const CustomMotor= require('./module/customMotor');
 const jwt = require('jsonwebtoken');
+const User = require('./module/user');
+const AdminUser = require('./module/adminUser');
 const Notification = require('./module/notification');
 
 const SECRET = config.SECRET_KEY;
@@ -63,20 +65,37 @@ const initializeWebSocket = (server) => {
       logger.info(`Message received from ${socket.id}: ${JSON.stringify(message)}`);
 
       try {
+        const senderDoc = await User.findById(message.sender) || await AdminUser.findById(message.sender);
+        if (!senderDoc) {
+          throw new Error(`Sender with ID ${message.sender} not found`);
+        }
+        const senderModel = senderDoc.constructor.modelName;
+
+        const receiverDoc = await User.findById(message.receiver) || await AdminUser.findById(message.receiver);
+        if (!receiverDoc) {
+          throw new Error(`Receiver with ID ${message.receiver} not found`);
+        }
+        const receiverModel = receiverDoc.constructor.modelName;
+
         const savedMessage = await Message.create({
           sender: message.sender,
+          senderModel: senderModel,
           receiver: message.receiver,
+          receiverModel: receiverModel,
           content: message.content
         });
 
         const populatedMessage = await Message.findById(savedMessage._id)
-          .populate('sender', 'userName _id')
-          .populate('receiver', 'userName _id');
+          .populate('sender', 'userName name _id')
+          .populate('receiver', 'userName name _id');
 
         if (message.receiver && users[message.receiver]) {
           io.to(users[message.receiver]).emit('receiveMessage', populatedMessage);
+          // Also send the message back to the sender so their UI updates
+          socket.emit('receiveMessage', populatedMessage);
         } else {
-          io.emit('receiveMessage', populatedMessage);
+          logger.info(`User ${message.receiver} not found or not connected. Message not sent in real-time.`);
+          socket.emit('receiveMessage', populatedMessage); // Still send back to sender
         }
       } catch (error) {
         logger.error("Error saving message:", error);

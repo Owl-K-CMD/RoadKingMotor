@@ -1,16 +1,15 @@
-
 import { useState, useEffect, useRef } from 'react';
 import messageAct from './messageAxios.js';
 import userAct from './userAxios.js';
 import style from './module/messageStyle.module.css'
 
-const Message = ({ onClose, messages, setMessages }) => {
+const Message = ({ onClose, messages, setMessages, socket }) => {
   const [error, setError] = useState(null);
   const [input, setInput] = useState('');
   const [adminUser, setAdminUser] = useState(null)
   const [selectedUserToReply, setSelectedUserToReply] = useState(null);
   const ADMIN_USERNAME = 'Road King Motor Support'
-  const socket = useRef(null)
+
 
 const processUserObject = (userObj) => {
   if (userObj && typeof userObj === 'object' && typeof userObj.id !=='undefined' && typeof userObj._id === 'undefined') {
@@ -89,14 +88,24 @@ useEffect(() => {
       return;
     }
 
+    //const messagePayload = {
+      //sender: adminUser._id,
+      //receiver: selectedUserToReply._id,
+      //content: input,
+    //};
+
     const messagePayload = {
-      sender: adminUser._id,
-      receiver: selectedUserToReply._id,
-      content: input,
-    };
+  sender: adminUser._id,
+  senderModel: 'AdminUser',
+  receiver: selectedUserToReply._id,
+  receiverModel: 'User',
+  content: input,
+}; 
 
     try {
-      socket.current.emit('sendMessage', messagePayload);
+      // Emit the message via socket. The backend will save it and broadcast it back.
+      socket.emit('sendMessage', messagePayload);
+
       setInput('');
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Failed to send message.';
@@ -109,7 +118,7 @@ return (
   <div className="message-container">
     <div className={style.chatTitle}>
       <h5 style={{ margin: 0, fontWeight: 'bold' }}>
-        {adminUser ? `${adminUser.userName} - Admin Chat` : 'Admin Chat Loading...'}
+        {adminUser ? `${adminUser.name} - Admin Chat` : 'Admin Chat Loading...'}
       </h5>
       {onClose && (
         <button className={style.closeChat}
@@ -200,7 +209,7 @@ const senderDisplayName = canReplyTo ? (msg.sender.userName || `User (${msg.send
                     fontSize: '0.9em'
                   }}
                 >
-                  {adminUser.userName}(you)
+                  {adminUser.name}(you)
                 </strong>
               )}
               <div>{msg.content}</div>
