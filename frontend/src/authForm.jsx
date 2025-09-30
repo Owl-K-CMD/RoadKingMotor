@@ -31,7 +31,20 @@ const AuthForm = ({ onLoginSuccess }) => {
     try {
       setError('');
       setLoading(true);
-      const response = await userAxios.loginGuest();
+      const storedGuest = localStorage.getItem('guestUser');
+      let response;
+
+      if (storedGuest) {
+
+        const guestData = JSON.parse(storedGuest);
+        response = await userAxios.loginUser({ userName: guestData.userName, isGuestLogin: true });
+      } else {
+
+        response = await userAxios.loginGuest();
+
+        localStorage.setItem('guestUser', JSON.stringify(response.user));
+      }
+
       localStorage.setItem('authToken', response.token);
       localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('currentUser', JSON.stringify(response.user));

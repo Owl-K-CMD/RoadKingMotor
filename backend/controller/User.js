@@ -193,7 +193,7 @@ usersRouter.post('/guest', async (request, response, next) => {
 
 
 usersRouter.post('/login', async(request, response, next) => {
-  const { userName, password } = request.body;
+  const { userName, password, isGuestLogin } = request.body;
   console.log(`LOGIN ATTEMPT: User "${userName}"`)
 
   try{
@@ -202,7 +202,7 @@ usersRouter.post('/login', async(request, response, next) => {
       return response.status(400).json({error: 'Username is required'})
     }
 
-    if (!password || typeof password !== 'string') {
+    if (!isGuestLogin && (!password || typeof password !== 'string')) {
       console.log('LOGIN FAIL: password missing');
       return response.status(400).json({error: 'Password is required'})
     }
@@ -215,15 +215,19 @@ usersRouter.post('/login', async(request, response, next) => {
       return response.status(401).json({ error: 'Invalid username or password' });
     }
 
-    if (!user.passwordHash) {
-      console.error(`LOGIN CRiTICAL: User "${normalizedUserName}" (ID: ${user._id}) has no password hash.)`)
-      return response.status(500).json({ error: 'Server error: User account is not configured correctly.'})
-    }
-    const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
+    // For guest re-login, we skip password checks.
+    // For regular users, we perform password validation.
+    if (!isGuestLogin) {
+      if (!user.passwordHash) {
+        console.error(`LOGIN CRITICAL: User "${normalizedUserName}" (ID: ${user._id}) has no password hash.)`)
+        return response.status(500).json({ error: 'Server error: User account is not configured correctly.'})
+      }
+      const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
 
-    if (!passwordCorrect) {
-      console.log(`LOGIN FAIL: Password incorrect for user "${normalizedUserName}".`);
-      return response.status(401).json({ error: 'Invalid username or password' });
+      if (!passwordCorrect) {
+        console.log(`LOGIN FAIL: Password incorrect for user "${normalizedUserName}".`);
+        return response.status(401).json({ error: 'Invalid username or password' });
+      }
     }
 
         const isAdminPanelLogin = request.body.isAdminPanel === true;
@@ -272,7 +276,8 @@ usersRouter.post('/login', async(request, response, next) => {
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin,
+        isGuest: user.isGuest
 
       }
     })

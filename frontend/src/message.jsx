@@ -2,18 +2,17 @@ import { useEffect, useState, useRef } from 'react';
 import messageAct from './messageAxios';
 import userAct from './userAxios.js';
 import style from './module/styleMessage.module.css';
-import io from 'socket.io-client';
 
 
-const Message = ({ targetName, onClose, onNewMessage, messages, setMessages, socket }) => {
+
+const Message = ({ targetName, onClose, messages, setMessages, socket }) => {
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
   const [nameConfirmed, setNameConfirmed] = useState(false);
   const [user, setUser] = useState(null);
   const [supportUser, setSupportUser] = useState(null)
-  const [socketStatus, setSocketStatus] = useState('connecting');
-  
-  //const socket = useRef(null);
+
+
   const messagesEndRef = useRef(null);
 
   const processUserObject = (userObj) => {
@@ -23,14 +22,6 @@ const Message = ({ targetName, onClose, onNewMessage, messages, setMessages, soc
   return userObj;
 }
 
-
-  const processedUserResponse = (userData) => {
-    if (userData && typeof userData === 'object' && typeof userData.id !== 'undefined' && typeof userData._id === 'undefined') {
-      return {...userData, _id: userData.id}
-    }
-    return userData;
-  }
-
 useEffect(() => {
   const token = localStorage.getItem('authToken');
   const storedUser = localStorage.getItem('currentUser');
@@ -38,7 +29,7 @@ useEffect(() => {
   if (token && storedUser) {
     try {
       const parsedUser = JSON.parse(storedUser);
-      const processedUser = processedUserResponse(parsedUser);
+      const processedUser = processUserObject(parsedUser);
       if (processedUser && processedUser.id) {
         setUser(processedUser);
         setNameConfirmed(true);
@@ -51,44 +42,27 @@ useEffect(() => {
   
 }, [])
 
-const processUserResponse = (userData) => {
- if (userData && typeof userData === 'object' && typeof userData.id !== 'undefined' && typeof userData._id === 'undefined') {
-    return { ...userData, _id: userData.id }
-  }
-  return userData;
-}
-
 useEffect(() => {
   let isMounted = true;
-  const fetchSupportAndMessages = async () => {
+  const fetchSupportUser = async () => {
     try {
-      const rawSupport = await userAct.getUserByUserName(targetName);
-      const processedSupport = processUserResponse(rawSupport);
-      if (isMounted && processedSupport?._id) {
-        setSupportUser(processedSupport);
-        console.log("Support user details:", processedSupport);
-        const rawMessages = await messageAct.getAllMessages();
-        if (isMounted && Array.isArray(rawMessages)) {
-          const processedMessages = rawMessages.map((msg) => ({
-            ...msg,
-            sender: processUserResponse(msg.sender),
-            receiver: processUserResponse(msg.receiver),
-          }));
-          setMessages(processedMessages);
-        }
+      const rawSupportUser = await userAct.getUserByUserName(targetName);
+      const processedSupportUser = processUserObject(rawSupportUser);
+      if (isMounted && processedSupportUser?._id) {
+        setSupportUser(processedSupportUser);
       } else if (isMounted) {
         setError(`Support user "${targetName}" not found.`);
       }
     } catch (error) {
-      console.error("Error fetching support/messages:", error);
-      if (isMounted) setError("Failed to load chat details.");
+      console.error("Error fetching support user:", error);
+      if (isMounted) setError("Failed to load support user details.");
     }
   };
-  if (targetName && nameConfirmed && user?._id) {
-    fetchSupportAndMessages();
+  if (targetName) {
+    fetchSupportUser();
   }
   return () => { isMounted = false; };
-}, [targetName, nameConfirmed, user?._id, setMessages]);
+}, []);
 
 
 const scrollToBottom = () => {
@@ -116,24 +90,22 @@ useEffect(() => {
         return;
       }
 
-const messagePayload = {
-  sender: user._id,
+const messagePayload = {  
+  sender: user.id,
   senderModel: 'User',
-  receiver: supportUser._id,
+  receiver: supportUser.id,
   receiverModel: 'AdminUser',
   content: input,
 };
+  
     try {
-      setError(null);
-
-      //await messageAct.createMessage(messagePayload)
-      
+      // The server will save the message and broadcast it back to us.
       socket.emit('sendMessage', messagePayload);
-      
-      setInput('');
+      setInput("");
+      setError(null);
     } catch (error) {
       console.error("Error sending message:", error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to send message.';
+      const errorMessage = 'Failed to send message. Please try again.';
       setError(errorMessage);
     }
   };
@@ -169,7 +141,6 @@ const messagePayload = {
 
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      {socketStatus === 'error' && <p style={{ color: 'red' }}>Failed to connect to chat service. Please try again later.</p>}
       </div>
 
       {nameConfirmed && (
@@ -227,7 +198,8 @@ const messagePayload = {
               }}
             />
 
-            <button className={style.sendButton} onClick={sendMessage} disabled={!input.trim() || !user || !supportUser}>Send</button>
+            <button className={style.sendButton} 
+            onClick={sendMessage} disabled={!input.trim() || !user || !supportUser}>Send</button>
           </div>
         </div>
       )}

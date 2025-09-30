@@ -103,10 +103,9 @@ useEffect(() => {
 }; 
 
     try {
-      // Emit the message via socket. The backend will save it and broadcast it back.
       socket.emit('sendMessage', messagePayload);
-
       setInput('');
+      setError(null);
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Failed to send message.';
       console.error("Error sending message:", error);

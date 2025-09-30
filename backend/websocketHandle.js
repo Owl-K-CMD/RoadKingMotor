@@ -65,23 +65,11 @@ const initializeWebSocket = (server) => {
       logger.info(`Message received from ${socket.id}: ${JSON.stringify(message)}`);
 
       try {
-        const senderDoc = await User.findById(message.sender) || await AdminUser.findById(message.sender);
-        if (!senderDoc) {
-          throw new Error(`Sender with ID ${message.sender} not found`);
-        }
-        const senderModel = senderDoc.constructor.modelName;
-
-        const receiverDoc = await User.findById(message.receiver) || await AdminUser.findById(message.receiver);
-        if (!receiverDoc) {
-          throw new Error(`Receiver with ID ${message.receiver} not found`);
-        }
-        const receiverModel = receiverDoc.constructor.modelName;
-
         const savedMessage = await Message.create({
           sender: message.sender,
-          senderModel: senderModel,
+          senderModel: message.senderModel,
           receiver: message.receiver,
-          receiverModel: receiverModel,
+          receiverModel: message.receiverModel,
           content: message.content
         });
 
@@ -90,15 +78,17 @@ const initializeWebSocket = (server) => {
           .populate('receiver', 'userName name _id');
 
         if (message.receiver && users[message.receiver]) {
-          io.to(users[message.receiver]).emit('receiveMessage', populatedMessage);
+          // Emit the fully populated message
+          io.to(users[message.receiver]).emit('receiveMessage', { type: 'newMessage', message: populatedMessage });
           // Also send the message back to the sender so their UI updates
-          socket.emit('receiveMessage', populatedMessage);
+          socket.emit('receiveMessage', { type: 'newMessage', message: populatedMessage });
         } else {
           logger.info(`User ${message.receiver} not found or not connected. Message not sent in real-time.`);
-          socket.emit('receiveMessage', populatedMessage); // Still send back to sender
+          // Still send back to sender so their UI updates
+          socket.emit('receiveMessage', { type: 'newMessage', message: populatedMessage });
         }
       } catch (error) {
-        logger.error("Error saving message:", error);
+        logger.error("Error saving or sending message:", error);
       }
     });
 

@@ -14,6 +14,7 @@ import CommentsList from './commentdisplay.jsx'
 import CarDetailModal from './carDetailsModals.jsx'
 import io from 'socket.io-client';
 import { toast } from 'react-toastify';
+import messageAct from './messageAxios.js';
 import { initSocket } from './socket.js'
 
 
@@ -53,8 +54,14 @@ const App = () => {
   const [customCars, setCustomCars] = useState([])
   const [messages, setMessages] = useState([]);
   const [customCarBuble, setCustomCarBuble] = useState(false)
-  const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
 
+    const processUserObject = (userObj) => {
+    if (userObj && typeof userObj === 'object' && typeof userObj.id !=='undefined' && typeof userObj._id === 'undefined') {
+      return {...userObj, _id: userObj.id }
+    }
+    return userObj;
+  }
 
     useEffect(() => {
     if (!searchParams.get('car') && !searchParams.get('model')) {
@@ -83,117 +90,119 @@ const App = () => {
     useEffect(() => {
       initSocket();
     }, [])
-  
 
   useEffect(() => {
-    try{
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('currentUser');
-
-    if (token && user) {
-      setCurrentUser(JSON.parse(user));
-}
-if (user) {
-      const userId = JSON.parse(user)?.id;
-      const socketUrl= import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
-      
-      socketRef.current = io(socketUrl, {
-        auth: {
-        userId: userId,
-        token: token,
-        },
-        transports: ['websocket'],
-          withCredentials: true,
-      });
-
-  socketRef.current.on('receiveMessage', (data) => { 
-      console.log("receiveNessage event trigered:", data)
-        const message = data.message || 'New message!';
-          const receiverId = JSON.parse(localStorage.getItem('currentUser'))?.id;
-      if (data?.receiver?.id === receiverId) {
-            toast.info(message, {
-            position: 'top-right',
-          });
-          setUnreadMessagesCount(prevCount => prevCount + 1);
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setCurrentUser(processUserObject(user));
+        const token = localStorage.getItem('authToken');
+        if (user.id && token) {
+          cartAxios.getCart(user.id)
+            .then(response => {
+              setCartItems(response.data);
+            })
+            .catch(error => console.error("Error fetching cart on initial load:", error));
         }
-          setMessages(prev => [...prev, data]);
-          setLastMessageTime(new Date());
-      });
-
-    socketRef.current.on('newComment', (data) => {
-      console.log('New comment received:',data);
-      setNewCommentsCount((prevCount) => prevCount + 1);
-      toast.info('New comment posted!', {
-        position: 'center',
-        autoClose: 13000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    });
-
-socketRef.current.on('newCustomCar', (data) => {
-  console.log('new custom car received:', data)
-  toast.info('New custom car request received!', {
-    position: 'top-right',
-  });
-})
-
-socketRef.current.on('updateCustomCar', (updatedCustomCar) => {
-  setCustomCarBuble(true);
-  setCustomCars(prevCars => {
-    return prevCars.map(customCar => {
-      if (customCar.id === updatedCustomCar.id) {
-        return { ...customCar, tracks: updatedCustomCar.tracks };
-      }
-      return customCar;
-    })
-  })
-  toast.info(`Custom car with ID ${updatedCustomCar.id} has been updated!`, {
-    position: 'top-right',
-  });
-  
-})
-
-
-    socketRef.current.on('receiveNotification', (data) => {
-    console.log('Notification received:', data);
-    toast.info(data.message, {
-    position: 'top',
-});
-
-
-    const newNotification = { type: data.type || 'notification', text: data.message, time: new Date() };
-    console.log('New notification object:', newNotification);
-
-    setNotifications(prev => [
-      ...prev,
-      { type: data.type || 'notification', text: data.message, time: new Date() }
-    ]);
-  });
-      cartAxios.getCart(userId)
-        .then(response => {
-          setCartItems(response.data);
-        })
-        .catch(error => console.error("Error fetching cart on initial load:", error));
       }
     } catch (error) {
-      console.error("Error initialing app state from localStorage:", error);
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('refreshToken');
-      setCurrentUser(null);
-      setCartItems([]);
+      console.error("Error initializing app state from localStorage:", error);
+      handleLogout();
     }
+  }, []);
 
-    return () => {
-      if (socketRef.current) {
+  useEffect(() => {
+    if (currentUser && currentUser.id) {
+      const token = localStorage.getItem('authToken');
+      const socketUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const newSocket = io(socketUrl, {
+        auth: {
+          userId: currentUser.id,
+          token: token,
+        },
+        transports: ['websocket'],
+        withCredentials: true,
+      });
+
+      setSocket(newSocket);
+
+      newSocket.on('receiveMessage', (data) => {
+        console.log("receiveMessage event triggered:", data);
+        const message = data.message;
+
+        const processedMessage = {
+          ...message,
+          sender: processUserObject(message.sender),
+          receiver: processUserObject(message.receiver),
+        };
+
+        if (processedMessage?.receiver?._id === currentUser._id) {
+          toast.info(processedMessage.content || 'New message!', { position: 'top-right' });
+          setUnreadMessagesCount(prevCount => prevCount + 1);
+        }
+
+        setMessages(prev => [...prev, processedMessage]);
+        setLastMessageTime(new Date());
+      });
+
+      newSocket.on('newComment', (data) => {
+        console.log('New comment received:', data);
+        setNewCommentsCount((prevCount) => prevCount + 1);
+        toast.info('New comment posted!', {
+          position: 'center',
+          autoClose: 13000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      });
+
+      newSocket.on('newCustomCar', (data) => {
+        console.log('new custom car received:', data);
+        toast.info('New custom car request received!', {
+          position: 'top-right',
+        });
+      });
+
+      newSocket.on('updateCustomCar', (updatedCustomCar) => {
+        setCustomCarBuble(true);
+        setCustomCars(prevCars => {
+          return prevCars.map(customCar => {
+            if (customCar.id === updatedCustomCar.id) {
+              return { ...customCar, tracks: updatedCustomCar.tracks };
+            }
+            return customCar;
+          });
+        });
+        toast.info(`Custom car with ID ${updatedCustomCar.id} has been updated!`, {
+          position: 'top-right',
+        });
+      });
+
+      newSocket.on('receiveNotification', (data) => {
+        console.log('Notification received:', data);
+        toast.info(data.message, { position: 'top' });
+        const newNotification = { type: data.type || 'notification', text: data.message, time: new Date() };
+        console.log('New notification object:', newNotification);
+        setNotifications(prev => [
+          ...prev,
+          { type: data.type || 'notification', text: data.message, time: new Date() }
+        ]);
+      });
+
+      return () => {
         console.log('Disconnecting socket on cleanup');
-        socketRef.current.disconnect();
-      }
+        newSocket.disconnect();
+        setSocket(null);
+      };
+    } else {
+        if (socket) {
+          socket.disconnect();
+        }
     }
- }, [])
+  }, [currentUser]);
 
 
    useEffect(() => {
@@ -286,6 +295,7 @@ const handleCloseChat = () => {
   params.delete('chat');
   setSearchParams(params, { replace: false });
   setIsChatVisible(false);
+  setMessages([]); // Clear messages when chat is closed
   setChatTargetCar(null)
   setChatConfig(null)
   setUnreadMessagesCount(0);
@@ -294,13 +304,25 @@ const handleCloseChat = () => {
 useEffect(() => {
   const chatParam = searchParams.get('chat');
   if (chatParam) {
-    // if chatParam is a car id, try to match car; otherwise open generic chat
     const car = cars.find(c => String(c.id) === chatParam);
+    // Fetch messages when chat is opened
+    messageAct.getAllMessages()
+      .then(initialMessages => {
+        if (Array.isArray(initialMessages)) {
+          const processedMessages = initialMessages.map(msg => ({
+            ...msg,
+            sender: processUserObject(msg.sender),
+            receiver: processUserObject(msg.receiver),
+          }));
+          setMessages(processedMessages);
+        }
+      })
+      .catch(error => console.error("Error fetching initial messages:", error));
+
     if (car) {
       setChatTargetCar(car);
       setIsChatVisible(true);
     } else {
-      // open generic chat
       setIsChatVisible(true);
     }
   } else {
@@ -363,12 +385,11 @@ const handleAddToCart = (car) => {
 }
 
 const handleLoginSuccess = (userData) => {
-  setCurrentUser(userData);
+  setCurrentUser(processUserObject(userData));
   setIsLoginVisible(false);
   const params = new URLSearchParams(searchParams);
   params.delete('auth');
   setSearchParams(params, { replace: false });
-
 
   if (pendingChatAction && pendingChatAction.open) {
     handleOpenChat(pendingChatAction.carContext);
@@ -384,17 +405,26 @@ const handleLoginSuccess = (userData) => {
 
 const handleLogout = () => {
   console.log("Executing handleLogout: Clearing session.");
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+
   localStorage.removeItem('authToken');
-  localStorage.removeItem('currentUser');
   localStorage.removeItem('refreshToken');
-  
+
+  if (user && !user.isGuest) {
+    localStorage.removeItem('currentUser');
+  }
+
+  if (user && user.isGuest) {
+    localStorage.removeItem('currentUser');
+  }
+
   const params = new URLSearchParams(searchParams);
   params.delete('auth');
   setSearchParams(params, { replace: false });
   setIsLoginVisible(false);
   setCurrentUser(null);
-  setCartItems([])
-}
+  setCartItems([]);
+};
 
 const handleToggleComments = (event, carId) => {
   event.preventDefault();
@@ -454,7 +484,7 @@ const sortedCars = [...filtercar].sort((a, b) => {
 const parseCsvParam = (key) => {
   const val = searchParams.get(key);
   if (!val) return [];
-  return val.split(',').filter(Boolean); // returns array of strings
+  return val.split(',').filter(Boolean);
 };
 
 const setCsvParam = (key, arr, { replace = true } = {}) => {
@@ -501,13 +531,6 @@ useEffect(() => {
   const ids = parseCsvParam('comments');
   setCommentSectionCarIds(ids);
 }, [searchParams]);
-
-const handleNewMessage = useCallback(() => {
-  console.log('onNewMessage callback triggered!');
-  setUnreadMessagesCount(prev => prev + 1);
-}, []); // Empty dependency array ensures this function is created only once.
-
-
 
 return (
   <div>
@@ -611,15 +634,6 @@ onClick={toggleNotificationVisibility}>
   </div>
   </div>
 
-  {/*isLoginVisible && !currentUser && (
-    <div className={style.authFormContainer}>
-      <button onClick={handleUseLoggedIn} className={style.closebutton}>
-        Close
-      </button>
-      <AuthForm onLoginSuccess={handleLoginSuccess} onClose={handleUseLoggedIn} />
-    </div>
-  )
-  */}
   <div className={style.secondTitlePhone}>
     <button onClick={handleBrand}>Brand</button>
     {isFilterCarBrandVisible && (
@@ -734,7 +748,7 @@ onClick={toggleNotificationVisibility}>
         const currentImageIndex = currentImageIndices[car.id] || 0; 
         const isExpanded = expandedCarIds.includes(car.id);
 
-              let rawFirstImageUrl = null;
+          let rawFirstImageUrl = null;
 
         if (Array.isArray(car.images) && car.images.length > 0 && typeof car.images[0] === 'string' && car.images[0].trim() !== '') {
           rawFirstImageUrl = car.images[0].trim();
@@ -747,7 +761,6 @@ onClick={toggleNotificationVisibility}>
     <div key={car.id} className={style.carproparty}
       onClick={() => {
       setSelectedCar(car);
-      //navigate(`?car=${car.id}&model=${car.model}`)
       const params = new URLSearchParams(searchParams);
       params.set('car', car.id);
       params.set('model', car.model);
@@ -921,14 +934,9 @@ id="starBustOval"
         <Message 
         targetName={chatConfig.targetName}
         onClose={handleCloseChat} 
-        onNewMessage={handleNewMessage}
         messages={messages}
         setMessages={setMessages}
-        socket={socketRef.current}
-
-
-        unreadMessagesCount={unreadMessagesCount}
-        setUnreadMessagesCount={setUnreadMessagesCount}
+        socket={socket}
         />
       </div>
     )}

@@ -24,24 +24,23 @@ messagesRouter.post('/', async (req, res, next) => {
   const { sender, senderModel, receiver, receiverModel, content } = req.body;
 
   try {
-    if (!sender || !receiver || !content) {
-      return res.status(400).json({ error: 'Sender, receiver and content are required' });
-    }
 
     if (!['User', 'AdminUser'].includes(senderModel) || !['User', 'AdminUser'].includes(receiverModel)) {
       return res.status(400).json({ error: 'Invalid senderModel or receiverModel' });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(sender) || !mongoose.Types.ObjectId.isValid(receiver)) {
+    const senderId = typeof sender === 'object' && sender !== null ? sender._id : sender;
+    const receiverId = typeof receiver === 'object' && receiver !== null ? receiver._id : receiver;
+
+    if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
       return res.status(400).json({ error: 'Invalid ObjectId format' });
     }
 
-    // dynamically pick model
     const SenderModel = senderModel === 'AdminUser' ? require('../module/adminUser') : User;
     const ReceiverModel = receiverModel === 'AdminUser' ? require('../module/adminUser') : User;
 
-    const senderUser = await SenderModel.findById(sender);
-    const receiverUser = await ReceiverModel.findById(receiver);
+    const senderUser = await SenderModel.findById(senderId);
+    const receiverUser = await ReceiverModel.findById(receiverId);
 
     if (!senderUser || !receiverUser) {
       return res.status(404).json({ error: 'Sender or receiver not found' });

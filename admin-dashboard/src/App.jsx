@@ -38,7 +38,6 @@ const App = () => {
   const [unReadMessageCount, setUnReadMessageCount] = useState(0)
   const [unReadCustomCarCount, setUnReadCustomCarCount] = useState(0)
   const [customCars, setCustomCars] = useState([]);
-
   const [messages, setMessages] = useState([]);
   const userId = adminUser?.id;
   const ADMIN_USERNAME = 'Road King Motor Support'
@@ -111,7 +110,7 @@ const App = () => {
 
       socket.current.on('receiveMessage', (data) => {
         console.log("receiveMessage event triggered:", data);
-        setMessages(prevMessages => [...prevMessages, processUserObject(data)]);
+        setMessages(prevMessages => [...prevMessages, data.message]);
         setUnReadMessageCount(prevCount => prevCount + 1);
       });
 
@@ -214,7 +213,7 @@ return (
       ) : (
         <>
       <h1 className={style.title}>Road king motor admin dashboard </h1>
-<h2>{currentUser.name} {/*<button onClick={handleLogout}>logout</button>*/}</h2>
+<h2>{currentUser.name} <button onClick={handleLogout}>logout</button></h2>
 <div className={style.navbar}>
 <button className={style.chatbutton} onClick={() => handleOpenChat(cars)}>
 Message
